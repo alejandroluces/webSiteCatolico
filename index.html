@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Luz de Fe - Portal católico para evangelizar, formar e inspirar. Evangelio del día, oraciones, santos, novenas y contenido espiritual." />
+    <meta name="keywords" content="católico, evangelio, oraciones, santos, novenas, fe, espiritualidad, religión" />
+    <meta name="author" content="Luz de Fe" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://luzdefe.com/" />
+    <meta property="og:title" content="Luz de Fe - Portal Católico de Evangelización" />
+    <meta property="og:description" content="Encuentra paz y fortaleza espiritual con nuestro contenido católico diario: evangelio, santos, oraciones y reflexiones." />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://luzdefe.com/" />
+    <meta property="twitter:title" content="Luz de Fe - Portal Católico de Evangelización" />
+    <meta property="twitter:description" content="Encuentra paz y fortaleza espiritual con nuestro contenido católico diario: evangelio, santos, oraciones y reflexiones." />
+    
+    <title>Luz de Fe - Portal Católico de Evangelización y Espiritualidad</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+      /* Prevenir flash de contenido sin estilo */
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      /* Loading fallback */
+      .loading-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        font-family: Inter, sans-serif;
+        background: #f8fafc;
+      }
+      
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e2e8f0;
+        border-top: 4px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <!-- Fallback loading mientras carga React -->
+      <div class="loading-fallback">
+        <div>
+          <div class="loading-spinner"></div>
+          <p style="margin-top: 16px; color: #64748b;">Cargando Luz de Fe...</p>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

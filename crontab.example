@@ -1,0 +1,23 @@
+# Crontab para automatización de Luz de Fe
+# Editar con: crontab -e
+
+# Publicación diaria a las 6:00 AM
+0 6 * * * cd /path/to/luz-de-fe && npm run content:publish >> /var/log/luz-de-fe/publish.log 2>&1
+
+# Verificación de contenido faltante cada 4 horas
+0 */4 * * * cd /path/to/luz-de-fe && npm run content:check 7 >> /var/log/luz-de-fe/check.log 2>&1
+
+# Reporte diario a las 7:00 AM
+0 7 * * * cd /path/to/luz-de-fe && npm run content:report >> /var/log/luz-de-fe/report.log 2>&1
+
+# Reporte semanal los lunes a las 8:00 AM
+0 8 * * 1 cd /path/to/luz-de-fe && npm run content:report --full >> /var/log/luz-de-fe/weekly-report.log 2>&1
+
+# Backup diario a las 2:00 AM
+0 2 * * * cd /path/to/luz-de-fe && npm run backup:create >> /var/log/luz-de-fe/backup.log 2>&1
+
+# Limpiar sesiones expiradas cada 6 horas
+0 */6 * * * cd /path/to/luz-de-fe && node -e "import('./src/services/databaseManager.js').then(m => m.databaseManager.cleanupExpiredSessions())" >> /var/log/luz-de-fe/cleanup.log 2>&1
+
+# Generar métricas diarias a las 23:55
+55 23 * * * cd /path/to/luz-de-fe && node -e "import('./src/services/databaseManager.js').then(m => m.databaseManager.generateDailyMetrics())" >> /var/log/luz-de-fe/metrics.log 2>&1
