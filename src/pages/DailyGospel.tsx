@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import panesImage from '../images/panes.jpg'; // Asegúrate de que la ruta sea correcta
 import { BookOpen, Calendar, Share2, Heart, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useDailyContent } from '../hooks/useDailyContent';
 
