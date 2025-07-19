@@ -107,7 +107,7 @@ Este evangelio nos invita a:
 
 En un mundo marcado por el individualismo y el consumismo, este evangelio nos recuerda la importancia de la solidaridad y la confianza en la providencia divina.`,
         prayer: `Señor Jesús, que multiplicaste los panes y los peces para alimentar a la multitud, multiplica también nuestros pequeños dones y talentos para que podamos servir a nuestros hermanos. Ayúdanos a compartir generosamente lo que somos y lo que tenemos, confiando en que Tú puedes hacer maravillas con nuestra pobreza. Amén.`,
-        image_url: '/images/gospels/multiplicacion-panes.jpg',
+        image_url: 'images/gospels/multiplicacion-panes.jpg',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         is_active: true

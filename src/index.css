@@ -11,15 +11,14 @@ img {
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Roboto', sans-serif; /* Cambiar a una fuente más moderna */
+  background-color: #1a1a1a; /* Fondo oscuro */
+  color: #f0f0f0; /* Texto claro para mejor contraste */
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Merriweather', serif; /* Fuente para encabezados */
+  color: #ffcc00; /* Color dorado para encabezados */
 }
 
 #root {

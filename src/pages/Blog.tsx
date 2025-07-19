@@ -42,7 +42,7 @@ const Blog: React.FC = () => {
       date: '12 de Enero, 2025',
       category: 'familia',
       readTime: '4 min',
-      image: 'https://images.pexels.com/photos/8815007/pexels-photo-8815007.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop',
+      image: 'https://images.pexels.com/photos/8949967/pexels-photo-8949967.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
       tags: ['familia', 'oración', 'unidad'],
     },
     {
