@@ -21,8 +21,10 @@ const DailyGospel: React.FC = () => {
   const goToPreviousDay = () => {
     const currentDate = selectedDate ? new Date(selectedDate) : new Date();
     currentDate.setDate(currentDate.getDate() - 1);
-    setSelectedDate(currentDate.toISOString().split('T')[0]);
-  };
+    const previousDate = currentDate.toISOString().split('T')[0];
+    setSelectedDate(previousDate);
+    refetch(); // Llamar a refetch para obtener el evangelio de la fecha anterior
+  }
 
   // Navegar a día siguiente
   const goToNextDay = () => {
@@ -123,14 +125,17 @@ const DailyGospel: React.FC = () => {
         {/* Gospel Content */}
         {!isLoading && !error && content && (
           <>
-            {/* Gospel Image */}
+            {/* Gospel Image - CORRECCIÓN AQUÍ */}
             {content.image_url && (
-<div className="mb-8 rounded-xl overflow-hidden shadow-lg">
-    <img 
-        src={content.image_url} 
-        alt={content.title} 
-        className="w-full h-auto object-cover" />
-</div>
+              <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
+                <img 
+                  src={content.image_url}
+                  alt={content.title} 
+                  className="w-full h-auto object-cover"
+                  onLoad={() => console.log(`Image loaded: ${content.image_url}`)}
+                  onError={() => console.error(`Failed to load image: ${content.image_url}`)}
+                />
+              </div>
             )}
             
             {/* Gospel Header */}

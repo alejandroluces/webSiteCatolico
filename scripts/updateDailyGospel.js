@@ -113,9 +113,12 @@ async function getGospelFromExcel(date) {
       if (line.includes('Evangelio del Día')) {
         title = line.replace(/["*]/g, '').trim();
         currentSection = 'title';
-      } else if (line.includes('Lectura del santo evangelio según')) {
+      } else if (line.startsWith('*Evangelio del Día*')) {
+        title = line.replace(/["*]/g, '').trim();
+        currentSection = 'title';
+      } else if (line.startsWith('Mateo') || line.startsWith('Marcos') || line.startsWith('Lucas') || line.startsWith('Juan')) {
         reference = line.trim();
-        currentSection = 'reference';
+        currentSection = 'content';
       } else if (line.includes('Oración de la mañana')) {
         currentSection = 'prayer';
       } else {
