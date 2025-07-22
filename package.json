@@ -22,6 +22,7 @@
     "@supabase/supabase-js": "^2.39.0",
     "concurrently": "^9.2.0",
     "cors": "^2.8.5",
+    "dompurify": "^3.2.6",
     "dotenv": "^16.3.1",
     "exceljs": "^4.4.0",
     "express": "^4.19.2",
@@ -35,6 +36,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
+    "@netlify/functions": "^4.1.14",
+    "@types/dompurify": "^3.0.5",
     "@types/node": "^20.11.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
