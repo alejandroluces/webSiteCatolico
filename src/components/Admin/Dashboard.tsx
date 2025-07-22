@@ -148,7 +148,7 @@ const Dashboard: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Próxima Actualización</p>
                 <p className="text-2xl font-bold text-marian-blue-900 dark:text-white">
-                  1:00 AM
+                  00:00 (medianoche)
                 </p>
               </div>
             </div>
@@ -198,7 +198,7 @@ const Dashboard: React.FC = () => {
           </h3>
           <div className="space-y-4 text-gray-700 dark:text-gray-300">
             <p>
-              El sistema está configurado para sincronizar automáticamente el evangelio del día con Supabase a la 1:00 AM utilizando:
+              El sistema está configurado para sincronizar automáticamente el evangelio del día con Supabase a las 00:00 (medianoche) utilizando:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
               <li>Archivos Excel con formato <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">DDMMYYYY.xlsx</code> en la carpeta <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">public/images/gospels/</code></li>

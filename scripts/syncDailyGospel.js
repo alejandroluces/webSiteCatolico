@@ -380,9 +380,9 @@ async function syncUpcomingGospels(days = 7) {
  * Configura una tarea programada para sincronizar el evangelio diariamente
  */
 function setupCronJob() {
-  console.log('⏰ Configurando tarea programada para sincronizar el evangelio a la 1:00 AM...');
+  console.log('⏰ Configurando tarea programada para sincronizar el evangelio a las 00:00 (medianoche)...');
   
-  cron.schedule('0 1 * * *', async () => {
+  cron.schedule('0 0 * * *', async () => {
     console.log(`\n[${new Date().toISOString()}] Ejecutando sincronización programada del evangelio...`);
     await syncTodayGospel();
   });

@@ -337,12 +337,12 @@ async function updateDailyGospel(date = getTodayDate()) {
 }
 
 /**
- * Configurar tarea programada para actualizar el evangelio a la 1:00 AM
+ * Configurar tarea programada para actualizar el evangelio a las 00:00 (medianoche)
  */
 function setupCronJob() {
-  console.log('⏰ Configurando tarea programada para actualizar el evangelio a la 1:00 AM...');
+  console.log('⏰ Configurando tarea programada para actualizar el evangelio a las 00:00 (medianoche)...');
   
-  cron.schedule('0 1 * * *', async () => {
+  cron.schedule('0 0 * * *', async () => {
     console.log(`\n[${new Date().toISOString()}] Ejecutando actualización programada del evangelio...`);
     await updateDailyGospel();
   });
