@@ -1,45 +1,31 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// Inicializar el cliente de Gemini AI
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(API_KEY);
-
 export class GeminiService {
   /**
    * Genera una reflexión para el evangelio del día
    */
   static async generateGospelReflection(gospelText: string, reference: string, title: string): Promise<string> {
     try {
-      if (!API_KEY) {
-        console.error('Error: No se ha configurado la clave de API de Gemini');
-        return this.getFallbackReflection();
+      const response = await fetch('/.netlify/functions/generate-reflection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'reflection',
+          gospelText,
+          reference,
+          title,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.statusText}`);
       }
-      
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-      
-      const prompt = `
-      Eres un experto en teología católica y espiritualidad cristiana. Escribe una reflexión profunda y significativa sobre el siguiente evangelio:
-      
-      Referencia: ${reference}
-      Título: ${title}
-      Texto: ${gospelText}
-      
-      La reflexión debe:
-      1. Tener entre 300-500 palabras
-      2. Ser fiel a la doctrina católica
-      3. Incluir aplicaciones prácticas para la vida diaria
-      4. Ser inspiradora y motivadora
-      5. Usar un lenguaje accesible pero profundo
-      6. Evitar clichés y generalidades
-      
-      Formato: Párrafos bien estructurados sin encabezados ni conclusiones explícitas.
-      `;
-      
-      const result = await model.generateContent(prompt);
-      return result.response.text();
-      
+
+      const data = await response.json();
+      return data.text;
+
     } catch (error) {
-      console.error('Error al generar reflexión con Gemini:', error);
+      console.error('Error al generar reflexión con la función de Netlify:', error);
       return this.getFallbackReflection();
     }
   }
@@ -49,34 +35,27 @@ export class GeminiService {
    */
   static async generateGospelPrayer(gospelText: string, reference: string): Promise<string> {
     try {
-      if (!API_KEY) {
-        console.error('Error: No se ha configurado la clave de API de Gemini');
-        return this.getFallbackPrayer();
+      const response = await fetch('/.netlify/functions/generate-reflection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'prayer',
+          gospelText,
+          reference,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.statusText}`);
       }
-      
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-      
-      const prompt = `
-      Eres un experto en espiritualidad y oración católica. Escribe una oración hermosa y significativa basada en el siguiente evangelio:
-      
-      Referencia: ${reference}
-      Texto: ${gospelText}
-      
-      La oración debe:
-      1. Tener entre 100-150 palabras
-      2. Ser personal y dirigida a Jesús o a Dios Padre
-      3. Reflejar el mensaje principal del evangelio
-      4. Incluir una petición relacionada con el tema
-      5. Ser poética pero sencilla
-      
-      Formato: Párrafos cortos, sin encabezados ni "Amén" al final.
-      `;
-      
-      const result = await model.generateContent(prompt);
-      return result.response.text();
-      
+
+      const data = await response.json();
+      return data.text;
+
     } catch (error) {
-      console.error('Error al generar oración con Gemini:', error);
+      console.error('Error al generar oración con la función de Netlify:', error);
       return this.getFallbackPrayer();
     }
   }

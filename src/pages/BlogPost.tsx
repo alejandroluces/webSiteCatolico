@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { Calendar, User, ArrowLeft, Share2, BookOpen, Heart, Tag, Clock } from 'lucide-react';
 import AdBanner from '../components/Ads/AdBanner';
 
@@ -168,7 +169,7 @@ const BlogPost: React.FC = () => {
             <div className="prose prose-lg dark:prose-invert max-w-none">
               <div 
                 className="text-gray-800 dark:text-gray-200 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: blogPost.content }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blogPost.content) }}
               />
             </div>
 
