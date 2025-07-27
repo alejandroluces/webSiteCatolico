@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, User, Heart, Calendar, Sparkles, ArrowRight, Quote } from 'lucide-react';
 import GospelWidget from '../components/GospelWidget';
+import { useDailyQuote } from '../hooks/useDailyQuote';
 
 const Home: React.FC = () => {
   const features = [
@@ -49,10 +50,7 @@ const Home: React.FC = () => {
     },
   ];
 
-  const todayQuote = {
-    text: "Confía en el Señor con todo tu corazón y no te apoyes en tu propia inteligencia.",
-    reference: "Proverbios 3:5",
-  };
+  const { quote: todayQuote, isLoading: isQuoteLoading, error: quoteError } = useDailyQuote();
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
@@ -96,16 +94,26 @@ const Home: React.FC = () => {
       {/* Quote of the Day */}
       <section className="py-12 bg-marian-blue-50 dark:bg-gray-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="relative">
-            <Quote className="absolute top-0 left-0 h-8 w-8 text-sacred-gold-400 dark:text-sacred-gold-300 opacity-50 -translate-x-4 -translate-y-4" />
-            <blockquote className="text-2xl md:text-3xl font-serif text-marian-blue-900 dark:text-white italic mb-4">
-              "{todayQuote.text}"
-            </blockquote>
-            <cite className="text-lg text-marian-blue-700 dark:text-gray-300 font-medium">
-              — {todayQuote.reference}
-            </cite>
-            <Quote className="absolute bottom-0 right-0 h-8 w-8 text-sacred-gold-400 dark:text-sacred-gold-300 opacity-50 translate-x-4 translate-y-4 rotate-180" />
-          </div>
+          {isQuoteLoading && (
+            <div className="flex justify-center items-center h-24">
+              <div className="w-8 h-8 border-2 border-marian-blue-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+          {quoteError && !isQuoteLoading && (
+            <div className="text-red-500">{quoteError}</div>
+          )}
+          {todayQuote && !isQuoteLoading && !quoteError && (
+            <div className="relative">
+              <Quote className="absolute top-0 left-0 h-8 w-8 text-sacred-gold-400 dark:text-sacred-gold-300 opacity-50 -translate-x-4 -translate-y-4" />
+              <blockquote className="text-2xl md:text-3xl font-serif text-marian-blue-900 dark:text-white italic mb-4">
+                "{todayQuote.text}"
+              </blockquote>
+              <cite className="text-lg text-marian-blue-700 dark:text-gray-300 font-medium">
+                — {todayQuote.reference}
+              </cite>
+              <Quote className="absolute bottom-0 right-0 h-8 w-8 text-sacred-gold-400 dark:text-sacred-gold-300 opacity-50 translate-x-4 translate-y-4 rotate-180" />
+            </div>
+          )}
         </div>
       </section>
 
