@@ -201,24 +201,25 @@ La invitación de hoy es a renovar nuestra relación con Dios, a profundizar en 
 /**
  * Sincroniza el evangelio para una fecha específica
  */
-async function syncGospelForDate(date) {
+async function syncGospelForDate(date, options = {}) {
   try {
-    console.log(`🔄 Sincronizando evangelio para la fecha: ${date}`);
-    
+    const { force = false, update = false } = options;
+    console.log(`🔄 Sincronizando evangelio para la fecha: ${date} (force: ${force}, update: ${update})`);
+
     // Verificar si Supabase está configurado
     if (!supabase) {
       console.error('❌ Supabase no está configurado. No se puede sincronizar el evangelio.');
       return false;
     }
-    
+
     // 1. Leer datos del archivo Excel
     const gospelData = await readGospelFromExcel(date);
-    
+
     if (!gospelData) {
       console.error(`❌ No se pudo leer el archivo Excel para la fecha ${date}`);
       return false;
     }
-    
+
     // 2. Generar reflexión
     let reflection = '';
     try {
@@ -231,7 +232,7 @@ async function syncGospelForDate(date) {
       console.warn('⚠️ No se pudo generar la reflexión. Usando texto predeterminado.');
       reflection = "Medita en silencio sobre la Palabra de Dios y permite que el Espíritu Santo te hable al corazón.";
     }
-    
+
     // 3. Verificar si ya existe un registro para esta fecha
     const { data: existingGospel, error: checkError } = await supabase
       .from('daily_content')
@@ -239,12 +240,12 @@ async function syncGospelForDate(date) {
       .eq('date', date)
       .eq('type', 'gospel')
       .single();
-    
+
     if (checkError && checkError.code !== 'PGRST116') {
       console.error(`❌ Error al verificar si existe el evangelio: ${checkError.message}`);
       return false;
     }
-    
+
     // 4. Preparar datos para guardar
     const gospelToSave = {
       date: gospelData.date,
@@ -261,38 +262,43 @@ async function syncGospelForDate(date) {
       is_active: true,
       updated_at: new Date().toISOString()
     };
-    
-    // 5. Guardar en la base de datos
-    if (existingGospel) {
-      // Actualizar registro existente
-      const { error: updateError } = await supabase
-        .from('daily_content')
-        .update(gospelToSave)
-        .eq('id', existingGospel.id);
-      
-      if (updateError) {
-        console.error(`❌ Error al actualizar el evangelio: ${updateError.message}`);
+
+    // 5. Lógica de inserción/actualización
+    if (force) {
+      // Forzar "upsert"
+      const { error } = await supabase.from('daily_content').upsert(gospelToSave, { onConflict: 'date, type' });
+      if (error) {
+        console.error(`❌ Error en la operación upsert: ${error.message}`);
         return false;
       }
-      
-      console.log(`✅ Evangelio actualizado correctamente para la fecha ${date}`);
+      console.log(`✅ Evangelio insertado/actualizado (force) correctamente para la fecha ${date}`);
+    } else if (update) {
+      // Forzar solo actualización
+      if (existingGospel) {
+        const { error } = await supabase.from('daily_content').update(gospelToSave).eq('id', existingGospel.id);
+        if (error) {
+          console.error(`❌ Error al actualizar el evangelio: ${error.message}`);
+          return false;
+        }
+        console.log(`✅ Evangelio actualizado (update) correctamente para la fecha ${date}`);
+      } else {
+        console.log(`🟡 Registro no encontrado para ${date}, no se puede actualizar. Use el comando sin flags para insertar.`);
+      }
     } else {
-      // Crear nuevo registro
-      const { error: insertError } = await supabase
-        .from('daily_content')
-        .insert([gospelToSave]);
-      
-      if (insertError) {
-        console.error(`❌ Error al insertar el evangelio: ${insertError.message}`);
-        return false;
+      // Comportamiento por defecto: solo insertar si no existe
+      if (existingGospel) {
+        console.log(`🟡 Registro para ${date} ya existe, omitiendo. Use --force o --update para actualizar.`);
+      } else {
+        const { error } = await supabase.from('daily_content').insert([gospelToSave]);
+        if (error) {
+          console.error(`❌ Error al insertar el evangelio: ${error.message}`);
+          return false;
+        }
+        console.log(`✅ Evangelio creado correctamente para la fecha ${date}`);
+        await scheduleContent(date);
       }
-      
-      console.log(`✅ Evangelio creado correctamente para la fecha ${date}`);
-      
-      // Programar publicación
-      await scheduleContent(date);
     }
-    
+
     return true;
   } catch (error) {
     console.error('❌ Error al sincronizar el evangelio:', error);
@@ -345,34 +351,34 @@ async function scheduleContent(date) {
 /**
  * Sincroniza el evangelio del día actual
  */
-async function syncTodayGospel() {
+async function syncTodayGospel(options = {}) {
   const today = new Date().toISOString().split('T')[0];
-  return await syncGospelForDate(today);
+  return await syncGospelForDate(today, options);
 }
 
 /**
  * Sincroniza el evangelio para los próximos N días
  */
-async function syncUpcomingGospels(days = 7) {
+async function syncUpcomingGospels(days = 7, options = {}) {
   const results = {
     success: 0,
     failed: 0
   };
-  
+
   for (let i = 0; i < days; i++) {
     const date = new Date();
     date.setDate(date.getDate() + i);
     const dateStr = date.toISOString().split('T')[0];
-    
-    const success = await syncGospelForDate(dateStr);
-    
+
+    const success = await syncGospelForDate(dateStr, options);
+
     if (success) {
       results.success++;
     } else {
       results.failed++;
     }
   }
-  
+
   return results;
 }
 
@@ -395,19 +401,23 @@ function setupCronJob() {
  */
 async function main() {
   console.log('🌟 Luz de Fe - Sincronización del Evangelio del Día');
-  console.log('=' .repeat(50));
-  
+  console.log('='.repeat(50));
+
   const args = process.argv.slice(2);
-  
+  const options = {
+    force: args.includes('--force'),
+    update: args.includes('--update')
+  };
+
   if (args.includes('--today')) {
     // Sincronizar el evangelio del día actual
-    await syncTodayGospel();
-  } else if (args.includes('--date')) {
+    await syncTodayGospel(options);
+  } else if (args.some(arg => arg.startsWith('--date='))) {
     // Sincronizar el evangelio para una fecha específica
     const dateArg = args.find(arg => arg.startsWith('--date='));
     if (dateArg) {
       const date = dateArg.replace('--date=', '');
-      await syncGospelForDate(date);
+      await syncGospelForDate(date, options);
     } else {
       console.error('❌ Debes especificar una fecha con --date=YYYY-MM-DD');
     }
@@ -415,7 +425,7 @@ async function main() {
     // Sincronizar los evangelios para los próximos N días
     const daysArg = args.find(arg => arg.startsWith('--days='));
     const days = daysArg ? parseInt(daysArg.replace('--days=', '')) : 7;
-    await syncUpcomingGospels(days);
+    await syncUpcomingGospels(days, options);
   } else if (args.includes('--cron')) {
     // Configurar tarea programada
     setupCronJob();
@@ -426,19 +436,26 @@ async function main() {
   } else {
     // Mostrar ayuda
     console.log(`
-Uso: node syncDailyGospel.js [opciones]
+Uso: node syncDailyGospel.js [comando] [opciones]
 
-Opciones:
-  --today              Sincroniza el evangelio del día actual
-  --date=YYYY-MM-DD    Sincroniza el evangelio para una fecha específica
-  --upcoming           Sincroniza los evangelios para los próximos días
-  --days=N             Número de días a sincronizar (por defecto: 7)
-  --cron               Inicia el servicio de sincronización automática
+Comandos:
+  --today              Sincroniza el evangelio del día actual.
+  --date=YYYY-MM-DD    Sincroniza el evangelio para una fecha específica.
+  --upcoming           Sincroniza los evangelios para los próximos días.
+  --cron               Inicia el servicio de sincronización automática.
+
+Opciones de Sincronización:
+  --days=N             Número de días a sincronizar con --upcoming (def: 7).
+  --force              Fuerza la actualización si el registro ya existe (upsert).
+  --update             Actualiza un registro solo si ya existe, de lo contrario lo omite.
+  
+  Nota: Si no se usa --force o --update, el script solo insertará registros nuevos y omitirá los existentes.
 
 Ejemplos:
   node syncDailyGospel.js --today
   node syncDailyGospel.js --date=2025-06-30
-  node syncDailyGospel.js --upcoming --days=14
+  node syncDailyGospel.js --date=2025-06-30 --force
+  node syncDailyGospel.js --upcoming --days=14 --update
   node syncDailyGospel.js --cron
     `);
   }

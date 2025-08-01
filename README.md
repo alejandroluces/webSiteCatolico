@@ -70,6 +70,8 @@ Este proyecto incluye varios scripts para facilitar el desarrollo y el mantenimi
 | `npm run update:gospel`   | Ejecuta el script para actualizar el evangelio del día.                  |
 | `npm run sync:gospel`     | Sincroniza los datos del evangelio desde una fuente externa.             |
 | `npm run start:server`    | Inicia el servidor Node.js para tareas programadas y procesos de fondo. |
+| `node scripts/runGospelUpdateRange.js`   | Ejecuta el script para actualizar el evangelio del día.                  |
+scripts/syncDailyGospel.js`   | Ejecuta el script para actualizar el evangelio del día.                  |
 
 ---
 
