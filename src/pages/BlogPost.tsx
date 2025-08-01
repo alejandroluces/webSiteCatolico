@@ -1,101 +1,138 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { Calendar, User, ArrowLeft, Share2, BookOpen, Heart, Tag, Clock } from 'lucide-react';
+import { Calendar, User, ArrowLeft, Share2, BookOpen, Heart, Tag, Clock, AlertTriangle } from 'lucide-react';
 import AdBanner from '../components/Ads/AdBanner';
 
+// Definición de la interfaz para un post del blog
+interface Post {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  date: string;
+  readTime: string;
+  category: string;
+  tags: string[];
+  image: string;
+}
+
+// Definición de la interfaz para un post relacionado
+interface RelatedPost {
+  title: string;
+  slug: string;
+  excerpt: string;
+  date: string;
+}
+
 const BlogPost: React.FC = () => {
-  const { slug } = useParams();
+  const { slug } = useParams<{ slug: string }>();
+  const [blogPost, setBlogPost] = useState<Post | null>(null);
+  const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Sample blog post data - in a real app, this would come from an API or CMS
-  const blogPost = {
-    id: 1,
-    title: 'Cómo vivir la fe en el trabajo diario',
-    slug: 'como-vivir-la-fe-en-el-trabajo',
-    excerpt: 'Descubre maneras prácticas de integrar tu fe católica en tu vida profesional, siendo testimonio de Cristo en el ambiente laboral.',
-    content: `
-      <p>El trabajo no es solo una actividad para ganar dinero, sino una vocación que nos permite participar en la obra creadora de Dios. Como católicos, estamos llamados a santificar nuestro trabajo y a ser testimonio de Cristo en nuestro ambiente laboral.</p>
+  useEffect(() => {
+    const fetchPostData = async () => {
+      setLoading(true);
+      setError(null);
 
-      <h2>La dignidad del trabajo</h2>
-      <p>La Iglesia Católica enseña que el trabajo tiene una dignidad especial porque nos permite colaborar con Dios en su obra creadora. Cada tarea, por pequeña que parezca, puede convertirse en una oración cuando se realiza con amor y dedicación.</p>
+      try {
+        // Simulación de una llamada a una API
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-      <h2>Principios para vivir la fe en el trabajo</h2>
-      <h3>1. Integridad y honestidad</h3>
-      <p>Ser honestos en todas nuestras transacciones, cumplir con nuestras responsabilidades y tratar a todos con respeto y dignidad. La integridad es el fundamento de un testimonio cristiano auténtico.</p>
+        // Datos de ejemplo que simulan la respuesta de una API
+        const samplePostData: Post = {
+          id: 1,
+          title: 'Cómo vivir la fe en el trabajo diario',
+          slug: 'como-vivir-la-fe-en-el-trabajo',
+          excerpt: 'Descubre maneras prácticas de integrar tu fe católica en tu vida profesional, siendo testimonio de Cristo en el ambiente laboral.',
+          content: `
+            <p>El trabajo no es solo una actividad para ganar dinero, sino una vocación que nos permite participar en la obra creadora de Dios. Como católicos, estamos llamados a santificar nuestro trabajo y a ser testimonio de Cristo en nuestro ambiente laboral.</p>
+            <h2>La dignidad del trabajo</h2>
+            <p>La Iglesia Católica enseña que el trabajo tiene una dignidad especial porque nos permite colaborar con Dios en su obra creadora. Cada tarea, por pequeña que parezca, puede convertirse en una oración cuando se realiza con amor y dedicación.</p>
+            <p>Para más información, visita la <a href="https://www.vatican.va/archive/compendium_ccc/documents/archive_2005_compendium-ccc_sp.html" target="_blank" rel="noopener noreferrer">doctrina social de la Iglesia</a>.</p>
+          `,
+          author: 'Padre Miguel Rodríguez',
+          date: '15 de Enero, 2025',
+          readTime: '8 min',
+          category: 'Espiritualidad',
+          tags: ['trabajo', 'vocación', 'testimonio', 'san josé'],
+          image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1200&h=600&fit=crop',
+        };
 
-      <h3>2. Servicio a los demás</h3>
-      <p>Ver nuestro trabajo como una oportunidad de servir a otros. Ya sea que trabajemos directamente con personas o en tareas más técnicas, siempre podemos preguntarnos: "¿Cómo puede mi trabajo beneficiar a otros?"</p>
+        const sampleRelatedData: RelatedPost[] = [
+          { title: 'La importancia de la oración familiar', slug: 'importancia-oracion-familiar', excerpt: 'Fortalece los lazos familiares y espirituales.', date: '12 de Enero, 2025' },
+          { title: 'Santos patronos para estudiantes', slug: 'santos-patronos-estudiantes', excerpt: 'Encuentra inspiración en los santos protectores.', date: '10 de Enero, 2025' },
+        ];
 
-      <h3>3. Excelencia en el desempeño</h3>
-      <p>Realizar nuestro trabajo con la mayor calidad posible, no solo para impresionar a nuestros superiores, sino como una forma de honrar a Dios con nuestros talentos.</p>
+        // Simulación de un posible error en la API
+        if (slug === 'not-found') {
+          throw new Error('Artículo no encontrado');
+        }
 
-      <h2>Desafíos comunes y cómo enfrentarlos</h2>
-      <p>En el ambiente laboral moderno, los católicos pueden enfrentar diversos desafíos para vivir su fe. Algunos de los más comunes incluyen:</p>
+        setBlogPost(samplePostData);
+        setRelatedPosts(sampleRelatedData);
 
-      <ul>
-        <li><strong>Presión para comprometer valores éticos:</strong> Mantener firmes nuestros principios morales, incluso cuando esto pueda resultar difícil o impopular.</li>
-        <li><strong>Competencia desleal:</strong> Competir de manera justa y ética, celebrando los éxitos de otros y aprendiendo de los fracasos.</li>
-        <li><strong>Estrés y ansiedad:</strong> Confiar en la providencia de Dios y buscar el equilibrio entre el trabajo y la vida personal.</li>
-      </ul>
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Ocurrió un error desconocido');
+        console.error("Error al obtener el post:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      <h2>Oraciones para el trabajo</h2>
-      <p>Comenzar y terminar cada día laboral con una oración puede transformar nuestra perspectiva del trabajo. Algunas sugerencias:</p>
-
-      <blockquote>
-        <p>"Señor, te ofrezco mi trabajo de hoy. Ayúdame a realizarlo con amor, paciencia y dedicación. Que todo lo que haga sea para tu gloria y el bien de mis hermanos."</p>
-      </blockquote>
-
-      <h2>El ejemplo de San José</h2>
-      <p>San José, el padre adoptivo de Jesús, es el patrono de los trabajadores. Su ejemplo nos enseña que el trabajo humilde y bien hecho es una forma de santidad. José trabajó como carpintero, sustentando a la Sagrada Familia con dedicación y amor.</p>
-
-      <p>Podemos invocar su intercesión para que nos ayude a encontrar sentido y propósito en nuestro trabajo diario, y para que nos conceda la gracia de ser buenos trabajadores y mejores cristianos.</p>
-
-      <h2>Conclusión</h2>
-      <p>Vivir la fe en el trabajo no significa predicar constantemente o hacer proselitismo agresivo. Más bien, se trata de ser coherentes entre lo que creemos y cómo actuamos, de tratar a todos con respeto y caridad, y de realizar nuestras tareas con la excelencia que honra a Dios.</p>
-
-      <p>Recordemos que nuestro trabajo, cualquiera que sea, puede convertirse en un camino de santificación cuando lo ofrecemos a Dios y lo realizamos con amor.</p>
-    `,
-    author: 'Padre Miguel Rodríguez',
-    date: '15 de Enero, 2025',
-    readTime: '8 min',
-    category: 'Espiritualidad',
-    tags: ['trabajo', 'vocación', 'testimonio', 'san josé'],
-    image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1200&h=600&fit=crop',
-  };
-
-  const relatedPosts = [
-    {
-      title: 'La importancia de la oración familiar',
-      slug: 'importancia-oracion-familiar',
-      excerpt: 'La oración en familia fortalece los lazos y acerca a todos los miembros a Dios.',
-      date: '12 de Enero, 2025',
-    },
-    {
-      title: 'Santos patronos para estudiantes',
-      slug: 'santos-patronos-estudiantes',
-      excerpt: 'Conoce a los santos que interceden especialmente por quienes buscan conocimiento.',
-      date: '10 de Enero, 2025',
-    },
-    {
-      title: 'El sacramento de la Reconciliación',
-      slug: 'sacramento-reconciliacion-guia',
-      excerpt: 'Todo lo que necesitas saber sobre la confesión y el perdón de Dios.',
-      date: '8 de Enero, 2025',
-    },
-  ];
+    fetchPostData();
+  }, [slug]);
 
   const handleShare = () => {
-    if (navigator.share) {
+    if (blogPost && navigator.share) {
       navigator.share({
         title: blogPost.title,
         text: blogPost.excerpt,
         url: window.location.href,
-      });
+      }).catch(error => console.log('Error al compartir', error));
     } else {
       navigator.clipboard.writeText(window.location.href);
       alert('Enlace copiado al portapapeles');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-white dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-b-2 border-marian-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen bg-white dark:bg-gray-900 text-center px-4">
+        <AlertTriangle className="h-16 w-16 text-red-500 mb-4" />
+        <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">Error al Cargar el Contenido</h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
+        <Link to="/blog" className="inline-flex items-center px-6 py-2 bg-marian-blue-600 text-white rounded-lg hover:bg-marian-blue-700 transition-colors">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver al Blog
+        </Link>
+      </div>
+    );
+  }
+
+  if (!blogPost) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen bg-white dark:bg-gray-900 text-center px-4">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Artículo no encontrado</h2>
+        <p className="text-gray-600 dark:text-gray-300 mt-2">El artículo que buscas no existe o fue movido.</p>
+        <Link to="/blog" className="mt-6 inline-block bg-marian-blue-600 text-white px-6 py-2 rounded-lg hover:bg-marian-blue-700 transition-colors">
+          Volver al Blog
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">

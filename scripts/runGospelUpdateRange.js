@@ -27,8 +27,12 @@ async function runUpdates() {
     const formattedDate = date.toISOString().split('T')[0];
     console.log(`\n🔄 Actualizando evangelio para la fecha: ${formattedDate}`);
     try {
-      await updateDailyGospel(formattedDate);
-      console.log(`✅ Evangelio actualizado para ${formattedDate}`);
+      const success = await updateDailyGospel(formattedDate);
+      if (success) {
+        console.log(`✅ Evangelio actualizado para ${formattedDate}`);
+      } else {
+        console.log(`❌ Falló la actualización del evangelio para ${formattedDate}.`);
+      }
     } catch (error) {
       console.error(`❌ Error al actualizar evangelio para ${formattedDate}:`, error);
     }

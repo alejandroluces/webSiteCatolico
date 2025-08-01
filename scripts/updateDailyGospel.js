@@ -122,7 +122,7 @@ async function getGospelFromExcel(date) {
       } else if (line.includes('Oración de la mañana')) {
         currentSection = 'prayer';
       } else {
-        if (currentSection === 'reference' && !line.includes('Oración')) {
+        if (currentSection === 'content' && !line.includes('Oración')) {
           content += line + '\n';
         } else if (currentSection === 'prayer') {
           prayer += line + '\n';
@@ -168,39 +168,33 @@ async function getGospelFromExcel(date) {
  * Genera una reflexión para el evangelio usando Gemini AI
  */
 async function generateReflection(gospelData) {
-  try {
-    console.log('🤖 Generando reflexión con Gemini AI...');
-    
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-    
-    const prompt = `
-    Eres un experto en teología católica y espiritualidad cristiana. Escribe una reflexión profunda y significativa sobre el siguiente evangelio:
-    
-    Referencia: ${gospelData.reference}
-    Título: ${gospelData.title}
-    Texto: ${gospelData.content}
-    
-    La reflexión debe:
-    1. Tener entre 300-500 palabras
-    2. Ser fiel a la doctrina católica
-    3. Incluir aplicaciones prácticas para la vida diaria
-    4. Ser inspiradora y motivadora
-    5. Usar un lenguaje accesible pero profundo
-    6. Evitar clichés y generalidades
-    
-    Formato: Párrafos bien estructurados sin encabezados ni conclusiones explícitas.
-    `;
-    
-    const result = await model.generateContent(prompt);
-    const reflection = result.response.text();
-    
-    console.log('✅ Reflexión generada exitosamente');
-    return reflection;
-    
-  } catch (error) {
-    console.error('❌ Error al generar reflexión con Gemini:', error);
-    return "No se pudo generar una reflexión para este evangelio. Por favor, medita en silencio sobre la Palabra de Dios y permite que el Espíritu Santo te hable al corazón.";
-  }
+  console.log('🤖 Generando reflexión con Gemini AI...');
+  
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+  
+  const prompt = `
+  Eres un experto en teología católica y espiritualidad cristiana. Escribe una reflexión profunda y significativa sobre el siguiente evangelio:
+  
+  Referencia: ${gospelData.reference}
+  Título: ${gospelData.title}
+  Texto: ${gospelData.content}
+  
+  La reflexión debe:
+  1. Tener entre 300-500 palabras
+  2. Ser fiel a la doctrina católica
+  3. Incluir aplicaciones prácticas para la vida diaria
+  4. Ser inspiradora y motivadora
+  5. Usar un lenguaje accesible pero profundo
+  6. Evitar clichés y generalidades
+  
+  Formato: Párrafos bien estructurados sin encabezados ni conclusiones explícitas.
+  `;
+  
+  const result = await model.generateContent(prompt);
+  const reflection = result.response.text();
+  
+  console.log('✅ Reflexión generada exitosamente');
+  return reflection;
 }
 
 /**
@@ -318,6 +312,11 @@ async function updateDailyGospel(date = getTodayDate()) {
     
     // 2. Generar reflexión con Gemini AI
     const reflection = await generateReflection(gospelData);
+    
+    if (!reflection) {
+      console.error(`❌ No se pudo generar la reflexión para la fecha ${date}. No se guardará en la base de datos.`);
+      return false;
+    }
     
     // 3. Guardar en la base de datos
     const savedGospel = await saveGospelToDatabase(gospelData, reflection);
