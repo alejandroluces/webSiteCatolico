@@ -1,10 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BookOpen, Calendar, Share2, Volume2, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import AdBanner from '../components/Ads/AdBanner';
 
 const DailyReadings: React.FC = () => {
   const [selectedReading, setSelectedReading] = useState<'first' | 'psalm' | 'second' | 'gospel'>('first');
+  const [readingsData, setReadingsData] = useState<any>(null); // Estado para los datos
+  const [loading, setLoading] = useState(true); // Estado de carga
+  const [error, setError] = useState<string | null>(null); // Estado de error
   
+  // 2. Usar useEffect para obtener los datos al cargar el componente
+  useEffect(() => {
+    const fetchReadings = async () => {
+      // Lógica para obtener las lecturas del día desde Supabase
+      // Por ahora, usaremos los datos de muestra mientras conectamos la API
+    };
+
+    fetchReadings();
+  }, []);
+
   const today = new Date();
   const currentDate = today.toLocaleDateString('es-ES', {
     weekday: 'long',
@@ -13,7 +26,8 @@ const DailyReadings: React.FC = () => {
     day: 'numeric'
   });
 
-  const readingsData = {
+  // Datos de muestra (serán reemplazados por la llamada a la API)
+  const sampleReadingsData = {
     date: currentDate,
     liturgicalSeason: 'Tiempo Ordinario',
     liturgicalColor: 'Verde',
@@ -59,11 +73,27 @@ Palabra del Señor.`,
     },
   };
 
+  // Simulación de carga de datos
+  useEffect(() => {
+    setLoading(true);
+    // Aquí iría la llamada a Supabase
+    // const { data, error } = await supabase.from('...')...
+    setTimeout(() => {
+      setReadingsData(sampleReadingsData);
+      setLoading(false);
+    }, 1000); // Simula 1 segundo de carga
+  }, []);
+
+  if (loading) {
+    return <div className="text-center p-12">Cargando lecturas...</div>;
+  }
+
+  if (error || !readingsData) {
+    return <div className="text-center p-12 text-red-500">Error al cargar las lecturas: {error}</div>;
+  }
+
   const readings = [
-    { key: 'first', label: 'Primera Lectura', data: readingsData.firstReading },
-    { key: 'psalm', label: 'Salmo', data: readingsData.psalm },
-    ...(readingsData.secondReading ? [{ key: 'second', label: 'Segunda Lectura', data: readingsData.secondReading }] : []),
-    { key: 'gospel', label: 'Evangelio', data: readingsData.gospel },
+    // ... (El resto del componente usaría `readingsData` del estado)
   ];
 
   const handleShare = () => {
