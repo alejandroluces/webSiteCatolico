@@ -8,7 +8,6 @@
 import { config } from 'dotenv';
 import fs from 'fs/promises';
 import path from 'path';
-import ExcelJS from 'exceljs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import cron from 'node-cron';
@@ -52,103 +51,41 @@ function getFormattedDateForFile(date) {
 }
 
 /**
- * Obtiene el evangelio del día desde el archivo Excel
+ * Obtiene el evangelio del día desde el archivo JSON
  */
-async function getGospelFromExcel(date) {
+async function getGospelFromJson(date) {
   try {
-    console.log(`📊 Buscando evangelio para la fecha: ${date}`);
+    console.log(`📄 Buscando evangelio para la fecha: ${date}`);
     
     // Convertir fecha YYYY-MM-DD a DDMMYYYY para el nombre del archivo
     const fileDate = getFormattedDateForFile(date);
     
-    // Ruta al archivo Excel
-    const excelPath = path.join(process.cwd(), 'public', 'images', 'gospels', `${fileDate}.xlsx`);
+    // Ruta al archivo JSON
+    const jsonPath = path.join(process.cwd(), 'public', 'images', 'gospels', `${fileDate}.json`);
     
-    console.log(`📂 Buscando archivo: ${excelPath}`);
+    console.log(`📂 Buscando archivo: ${jsonPath}`);
     
     // Verificar si el archivo existe
     try {
-      await fs.access(excelPath);
-      console.log(`✅ Archivo encontrado: ${excelPath}`);
+      await fs.access(jsonPath);
+      console.log(`✅ Archivo encontrado: ${jsonPath}`);
     } catch (err) {
-      console.error(`❌ No se encontró el archivo Excel: ${excelPath}`);
+      console.error(`❌ No se encontró el archivo JSON: ${jsonPath}`);
       return null;
     }
     
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.readFile(excelPath);
+    const fileContent = await fs.readFile(jsonPath, 'utf-8');
+    const data = JSON.parse(fileContent);
     
-    const worksheet = workbook.getWorksheet(1);
-    
-    if (!worksheet) {
-      console.error('❌ No se encontró la hoja de trabajo en el archivo Excel');
-      return null;
-    }
-    
-    // Obtener el contenido de la celda I2
-    const cellI2 = worksheet.getCell('I2');
-    
-    if (!cellI2 || !cellI2.value) {
-      console.error('❌ No se encontró contenido en la celda I2');
-      return null;
-    }
-    
-    const cellContent = cellI2.text;
-    console.log('📄 Contenido encontrado en la celda I2');
-    
-    // Parsear el contenido
-    const lines = cellContent.split('\n').filter(line => line.trim() !== '');
-    
-    let title = '';
-    let reference = '';
-    let content = '';
-    let prayer = '';
-    
-    // Buscar las secciones
-    let currentSection = '';
-    
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      
-      if (line.includes('Evangelio del Día')) {
-        title = line.replace(/["*]/g, '').trim();
-        currentSection = 'title';
-      } else if (line.startsWith('*Evangelio del Día*')) {
-        title = line.replace(/["*]/g, '').trim();
-        currentSection = 'title';
-      } else if (line.startsWith('Mateo') || line.startsWith('Marcos') || line.startsWith('Lucas') || line.startsWith('Juan')) {
-        reference = line.trim();
-        currentSection = 'content';
-      } else if (line.includes('Oración de la mañana')) {
-        currentSection = 'prayer';
-      } else {
-        if (currentSection === 'content' && !line.includes('Oración')) {
-          content += line + '\n';
-        } else if (currentSection === 'prayer') {
-          prayer += line + '\n';
-        }
-      }
-    }
-    
-    // Verificar la imagen
-    const imagePath = path.join(process.cwd(), 'public', 'images', 'gospels', `${fileDate}.png`);
-    let imageExists = false;
-    
-    try {
-      await fs.access(imagePath);
-      imageExists = true;
-      console.log(`✅ Imagen encontrada: ${imagePath}`);
-    } catch (err) {
-      console.warn(`⚠️ No se encontró la imagen: ${imagePath}`);
-    }
+    const imageName = data.imagePath ? path.basename(data.imagePath) : null;
     
     const gospelData = {
-      date: date,
-      title: title || 'Evangelio del Día',
-      reference: reference || '',
-      content: content.trim(),
-      prayer: prayer.trim(),
-      image: imageExists ? `/images/gospels/${fileDate}.png` : null
+      date: data.date,
+      title: data.gospel.title,
+      reference: data.gospel.reference,
+      content: data.gospel.text,
+      prayer: data.prayer,
+      image: imageName ? `/images/gospels/${imageName}` : null
     };
     
     console.log(`✅ Evangelio encontrado: ${gospelData.title}`);
@@ -159,7 +96,7 @@ async function getGospelFromExcel(date) {
     return gospelData;
     
   } catch (error) {
-    console.error('❌ Error al leer el archivo Excel:', error);
+    console.error('❌ Error al leer el archivo JSON:', error);
     return null;
   }
 }
@@ -302,8 +239,8 @@ async function updateDailyGospel(date = getTodayDate()) {
   console.log(`📅 Fecha: ${date}`);
   
   try {
-    // 1. Obtener datos del evangelio desde Excel
-    const gospelData = await getGospelFromExcel(date);
+    // 1. Obtener datos del evangelio desde JSON
+    const gospelData = await getGospelFromJson(date);
     
     if (!gospelData) {
       console.error(`❌ No se encontró el evangelio para la fecha ${date}`);
