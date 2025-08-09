@@ -1,27 +1,31 @@
 # Directorio de Datos
 
-Este directorio (`/public/images/gospels/`) contiene los archivos de datos utilizados por el sistema de actualización automática del evangelio del día.
+Este directorio (`/data/public/images/gospels/`) contiene los archivos de datos utilizados por el sistema de actualización automática del evangelio del día.
 
 ## Estructura de los Archivos
 
-El sistema no utiliza un único archivo Excel, sino un archivo por cada día.
+El sistema utiliza un archivo JSON por cada día para el contenido diario.
 
-*   **Nombre del archivo:** Debe seguir el formato `DDMMYYYY.xlsx` (ej. `22062025.xlsx`).
-*   **Ubicación:** Los archivos deben estar en la carpeta `public/images/gospels/`.
+*   **Nombre del archivo:** Debe seguir el formato `DDMMYYYY.json` (ej. `01092025.json`).
+*   **Ubicación:** Los archivos deben estar en la carpeta `data/public/images/gospels/`.
 
-### Contenido de la Celda I2
+### Contenido del Archivo JSON
 
-Toda la información del evangelio para un día específico debe estar contenida en la **celda I2** del archivo Excel correspondiente, con el siguiente formato de texto:
+Toda la información para un día específico debe estar contenida en el archivo JSON correspondiente, con la siguiente estructura:
 
-```
-*Evangelio del Día*
-Título del Evangelio
-Referencia Bíblica (ej. Lucas 9, 11-17)
-Texto completo del evangelio...
-... más líneas de texto.
-*Oración de la mañana*
-Texto de la oración...
-... más líneas de oración.
+```json
+{
+  "date": "2025-09-01",
+  "formattedDate": "lunes, 1 de septiembre de 2025",
+  "gospel": {
+    "title": "Evangelio según san Lucas",
+    "reference": "Lucas 4, 16-30",
+    "text": "Texto completo del evangelio...",
+    "url": "https://..."
+  },
+  "prayer": "Texto de la oración...",
+  "imagePath": "01092025.png"
+}
 ```
 
 ## Instrucciones

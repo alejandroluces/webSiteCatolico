@@ -11,10 +11,8 @@
     "content:publish": "node scripts/publishScheduledContent.js",
     "content:check": "node scripts/checkMissingContent.js",
     "content:report": "node scripts/generateContentReport.js",
-    "update:gospel": "node scripts/updateDailyGospel.js",
-    "sync:gospel": "node scripts/syncDailyGospel.js",
-    "sync:today": "node scripts/syncDailyGospel.js --today",
-    "sync:upcoming": "node scripts/syncDailyGospel.js --upcoming",
+    "update:gospel": "node scripts/syncDailyGospelFromJson.js",
+    "sync:gospel": "node scripts/syncDailyGospelFromJson.js",
     "start:server": "node server.js"
   },
   "dependencies": {
@@ -24,7 +22,6 @@
     "cors": "^2.8.5",
     "dompurify": "^3.2.6",
     "dotenv": "^16.3.1",
-    "exceljs": "^4.4.0",
     "express": "^4.19.2",
     "lucide-react": "^0.344.0",
     "node-cron": "^3.0.3",
