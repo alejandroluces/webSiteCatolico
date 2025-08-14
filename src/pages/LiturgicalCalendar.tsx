@@ -336,8 +336,8 @@ const LiturgicalCalendar: React.FC = () => {
 
             {/* Selected Date Info */}
             {selectedDate && (
-              <LiturgicalInfo 
-                date={selectedDate.toISOString().split('T')[0]} 
+              <LiturgicalInfo
+                date={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
                 showDetails={true}
               />
             )}

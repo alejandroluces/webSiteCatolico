@@ -9,13 +9,19 @@ export const useLiturgicalCalendar = (date?: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const getTargetDate = () => {
+    if (date) return date;
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  };
+
   useEffect(() => {
     const loadLiturgicalData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const targetDate = date || new Date().toISOString().split('T')[0];
+        const targetDate = getTargetDate();
 
         const [eventsData, seasonData, saintsData, colorData] = await Promise.all([
           liturgicalCalendarService.getEventsForDateSafe(targetDate),
@@ -48,7 +54,7 @@ export const useLiturgicalCalendar = (date?: string) => {
     error,
     refetch: () => {
       setIsLoading(true);
-      const targetDate = date || new Date().toISOString().split('T')[0];
+      const targetDate = getTargetDate();
       liturgicalCalendarService.getEventsForDateSafe(targetDate)
         .then(eventsData => {
           setEvents(eventsData);
