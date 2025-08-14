@@ -1,32 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-img {
-    max-width: 100%; /* Ensures the image does not exceed the width of its container */
-    height: auto;    /* Maintains the aspect ratio */
-    display: block;  /* Ensures the image takes the full width of its container */
-    margin: 0 auto;  /* Centers the image */
+:root {
+  --marian-blue-50: #f0f8ff;
+  --marian-blue-100: #e0f0ff;
+  --marian-blue-200: #c2e0ff;
+  --marian-blue-300: #a3d0ff;
+  --marian-blue-400: #84c0ff;
+  --marian-blue-500: #65b0ff;
+  --marian-blue-600: #46a0ff;
+  --marian-blue-700: #2790ff;
+  --marian-blue-800: #0880ff;
+  --marian-blue-900: #006fff;
+
+  --sacred-gold-50: #fffbeb;
+  --sacred-gold-100: #fff6d6;
+  --sacred-gold-200: #ffebac;
+  --sacred-gold-300: #ffe082;
+  --sacred-gold-400: #ffd558;
+  --sacred-gold-500: #ffca2e;
+  --sacred-gold-600: #ffbf04;
+  --sacred-gold-700: #ffb400;
+  --sacred-gold-800: #ffa900;
+  --sacred-gold-900: #ff9e00;
 }
 
 body {
-  margin: 0;
-  font-family: 'Roboto', sans-serif; /* Cambiar a una fuente más moderna */
-  background-color: #1a1a1a; /* Fondo oscuro */
-  color: #f0f0f0; /* Texto claro para mejor contraste */
+  font-family: 'Open Sans', sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Merriweather', serif; /* Fuente para encabezados */
-  color: #ffcc00; /* Color dorado para encabezados */
+  font-family: 'Merriweather', serif;
 }
 
-#root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+.prayer-card-container {
+  perspective: 1000px;
 }
 
-main {
-  flex: 1;
+.prayer-card {
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+
+.prayer-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.prayer-card-face {
+  backface-visibility: hidden;
+}
+
+.prayer-card-back {
+  transform: rotateY(180deg);
 }
