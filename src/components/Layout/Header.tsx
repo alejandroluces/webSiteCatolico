@@ -14,6 +14,7 @@ const Header: React.FC = () => {
     { name: 'Santo del Día', href: '/santo-del-dia' },
     { name: 'Oraciones', href: '/oraciones' },
     { name: 'Blog', href: '/blog' },
+    { name: 'Aprende a Rezar', href: '/aprende-a-rezar' },
   ];
 
   const isActiveRoute = (href: string) => {
