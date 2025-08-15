@@ -13,6 +13,7 @@ import DailyReadings from './pages/DailyReadings';
 import Novenas from './pages/Novenas';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import AprendeARezar from './pages/AprendeARezar';
 import LiturgicalCalendar from './pages/LiturgicalCalendar';
 import PrayerRequests from './pages/PrayerRequests';
 import SacredArt from './pages/SacredArt';
@@ -105,6 +106,11 @@ function App() {
           <Route path="/blog/:slug" element={
             <Layout>
               <BlogPost />
+            </Layout>
+          } />
+          <Route path="/aprende-a-rezar" element={
+            <Layout>
+              <AprendeARezar />
             </Layout>
           } />
           <Route path="/calendario-liturgico" element={
