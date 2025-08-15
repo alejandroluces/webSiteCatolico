@@ -14,6 +14,7 @@ import Novenas from './pages/Novenas';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import AprendeARezar from './pages/AprendeARezar';
+import RosarioInteractivoPage from './pages/RosarioInteractivo';
 import LiturgicalCalendar from './pages/LiturgicalCalendar';
 import PrayerRequests from './pages/PrayerRequests';
 import SacredArt from './pages/SacredArt';
@@ -111,6 +112,11 @@ function App() {
           <Route path="/aprende-a-rezar" element={
             <Layout>
               <AprendeARezar />
+            </Layout>
+          } />
+          <Route path="/rosario-interactivo" element={
+            <Layout>
+              <RosarioInteractivoPage />
             </Layout>
           } />
           <Route path="/calendario-liturgico" element={

@@ -1,6 +1,7 @@
 import React, { useState, Fragment } from 'react';
 import { ShieldCheck, BookOpen, Users, Heart, X } from 'lucide-react';
 import { Dialog, Transition } from '@headlessui/react';
+import { Link } from 'react-router-dom';
 
 const AprendeARezar: React.FC = () => {
   const [selectedPrayer, setSelectedPrayer] = useState<{ title: string; content: string } | null>(null);
@@ -24,6 +25,15 @@ const AprendeARezar: React.FC = () => {
             Una guía paso a paso para principiantes
           </p>
         </header>
+
+        <section className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mb-12 text-center">
+          <Link
+            to="/rosario-interactivo"
+            className="inline-block bg-marian-blue-500 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-marian-blue-600 transition-colors duration-300"
+          >
+            Ir al Rosario Interactivo
+          </Link>
+        </section>
 
         <section className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mb-12">
           <h2 className="text-3xl font-semibold text-marian-blue-800 dark:text-white mb-6 font-serif">¿Qué es el Rosario?</h2>
