@@ -26,7 +26,7 @@ export const Rosary: React.FC<RosaryProps> = ({ currentPrayerIndex, onBeadClick 
 
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <svg viewBox="0 0 400 380" className="max-w-full max-h-[85vh]" aria-label="Interactive Rosary">
+      <svg viewBox="0 0 400 380" className="max-w-full" aria-label="Interactive Rosary">
         <defs>
           {/* Gradients for beads for a more 3D/shiny look */}
           <radialGradient id="goldBeadGradient" cx="0.25" cy="0.25" r="0.75">
