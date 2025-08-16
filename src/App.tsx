@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/Layout/Layout';
+import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from './components/Admin/ProtectedRoute';
 
 // Public Pages
@@ -34,6 +35,7 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           {/* Admin Routes - Sin Layout */}
           <Route path="/admin/login" element={<AdminLogin />} />
