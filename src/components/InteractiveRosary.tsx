@@ -53,7 +53,7 @@ const InteractiveRosary: React.FC = () => {
         </div>
 
         {/* Right Panel: Interactive Rosary */}
-        <div className="lg:w-2/3 w-full flex items-center justify-center order-1 lg:order-2">
+        <div className="lg:w-2/3 w-full flex items-center justify-center order-1 lg:order-2 sticky top-0 z-10 bg-marian-blue-100/80 dark:bg-gray-900/80 backdrop-blur-md h-80 lg:h-auto shadow-lg rounded-b-2xl lg:shadow-none lg:rounded-none lg:bg-transparent dark:lg:bg-transparent">
           <Rosary
             currentPrayerIndex={currentPrayerIndex}
             onBeadClick={handleBeadClick}
