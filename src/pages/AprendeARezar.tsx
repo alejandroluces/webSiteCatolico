@@ -87,44 +87,44 @@ const AprendeARezar: React.FC = () => {
             <h3 className="text-2xl font-semibold text-marian-blue-800 dark:text-white mb-6 font-serif">Los Misterios del Rosario</h3>
             <div className="space-y-6">
               <div>
-                <h4 className="font-bold text-xl text-yellow-500">Misterios Gozosos (Lunes y Sábados)</h4>
-                <ul className="list-disc list-inside text-lg">
-                  <li>La Anunciación</li>
-                  <li>La Visitación</li>
-                  <li>El Nacimiento de Jesús</li>
-                  <li>La Presentación</li>
-                  <li>El Niño perdido y hallado</li>
-                </ul>
+                <h4 className="font-bold text-xl text-yellow-500">Misterios Gozosos (lunes y sábado)</h4>
+                <ol className="list-decimal list-inside text-lg">
+                  <li>La encarnación del Hijo de Dios.</li>
+                  <li>La visitación de Nuestra Señora a su prima Santa Isabel.</li>
+                  <li>El nacimiento del Hijo de Dios.</li>
+                  <li>La Presentación de Jesús en el templo.</li>
+                  <li>El Niño Jesús perdido y hallado en el templo.</li>
+                </ol>
               </div>
               <div>
-                <h4 className="font-bold text-xl text-blue-400">Misterios Luminosos (Jueves)</h4>
-                <ul className="list-disc list-inside text-lg">
-                  <li>El Bautismo de Jesús</li>
-                  <li>Las Bodas de Caná</li>
-                  <li>El Anuncio del Reino de Dios</li>
-                  <li>La Transfiguración</li>
-                  <li>La Institución de la Eucaristía</li>
-                </ul>
+                <h4 className="font-bold text-xl text-blue-400">Misterios Luminosos (jueves)</h4>
+                <ol className="list-decimal list-inside text-lg">
+                  <li>El Bautismo de Jesús en el Jordán.</li>
+                  <li>La autorrevelación de Jesús en las bodas de Caná.</li>
+                  <li>El anuncio del Reino de Dios invitando a la conversión.</li>
+                  <li>La Transfiguración.</li>
+                  <li>La Institución de la Eucaristía.</li>
+                </ol>
               </div>
               <div>
-                <h4 className="font-bold text-xl text-red-500">Misterios Dolorosos (Martes y Viernes)</h4>
-                <ul className="list-disc list-inside text-lg">
-                  <li>La Oración en el Huerto</li>
-                  <li>La Flagelación</li>
-                  <li>La Coronación de Espinas</li>
-                  <li>Jesús con la Cruz a cuestas</li>
-                  <li>La Crucifixión</li>
-                </ul>
+                <h4 className="font-bold text-xl text-red-500">Misterios Dolorosos (martes y viernes)</h4>
+                <ol className="list-decimal list-inside text-lg">
+                  <li>La Oración de Jesús en el Huerto.</li>
+                  <li>La Flagelación del Señor.</li>
+                  <li>La Coronación de espinas.</li>
+                  <li>Jesús con la Cruz a cuestas camino del Calvario.</li>
+                  <li>La Crucifixión y Muerte de Nuestro Señor.</li>
+                </ol>
               </div>
               <div>
-                <h4 className="font-bold text-xl text-green-500">Misterios Gloriosos (Miércoles y Domingos)</h4>
-                <ul className="list-disc list-inside text-lg">
-                  <li>La Resurrección</li>
-                  <li>La Ascensión</li>
-                  <li>La Venida del Espíritu Santo</li>
-                  <li>La Asunción de María</li>
-                  <li>La Coronación de María</li>
-                </ul>
+                <h4 className="font-bold text-xl text-green-500">Misterios Gloriosos (miércoles y domingo)</h4>
+                <ol className="list-decimal list-inside text-lg">
+                  <li>La Resurrección del Hijo de Dios.</li>
+                  <li>La Ascensión del Señor a los Cielos.</li>
+                  <li>La Venida del Espíritu Santo sobre los Apóstoles.</li>
+                  <li>La Asunción de Nuestra Señora a los Cielos.</li>
+                  <li>La Coronación de la Santísima Virgen como Reina de Cielos y Tierra.</li>
+                </ol>
               </div>
             </div>
           </div>

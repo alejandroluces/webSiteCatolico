@@ -39,32 +39,32 @@ export const PRAYERS: Record<PrayerKey, Prayer> = {
 
 export const MYSTERIES: Record<MysteryType, Mystery[]> = {
   [MysteryTypeEnum.Joyful]: [
-    { name: "Primer Misterio Gozoso", announcement: "La Anunciación del Ángel a María." },
-    { name: "Segundo Misterio Gozoso", announcement: "La Visitación de María a su prima Isabel." },
-    { name: "Tercer Misterio Gozoso", announcement: "El Nacimiento del Niño Jesús en Belén." },
-    { name: "Cuarto Misterio Gozoso", announcement: "La Presentación de Jesús en el Templo." },
-    { name: "Quinto Misterio Gozoso", announcement: "El Niño Jesús perdido y hallado en el Templo." },
+    { name: "Primer Misterio Gozoso", announcement: "La encarnación del Hijo de Dios." },
+    { name: "Segundo Misterio Gozoso", announcement: "La visitación de Nuestra Señora a su prima Santa Isabel." },
+    { name: "Tercer Misterio Gozoso", announcement: "El nacimiento del Hijo de Dios." },
+    { name: "Cuarto Misterio Gozoso", announcement: "La Presentación de Jesús en el templo." },
+    { name: "Quinto Misterio Gozoso", announcement: "El Niño Jesús perdido y hallado en el templo." },
   ],
   [MysteryTypeEnum.Luminous]: [
     { name: "Primer Misterio Luminoso", announcement: "El Bautismo de Jesús en el Jordán." },
     { name: "Segundo Misterio Luminoso", announcement: "La autorrevelación de Jesús en las bodas de Caná." },
     { name: "Tercer Misterio Luminoso", announcement: "El anuncio del Reino de Dios invitando a la conversión." },
-    { name: "Cuarto Misterio Luminoso", announcement: "La Transfiguración de Jesús." },
+    { name: "Cuarto Misterio Luminoso", announcement: "La Transfiguración." },
     { name: "Quinto Misterio Luminoso", announcement: "La Institución de la Eucaristía." },
   ],
   [MysteryTypeEnum.Sorrowful]: [
-    { name: "Primer Misterio Doloroso", announcement: "La Oración de Jesús en el Huerto de Getsemaní." },
-    { name: "Segundo Misterio Doloroso", announcement: "La Flagelación de Jesús atado a la columna." },
+    { name: "Primer Misterio Doloroso", announcement: "La Oración de Jesús en el Huerto." },
+    { name: "Segundo Misterio Doloroso", announcement: "La Flagelación del Señor." },
     { name: "Tercer Misterio Doloroso", announcement: "La Coronación de espinas." },
     { name: "Cuarto Misterio Doloroso", announcement: "Jesús con la Cruz a cuestas camino del Calvario." },
     { name: "Quinto Misterio Doloroso", announcement: "La Crucifixión y Muerte de Nuestro Señor." },
   ],
   [MysteryTypeEnum.Glorious]: [
-    { name: "Primer Misterio Glorioso", announcement: "La Resurrección del Señor." },
+    { name: "Primer Misterio Glorioso", announcement: "La Resurrección del Hijo de Dios." },
     { name: "Segundo Misterio Glorioso", announcement: "La Ascensión del Señor a los Cielos." },
     { name: "Tercer Misterio Glorioso", announcement: "La Venida del Espíritu Santo sobre los Apóstoles." },
     { name: "Cuarto Misterio Glorioso", announcement: "La Asunción de Nuestra Señora a los Cielos." },
-    { name: "Quinto Misterio Glorioso", announcement: "La Coronación de María como Reina de Cielos y Tierra." },
+    { name: "Quinto Misterio Glorioso", announcement: "La Coronación de la Santísima Virgen como Reina de Cielos y Tierra." },
   ],
 };
 
