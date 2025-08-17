@@ -22,8 +22,8 @@ const InteractiveRosary: React.FC = () => {
   } = useRosary();
 
   return (
-    <div className="bg-gradient-to-br from-marian-blue-50 to-marian-blue-200 min-h-screen text-gray-800 dark:text-gray-200 flex flex-col items-center justify-center p-4 selection:bg-marian-blue-200">
-      <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+    <div className="rosary-background min-h-screen text-gray-800 dark:text-gray-200 flex flex-col items-center justify-center p-4 selection:bg-marian-blue-200">
+      <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 z-10">
         
         {/* Left Panel: Controls and Prayer Display */}
         <div className="lg:w-1/3 w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 lg:p-8 flex flex-col order-2 lg:order-1 h-[90vh]">
