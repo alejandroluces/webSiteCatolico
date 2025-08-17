@@ -452,6 +452,13 @@ Destierra de nuestra vida, de nuestra casa, las asechanzas del maligno espíritu
  Pídele al Señor, remedie nuestras necesidades espirituales, y corporales. Pídele también por el progreso de la santa Iglesia Católica; y porque mi alma no muera en pecado mortal, para que así confiado en Tu poderosa intercesión, pueda algún día en el cielo, cantar las eternas alabanzas. Amén.`
     },
     {
+      id: 72,
+      title: 'Oraciones contra el maleficio',
+      category: 'proteccion',
+      excerpt: 'Dios nuestro Señor, oh Soberano de los siglos, omnipotente y todopoderoso, tú que lo has hecho todo y que lo transformas todo con tu sola voluntad...',
+      content: `Dios nuestro Señor, oh Soberano de los siglos, omnipotente y todopoderoso, tú que lo has hecho todo y que lo transformas todo con tu sola voluntad; tú que en Babilonia transformaste en rocío la llama del horno siete veces más ardiente y que protegiste y salvaste a tus tres santos jóvenes; tú que eres doctor y médico de nuestras almas; tú que eres la salvación de aquellos que se dirigen a ti, te pedimos y te invocamos, haz vana, expulsa y pon en fuga toda potencia diabólica, toda presencia y maquinación satánica, toda influencia maligna y todo maleficio o mal de ojo de personas maléficas y malvadas realizados sobre tu siervo... haz que, en cambio, de la envidia y el maleficio obtenga abundancia de bienes, fuerza, éxito y caridad; tú, Señor, que amas a los hombres, extiende tus manos poderosas y tus brazos altísimos y potentes y ven a socorrer y visita esta imagen tuya, mandando sobre ella el ángel de la paz, fuerte y protector del alma y el cuerpo, que mantendrá alejado y expulsará a cualquier fuerza malvada, todo envenenamiento y hechicería de personas corruptoras y envidiosas; de modo que debajo de ti tu suplicante protegido te cante con gratitud: “el Señor es mi salvador y no tendré temor de lo que pueda hacerme el hombre.” “No tendré temor del mal porque tú estás conmigo, tú eres mi Dios, mi fuerza, mi poderoso Señor, Señor de la paz, padre de los siglos futuros”. Sí Señor Dios nuestro, ten compasión de tu imagen y salva a tu siervo... de todo daño o amenaza procedente de maleficio, y protégelo poniéndolo por encima de todo mal; por la intercesión de la más que bendita, gloriosa Señora, la madre de Dios y siempre Virgen María, de los resplandecientes arcángeles y de todos sus santos. ¡Amén!`
+    },
+    {
       id: 5,
       title: 'Oración por las Vocaciones',
       category: 'vocaciones',
