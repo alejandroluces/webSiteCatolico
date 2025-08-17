@@ -89,7 +89,6 @@ const createDecade = (mysteryIndex: number): RosaryBead[] => [
 const conclusion: RosaryBead[] = [
     { prayerKey: 'hail_holy_queen' },
     { prayerKey: 'final_prayer' },
-    { prayerKey: 'sign_of_cross' },
 ];
 
 const fullIntro: RosaryBead[] = [
@@ -110,6 +109,6 @@ export const ROSARY_SEQUENCE: RosaryBead[] = [
   ...createDecade(2), // 14 prayers
   ...createDecade(3), // 14 prayers
   ...createDecade(4), // 14 prayers
-  ...conclusion, // 3 prayers
+  ...conclusion, // 2 prayers
 ];
-// Total prayers: 6 + 5 * 14 + 3 = 79
+// Total prayers: 6 + 5 * 14 + 2 = 78
