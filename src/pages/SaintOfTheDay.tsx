@@ -1,13 +1,77 @@
-import React from 'react';
-import { User, Calendar } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
+interface Saint {
+  title: string;
+  text: string;
+  imagePath: string;
+  url: string;
+  biography: string;
+}
+
+interface SaintData {
+  date: string;
+  formattedDate: string;
+  saint: Saint;
+}
 
 const SaintOfTheDay: React.FC = () => {
-  const today = new Date().toLocaleDateString('es-ES', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  const [saintData, setSaintData] = useState<SaintData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSaintData = async () => {
+      try {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const formattedDate = `${day}${month}${year}`;
+        
+        const response = await fetch(`/images/santo-del-dia/${formattedDate}.json`);
+        const contentType = response.headers.get("content-type");
+        if (!response.ok || !contentType || !contentType.includes("application/json")) {
+          throw new Error('No se encontró el santo del día de hoy.');
+        }
+        const data: SaintData = await response.json();
+        setSaintData(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Ocurrió un error desconocido.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSaintData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+        <p className="text-lg text-gray-600 dark:text-gray-300">Cargando...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+        <p className="text-lg text-red-600 dark:text-red-400">{error}</p>
+      </div>
+    );
+  }
+
+  if (!saintData) {
+    return null;
+  }
+
+  const { formattedDate, saint } = saintData;
+  
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const year = today.getFullYear();
+  const imageName = `${day}${month}${year}.png`;
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 py-8">
@@ -17,7 +81,7 @@ const SaintOfTheDay: React.FC = () => {
             Santo del Día
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            {today}
+            {formattedDate}
           </p>
         </div>
 
@@ -26,14 +90,16 @@ const SaintOfTheDay: React.FC = () => {
             <div className="flex flex-col md:flex-row gap-8">
               <div className="md:w-1/3">
                 <div className="bg-gradient-to-br from-amber-100 to-orange-100 dark:from-gray-700 dark:to-gray-600 rounded-lg p-6 text-center">
-                  <div className="w-32 h-32 mx-auto bg-gradient-to-br from-amber-200 to-orange-200 dark:from-gray-600 dark:to-gray-500 rounded-full flex items-center justify-center mb-4">
-                    <User className="h-16 w-16 text-amber-600 dark:text-amber-300" />
-                  </div>
+                  <img 
+                    src={`/images/santo-del-dia/${imageName}`} 
+                    alt={saint.title}
+                    className="w-32 h-32 mx-auto rounded-full object-cover mb-4"
+                  />
                   <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
-                    San Antonio Abad
+                    {saint.title}
                   </h2>
                   <p className="text-gray-600 dark:text-gray-300">
-                    Padre del monacato
+                    {/* Assuming the subtitle can be extracted or is static */}
                   </p>
                 </div>
               </div>
@@ -41,19 +107,13 @@ const SaintOfTheDay: React.FC = () => {
               <div className="md:w-2/3">
                 <div className="prose prose-lg dark:prose-invert max-w-none">
                   <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    San Antonio Abad (251-356), conocido como el "Padre del Monacato", fue uno de los primeros ermitaños cristianos. Nacido en Egipto en una familia acomodada, a los 20 años distribuyó sus bienes entre los pobres y se retiró al desierto para dedicarse completamente a la oración y la penitencia.
+                    {saint.text}
                   </p>
-                  <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    Durante más de 80 años vivió en soledad, enfrentando tentaciones y dificultades con una fe inquebrantable. Su ejemplo atrajo a muchos discípulos que buscaban seguir su camino de santidad.
-                  </p>
-                  <p className="text-gray-700 dark:text-gray-300">
-                    San Antonio es considerado el fundador del monacato cristiano y es venerado tanto en Oriente como en Occidente. Su vida nos enseña la importancia del silencio, la oración y el desprendimiento de los bienes materiales para encontrar a Dios.
-                  </p>
-                </div>
-                
-                <div className="mt-6 flex items-center text-gray-500 dark:text-gray-400">
-                  <Calendar className="h-5 w-5 mr-2" />
-                  <span>Fiesta: 17 de enero</span>
+                  {saint.biography.split('\n\n').map((paragraph, index) => (
+                    <p key={index} className="text-gray-700 dark:text-gray-300">
+                      {paragraph}
+                    </p>
+                  ))}
                 </div>
               </div>
             </div>
