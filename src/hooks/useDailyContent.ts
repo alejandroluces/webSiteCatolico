@@ -52,7 +52,7 @@ export const useDailyContent = (type: 'gospel' | 'saint' | 'reading', date?: str
       // Consultar la base de datos
       const { data, error: fetchError } = await supabase
         .from('daily_content')
-        .select('*, gospel_audio_url, reflection_audio_url, prayer_audio_url')
+        .select('*, image_url, gospel_audio_url, reflection_audio_url, prayer_audio_url')
         .eq('type', type)
         .eq('date', targetDate)
         .eq('is_active', true)
