@@ -1,5 +1,5 @@
 import { Handler } from '@netlify/functions';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
 const API_KEY = process.env.GEMINI_API_KEY || '';
 
@@ -7,7 +7,7 @@ if (!API_KEY) {
   throw new Error('La variable de entorno GEMINI_API_KEY no está configurada.');
 }
 
-const genAI = new GoogleGenerativeAI(API_KEY);
+const genAI = new GoogleGenAI({ apiKey: API_KEY });
 
 const handler: Handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -62,9 +62,11 @@ const handler: Handler = async (event) => {
       };
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const result = await genAI.models.generateContent({
+      model: "gemini-1.5-pro",
+      contents: prompt,
+    });
+    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     return {
       statusCode: 200,
