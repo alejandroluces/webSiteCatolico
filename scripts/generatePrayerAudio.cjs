@@ -1,39 +1,20 @@
-import React, { useState, Fragment, useRef, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Heart, Search, BookOpen, Users, Briefcase, Shield, Home, Cross, X, Star, Play, Pause } from 'lucide-react';
-import AdBanner from '../components/Ads/AdBanner';
-import { Dialog, Transition } from '@headlessui/react';
+const OpenAI = require('openai');
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
-interface Prayer {
-  id: number;
-  title: string;
-  category: string;
-  excerpt: string;
-  content: string;
-  audioUrl?: string;
+if (!process.env.OPENAI_API_KEY) {
+  console.error("Error: The OPENAI_API_KEY environment variable is missing.");
+  console.error("Please create a .env file in the root of your project and add the following line:");
+  console.error("OPENAI_API_KEY='your-api-key-here'");
+  process.exit(1);
 }
 
-const Prayers: React.FC = () => {
-  const { category } = useParams();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(category || 'todas');
-  const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-  const prayerCategories = [
-    { id: 'todas', name: 'Todas las Oraciones', icon: BookOpen, color: 'text-marian-blue-600 dark:text-marian-blue-400' },
-    { id: 'arcangeles', name: 'Arcángeles', icon: Shield, color: 'text-yellow-600 dark:text-yellow-400' },
-    { id: 'familia', name: 'Familia', icon: Home, color: 'text-red-600 dark:text-red-400' },
-    { id: 'salud', name: 'Salud', icon: Heart, color: 'text-green-600 dark:text-green-400' },
-    { id: 'trabajo', name: 'Trabajo', icon: Briefcase, color: 'text-blue-600 dark:text-blue-400' },
-    { id: 'proteccion', name: 'Protección', icon: Shield, color: 'text-purple-600 dark:text-purple-400' },
-    { id: 'vocaciones', name: 'Vocaciones', icon: Users, color: 'text-indigo-600 dark:text-indigo-400' },
-    { id: 'paz', name: 'Paz Interior', icon: Cross, color: 'text-sacred-gold-600 dark:text-sacred-gold-400' },
-    { id: 'marianas', name: 'Oraciones Marianas', icon: Star, color: 'text-blue-400 dark:text-blue-200' },
-  ];
-
-  const prayers = [
+const prayers = [
     {
       id: 1,
       title: 'Oración por la Familia',
@@ -65,7 +46,7 @@ Amén.`,
 Haz que tu gracia guíe a los pensamientos y las obras de los esposos hacia el bien de sus familias y de todas las familias del mundo.
 Haz que las jóvenes generaciones encuentren en la familia un fuerte apoyo para su humanidad y su crecimiento en la verdad y en el amor.
 Haz que el amor, corroborado por la gracia del sacramento del matrimonio, se demuestre más fuerte que cualquier debilidad y cualquier crisis, por las que a veces pasan nuestras familias.
-Haz finalmente, te lo pedimos por intercesión de la Sagrada Familia de Nazaret, que la Iglesia en todas las naciones de la tierra pueda cumplir fructíferamente su misión en la familia y por medio de la familia. Tú, que eres la Vida, la Verdad y El Amor, en la unidad del Hijo y del Espíritu santo.
+Haz finalmente, te lo pedimos por intercesión de la Sagrada Familia de Nazaret, que la Iglesia en todas las naciones de la tierra pueda cumplir fructíferamente su misión en la familia y por medio de la familia. Tú, que eres la Vida, la Truth y El Amor, en la unidad del Hijo y del Espíritu santo.
 Amen.`
     },
     {
@@ -841,7 +822,7 @@ Oh Virgen amantísima: así como el Espíritu Santo te llenó por completo de la
 dulzuras de su amor y te hizo tan amable y tan amante que, después de Dios,
 eres la más dulce y la más misericordiosa, así también te ruego me asistas en
 la hora de la muerte, llenando mi alma de tal suavidad de amor divino, que
-toda pena y amargura de muerte se cambie para mí en delicias.
+toda pena y amgur de muerte se cambie para mí en delicias.
 
 Repetir por 8 días más.`
     },
@@ -879,7 +860,7 @@ que se entrega a Sí mismo por nosotros. Amén.`
 salvador; porque ha mirado la humillación de su esclava.
 Desde ahora me felicitarán todas las generaciones, porque el Poderoso ha
 hecho obras grandes por mí:su nombre es santo, y su misericordia llega a sus
-fieles de generación en generación.
+fiesta de generación en generación.
 El hace proezas con su brazo: dispersa a los soberbios de corazón, derriba del
 trono a los poderosos y enaltece a los humildes, a los hambrientos los colma
 de bienes y a los ricos los despide vacíos.
@@ -1209,252 +1190,36 @@ Jaculatoria. Sea por siempre y en todas partes conocido, alabado, bendecido,
 amado, servido y glorificado el divinísimo Corazón de Jesús y el Inmaculado
 Corazón de María. Amén.`
     },
-  ];
+];
 
-  const filteredPrayers = prayers.filter(prayer => {
-    const matchesCategory = selectedCategory === 'todas' || prayer.category === selectedCategory;
-    const matchesSearch = prayer.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         prayer.content.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+const outputDir = path.resolve(__dirname, '../public/audio/prayers');
 
-  const openPrayerModal = (prayer: Prayer) => {
-    setSelectedPrayer(prayer);
-  };
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
+}
 
-  const closePrayerModal = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
+async function generateAudio() {
+  for (const prayer of prayers) {
+    const speechFile = path.resolve(outputDir, `${prayer.id}.mp3`);
+    if (fs.existsSync(speechFile)) {
+      console.log(`Audio for prayer ${prayer.id} already exists. Skipping.`);
+      continue;
     }
-    setSelectedPrayer(null);
-    setIsPlaying(false);
-  };
 
-  const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+    try {
+      console.log(`Generating audio for prayer: ${prayer.title}`);
+      const mp3 = await openai.audio.speech.create({
+        model: 'tts-1',
+        voice: 'alloy',
+        input: prayer.content,
+      });
+      const buffer = Buffer.from(await mp3.arrayBuffer());
+      await fs.promises.writeFile(speechFile, buffer);
+      console.log(`Successfully generated audio for prayer: ${prayer.title}`);
+    } catch (error) {
+      console.error(`Error generating audio for prayer ${prayer.id}:`, error);
     }
-  };
+  }
+}
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      const onPlay = () => setIsPlaying(true);
-      const onPause = () => setIsPlaying(false);
-      audio.addEventListener('play', onPlay);
-      audio.addEventListener('pause', onPause);
-      return () => {
-        audio.removeEventListener('play', onPlay);
-        audio.removeEventListener('pause', onPause);
-      };
-    }
-  }, [selectedPrayer]);
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Heart className="h-8 w-8 text-red-500" />
-            <h1 className="text-4xl font-serif font-bold text-marian-blue-900 dark:text-white">
-              Oraciones Católicas
-            </h1>
-          </div>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-sans">
-            Encuentra oraciones para cada momento de tu vida. Eleva tu corazón a Dios 
-            con estas plegarias tradicionales y contemporáneas.
-          </p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="mb-8">
-          <div className="relative max-w-md mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar oraciones..."
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-marian-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <AdBanner position="inline" size="medium" />
-
-        {/* Category Filter */}
-        <div className="mb-8">
-          <div className="flex flex-wrap justify-center gap-3">
-            {prayerCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-full font-medium transition-all duration-200 ${
-                  selectedCategory === cat.id
-                    ? 'bg-marian-blue-600 text-white shadow-lg'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-marian-blue-100 dark:hover:bg-gray-600'
-                }`}
-              >
-                <cat.icon className={`h-4 w-4 ${selectedCategory === cat.id ? 'text-white' : cat.color}`} />
-                <span>{cat.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Prayers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredPrayers.map((prayer) => {
-            const categoryInfo = prayerCategories.find(cat => cat.id === prayer.category);
-            return (
-              <div
-                key={prayer.id}
-                onClick={() => openPrayerModal(prayer)}
-                className="prayer-card-container bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 cursor-pointer flex flex-col"
-              >
-                <div className="p-6 flex-grow">
-                  <div className="flex items-center space-x-3 mb-4">
-                    {categoryInfo && (
-                      <div className={`p-2 rounded-full bg-opacity-20 ${categoryInfo.color.replace('text-', 'bg-')}`}>
-                        <categoryInfo.icon className={`h-6 w-6 ${categoryInfo.color}`} />
-                      </div>
-                    )}
-                    <h3 className="text-xl font-serif font-semibold text-marian-blue-900 dark:text-white">
-                      {prayer.title}
-                    </h3>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-sans text-base">
-                    {prayer.excerpt}
-                  </p>
-                </div>
-                <div className="bg-gray-50 dark:bg-gray-700 p-4 mt-auto text-right">
-                  <span className="text-marian-blue-600 dark:text-marian-blue-400 font-semibold font-sans text-sm">
-                    Leer oración &rarr;
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <AdBanner position="inline" size="small" />
-
-        {filteredPrayers.length === 0 && (
-          <div className="text-center py-12">
-            <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-serif font-semibold text-gray-900 dark:text-white mb-2">
-              No se encontraron oraciones
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Intenta con otros términos de búsqueda o selecciona una categoría diferente.
-            </p>
-          </div>
-        )}
-
-        {/* Call to Action */}
-        <div className="mt-16 bg-gradient-to-r from-marian-blue-900 to-marian-blue-800 dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 text-center text-white">
-          <h2 className="text-2xl font-serif font-bold mb-4">
-            ¿Necesitas una oración especial?
-          </h2>
-          <p className="text-marian-blue-100 dark:text-gray-300 mb-6">
-            Si no encuentras la oración que buscas, puedes solicitar una petición especial 
-            a nuestra comunidad de oración.
-          </p>
-          <a
-            href="/peticiones-oracion"
-            className="inline-flex items-center px-6 py-3 bg-sacred-gold-500 hover:bg-sacred-gold-600 text-white font-semibold rounded-lg transition-colors duration-200"
-          >
-            <Heart className="mr-2 h-5 w-5" />
-            Solicitar Oración
-          </a>
-        </div>
-      </div>
-
-      {/* Prayer Modal */}
-      <Transition appear show={selectedPrayer !== null} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={closePrayerModal}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-50" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-8 text-left align-middle shadow-xl transition-all">
-                  {selectedPrayer && (
-                    <>
-                      <Dialog.Title
-                        as="h3"
-                        className="text-2xl font-serif font-bold leading-6 text-marian-blue-900 dark:text-white mb-4"
-                      >
-                        {selectedPrayer.title}
-                      </Dialog.Title>
-                      <div className="mt-4">
-                        <audio ref={audioRef} src={`/audio/prayers/${selectedPrayer.id}.mp3`} />
-                        <button
-                          onClick={togglePlayPause}
-                          className="flex items-center justify-center w-full px-4 py-2 mb-4 text-sm font-medium text-white bg-marian-blue-600 rounded-md hover:bg-marian-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-                        >
-                          {isPlaying ? <Pause className="w-5 h-5 mr-2" /> : <Play className="w-5 h-5 mr-2" />}
-                          {isPlaying ? 'Pausar Audio' : 'Escuchar Oración'}
-                        </button>
-                      </div>
-                      <div className="mt-4 prose dark:prose-invert max-w-none">
-                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line font-sans text-lg leading-relaxed">
-                          {selectedPrayer.content}
-                        </p>
-                      </div>
-                    </>
-                  )}
-
-                  <div className="mt-8">
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-marian-blue-100 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-marian-blue-900 dark:text-white hover:bg-marian-blue-200 dark:hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-marian-blue-500 focus-visible:ring-offset-2"
-                      onClick={closePrayerModal}
-                    >
-                      Cerrar
-                    </button>
-                  </div>
-                  <button
-                    type="button"
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                    onClick={closePrayerModal}
-                  >
-                    <X className="h-6 w-6" />
-                  </button>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-    </div>
-  );
-};
-
-export default Prayers;
+generateAudio();

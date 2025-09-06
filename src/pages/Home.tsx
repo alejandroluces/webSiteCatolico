@@ -55,7 +55,14 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-marian-blue-900 via-marian-blue-800 to-marian-blue-700 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 text-white overflow-hidden">
+      <section 
+        className="relative bg-gradient-to-br from-marian-blue-900 via-marian-blue-800 to-marian-blue-700 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 text-white overflow-hidden"
+        style={{ 
+          backgroundImage: "url('/images/camino_de_fe.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
         <div className="absolute inset-0 bg-black opacity-20"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-marian-blue-900/50 to-transparent"></div>
         
