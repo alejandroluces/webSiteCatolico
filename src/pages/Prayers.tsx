@@ -1,6 +1,6 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, Fragment, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Heart, Search, BookOpen, Users, Briefcase, Shield, Home, Cross, X, Star } from 'lucide-react';
+import { Heart, Search, BookOpen, Users, Briefcase, Shield, Home, Cross, X, Star, Play, Pause } from 'lucide-react';
 import AdBanner from '../components/Ads/AdBanner';
 import { Dialog, Transition } from '@headlessui/react';
 
@@ -10,6 +10,7 @@ interface Prayer {
   category: string;
   excerpt: string;
   content: string;
+  audioUrl?: string;
 }
 
 const Prayers: React.FC = () => {
@@ -17,6 +18,8 @@ const Prayers: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(category || 'todas');
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const prayerCategories = [
     { id: 'todas', name: 'Todas las Oraciones', icon: BookOpen, color: 'text-marian-blue-600 dark:text-marian-blue-400' },
@@ -1220,8 +1223,37 @@ Corazón de María. Amén.`
   };
 
   const closePrayerModal = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
     setSelectedPrayer(null);
+    setIsPlaying(false);
   };
+
+  const togglePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      const onPlay = () => setIsPlaying(true);
+      const onPause = () => setIsPlaying(false);
+      audio.addEventListener('play', onPlay);
+      audio.addEventListener('pause', onPause);
+      return () => {
+        audio.removeEventListener('play', onPlay);
+        audio.removeEventListener('pause', onPause);
+      };
+    }
+  }, [selectedPrayer]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -1381,6 +1413,16 @@ Corazón de María. Amén.`
                       >
                         {selectedPrayer.title}
                       </Dialog.Title>
+                      <div className="mt-4">
+                        <audio ref={audioRef} src={`/audio/prayers/${selectedPrayer.id}.mp3`} />
+                        <button
+                          onClick={togglePlayPause}
+                          className="flex items-center justify-center w-full px-4 py-2 mb-4 text-sm font-medium text-white bg-marian-blue-600 rounded-md hover:bg-marian-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                        >
+                          {isPlaying ? <Pause className="w-5 h-5 mr-2" /> : <Play className="w-5 h-5 mr-2" />}
+                          {isPlaying ? 'Pausar Audio' : 'Escuchar Oración'}
+                        </button>
+                      </div>
                       <div className="mt-4 prose dark:prose-invert max-w-none">
                         <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line font-sans text-lg leading-relaxed">
                           {selectedPrayer.content}
