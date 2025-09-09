@@ -9,7 +9,7 @@ const Terms: React.FC = () => {
       id: 'aceptacion',
       title: 'Aceptación de los Términos',
       icon: Scale,
-      content: `Al acceder y utilizar el sitio web Luz de Fe, usted acepta estar sujeto a estos Términos y Condiciones de Uso y a todas las leyes y regulaciones aplicables. Si no está de acuerdo con alguno de estos términos, no debe utilizar este sitio web.
+      content: `Al acceder y utilizar el sitio web Camino de Fe, usted acepta estar sujeto a estos Términos y Condiciones de Uso y a todas las leyes y regulaciones aplicables. Si no está de acuerdo con alguno de estos términos, no debe utilizar este sitio web.
 
 Estos términos pueden ser actualizados periódicamente sin previo aviso. Es su responsabilidad revisar estos términos regularmente. El uso continuado del sitio web después de cualquier cambio constituye su aceptación de los nuevos términos.`
     },
@@ -17,7 +17,7 @@ Estos términos pueden ser actualizados periódicamente sin previo aviso. Es su 
       id: 'uso-sitio',
       title: 'Uso del Sitio Web',
       icon: Shield,
-      content: `Luz de Fe es un portal católico dedicado a la evangelización, formación espiritual y acompañamiento en la fe. El contenido está destinado para uso personal, educativo y espiritual.
+      content: `Camino de Fe es un portal católico dedicado a la evangelización, formación espiritual y acompañamiento en la fe. El contenido está destinado para uso personal, educativo y espiritual.
 
 Usted se compromete a:
 • Utilizar el sitio web de manera respetuosa y conforme a los valores católicos
@@ -36,10 +36,10 @@ Está prohibido:
       id: 'contenido',
       title: 'Contenido y Propiedad Intelectual',
       icon: FileText,
-      content: `Todo el contenido del sitio web Luz de Fe, incluyendo textos, imágenes, gráficos, logos, iconos, software y otros materiales, está protegido por derechos de autor y otras leyes de propiedad intelectual.
+      content: `Todo el contenido del sitio web Camino de Fe, incluyendo textos, imágenes, gráficos, logos, iconos, software y otros materiales, está protegido por derechos de autor y otras leyes de propiedad intelectual.
 
 Derechos de Autor:
-• El contenido original es propiedad de Luz de Fe o sus licenciantes
+• El contenido original es propiedad de Camino de Fe o sus licenciantes
 • Las citas bíblicas y textos litúrgicos son de dominio público
 • Las imágenes de santos y arte sacro pueden tener derechos específicos
 
@@ -57,7 +57,7 @@ Uso Prohibido:
       id: 'peticiones-oracion',
       title: 'Peticiones de Oración y Contenido del Usuario',
       icon: AlertTriangle,
-      content: `Al enviar peticiones de oración, comentarios o cualquier otro contenido al sitio web, usted otorga a Luz de Fe una licencia no exclusiva para usar, reproducir y mostrar dicho contenido en el sitio web.
+      content: `Al enviar peticiones de oración, comentarios o cualquier otro contenido al sitio web, usted otorga a Camino de Fe una licencia no exclusiva para usar, reproducir y mostrar dicho contenido en el sitio web.
 
 Responsabilidades del Usuario:
 • El contenido debe ser respetuoso y apropiado
@@ -89,7 +89,7 @@ Privacidad:
             </h1>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Estos términos rigen el uso del sitio web Luz de Fe. Al utilizar nuestros servicios, 
+            Estos términos rigen el uso del sitio web Camino de Fe. Al utilizar nuestros servicios,
             usted acepta cumplir con estas condiciones.
           </p>
           <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
@@ -100,10 +100,10 @@ Privacidad:
         {/* Introduction */}
         <div className="bg-marian-blue-50 dark:bg-gray-800 rounded-xl p-6 mb-8">
           <h2 className="text-2xl font-serif font-semibold text-marian-blue-900 dark:text-white mb-4">
-            Bienvenido a Luz de Fe
+            Bienvenido a Camino de Fe
           </h2>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            Luz de Fe es un portal católico dedicado a la evangelización, formación espiritual 
+            Camino de Fe es un portal católico dedicado a la evangelización, formación espiritual
             y acompañamiento en la fe. Estos términos y condiciones establecen las reglas y 
             regulaciones para el uso de nuestro sitio web, ubicado en luzdefe.com.
           </p>
@@ -151,7 +151,7 @@ Privacidad:
                   del contenido.
                 </p>
                 <p>
-                  Luz de Fe no se hace responsable de ningún daño directo, indirecto, incidental 
+                  Camino de Fe no se hace responsable de ningún daño directo, indirecto, incidental
                   o consecuente que pueda surgir del uso de este sitio web o de la confianza 
                   depositada en su contenido.
                 </p>
@@ -167,7 +167,7 @@ Privacidad:
           </h2>
           <div className="text-gray-700 dark:text-gray-300 space-y-4">
             <p>
-              En ningún caso Luz de Fe, sus directores, empleados, colaboradores o afiliados 
+              En ningún caso Camino de Fe, sus directores, empleados, colaboradores o afiliados
               serán responsables de:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
@@ -290,7 +290,7 @@ Privacidad:
         {/* Final Notice */}
         <div className="mt-8 bg-gray-50 dark:bg-gray-800 rounded-xl p-6 text-center">
           <p className="text-gray-600 dark:text-gray-400 text-sm">
-            Al utilizar el sitio web Luz de Fe, usted reconoce que ha leído, entendido y 
+            Al utilizar el sitio web Camino de Fe, usted reconoce que ha leído, entendido y
             acepta estar sujeto a estos Términos y Condiciones.
           </p>
         </div>

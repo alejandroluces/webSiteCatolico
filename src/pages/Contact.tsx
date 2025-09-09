@@ -323,7 +323,7 @@ const Contact: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-marian-blue-900 dark:text-white mb-2">
-                  ¿Cómo puedo colaborar con Luz de Fe?
+                  ¿Cómo puedo colaborar con Camino de Fe?
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
                   Siempre buscamos colaboradores comprometidos con la evangelización. Contacta con nosotros para conocer las oportunidades.

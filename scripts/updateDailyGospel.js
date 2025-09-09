@@ -262,7 +262,7 @@ async function scheduleContent(contentId, date) {
  * Función principal para actualizar el evangelio del día
  */
 async function updateDailyGospel(date = getTodayDate()) {
-  console.log('🌟 Luz de Fe - Actualización Automática del Evangelio');
+  console.log('🌟 Camino de Fe - Actualización Automática del Evangelio');
   console.log('='.repeat(50));
   console.log(`📅 Fecha: ${date}`);
   

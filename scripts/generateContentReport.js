@@ -38,7 +38,7 @@ async function generateContentReport(options = {}) {
     metadata: {
       generated_at: new Date().toISOString(),
       period: { start: startDate, end: endDate },
-      generator: 'Luz de Fe Content Report System'
+      generator: 'Camino de Fe Content Report System'
     },
     summary: {},
     content_analysis: {},
@@ -339,7 +339,7 @@ function generateHtmlReport(report) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Contenido - Luz de Fe</title>
+    <title>Reporte de Contenido - Camino de Fe</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
         .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -359,7 +359,7 @@ function generateHtmlReport(report) {
 <body>
     <div class="container">
         <div class="header">
-            <h1>📊 Reporte de Contenido - Luz de Fe</h1>
+            <h1>📊 Reporte de Contenido - Camino de Fe</h1>
             <p>Generado el: ${new Date(report.metadata.generated_at).toLocaleString('es-ES')}</p>
             <p>Período: ${report.metadata.period.start} a ${report.metadata.period.end}</p>
         </div>
@@ -423,7 +423,7 @@ function generateHtmlReport(report) {
 
 // Ejecutar script
 async function main() {
-  console.log('🌟 Luz de Fe - Generador de Reportes de Contenido');
+  console.log('🌟 Camino de Fe - Generador de Reportes de Contenido');
   console.log('=' .repeat(60));
   
   const args = process.argv.slice(2);

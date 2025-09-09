@@ -1,8 +1,8 @@
-# Luz de Fe - Portal Católico
+# Camino de Fe - Portal Católico
 
 ![Banner del Proyecto](public/image.png)
 
-Luz de Fe es un portal web católico diseñado para proporcionar recursos espirituales diarios a la comunidad de habla hispana. La plataforma ofrece acceso al Evangelio del día, reflexiones, información sobre los santos, un rosario interactivo y un blog con artículos de profundización en la fe.
+Camino de Fe es un portal web católico diseñado para proporcionar recursos espirituales diarios a la comunidad de habla hispana. La plataforma ofrece acceso al Evangelio del día, reflexiones, información sobre los santos, un rosario interactivo y un blog con artículos de profundización en la fe.
 
 ## ✨ Características Principales
 

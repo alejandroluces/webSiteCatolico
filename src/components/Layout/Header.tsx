@@ -14,7 +14,7 @@ const Header: React.FC = () => {
     { name: 'Santo del Día', href: '/santo-del-dia' },
     { name: 'Oraciones', href: '/oraciones' },
     { name: 'Blog', href: '/blog' },
-    { name: 'Aprende a Rezar', href: '/aprende-a-rezar' },
+    { name: 'Aprende a Rezar el rosario', href: '/aprende-a-rezar' },
   ];
 
   const isActiveRoute = (href: string) => {
@@ -27,7 +27,7 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 text-2xl font-bold text-marian-blue-900 dark:text-white">
-            Luz de Fe
+            Camino de Fe
           </Link>
 
           {/* Desktop Navigation */}

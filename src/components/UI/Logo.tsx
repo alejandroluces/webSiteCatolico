@@ -47,7 +47,7 @@ const Logo: React.FC<LogoProps> = ({ variant = 'dark', size = 'md' }) => {
       
       <div className="flex flex-col">
         <span className={`font-serif font-bold ${textClasses[size]} ${colorClasses} tracking-tight group-hover:text-sacred-gold-600 dark:group-hover:text-sacred-gold-300 transition-colors duration-300`}>
-          Luz de Fe
+          Camino de Fe
         </span>
         {size !== 'sm' && (
           <span className={`text-xs ${variant === 'light' ? 'text-blue-100' : 'text-gray-600 dark:text-gray-400'} font-sans tracking-wide`}>

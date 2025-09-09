@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <Link to="/" className="text-xl font-bold">
-              Luz de Fe
+              Camino de Fe
             </Link>
             <p className="text-sm text-marian-blue-100 dark:text-gray-400 mt-1">
               Portal Católico de Evangelización
@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
         
         <div className="border-t border-marian-blue-800 dark:border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-marian-blue-200 dark:text-gray-400">
-            © {currentYear} Luz de Fe. Todos los derechos reservados.
+            © {currentYear} Camino de Fe. Todos los derechos reservados.
           </p>
           <div className="flex items-center space-x-1 text-sm text-marian-blue-200 dark:text-gray-400 mt-4 md:mt-0">
             <span>Hecho con</span>

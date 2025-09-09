@@ -104,7 +104,7 @@ const Privacy: React.FC = () => {
             </h1>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            En Luz de Fe, respetamos y protegemos su privacidad. Esta política explica cómo 
+            En Camino de Fe, respetamos y protegemos su privacidad. Esta política explica cómo
             recopilamos, usamos y protegemos su información personal.
           </p>
           <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">

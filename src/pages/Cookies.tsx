@@ -118,7 +118,7 @@ const Cookies: React.FC = () => {
             </h1>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Información sobre cómo utilizamos las cookies en Luz de Fe y cómo puede 
+            Información sobre cómo utilizamos las cookies en Camino de Fe y cómo puede
             controlar su uso para mejorar su experiencia de navegación.
           </p>
           <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
@@ -139,7 +139,7 @@ const Cookies: React.FC = () => {
               cómo se utiliza el sitio.
             </p>
             <p>
-              En Luz de Fe, utilizamos cookies para recordar sus preferencias, analizar 
+              En Camino de Fe, utilizamos cookies para recordar sus preferencias, analizar
               el tráfico del sitio, y personalizar el contenido para ofrecerle la mejor 
               experiencia espiritual posible.
             </p>

@@ -1,8 +1,8 @@
-# 📋 Guía de Mantenimiento - Luz de Fe
+# 📋 Guía de Mantenimiento - Camino de Fe
 
 ## 🎯 Resumen Ejecutivo
 
-Esta guía proporciona instrucciones completas para el mantenimiento y actualización periódica del contenido del portal católico Luz de Fe. El sistema está diseñado para facilitar la gestión diaria del contenido espiritual.
+Esta guía proporciona instrucciones completas para el mantenimiento y actualización periódica del contenido del portal católico Camino de Fe. El sistema está diseñado para facilitar la gestión diaria del contenido espiritual.
 
 ## 🏗️ Arquitectura del Sistema de Contenido
 

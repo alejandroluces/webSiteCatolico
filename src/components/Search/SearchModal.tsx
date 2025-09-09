@@ -119,7 +119,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
           <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-serif font-semibold text-gray-900 dark:text-white">
-                Buscar en Luz de Fe
+                Buscar en Camino de Fe
               </h3>
               <button
                 onClick={onClose}

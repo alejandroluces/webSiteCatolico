@@ -152,7 +152,7 @@ async function checkMissingContent(days = 7) {
 
 // Ejecutar script
 async function main() {
-  console.log('🌟 Luz de Fe - Sistema de Publicación Automática');
+  console.log('🌟 Camino de Fe - Sistema de Publicación Automática');
   console.log('=' .repeat(50));
   
   await publishScheduledContent();

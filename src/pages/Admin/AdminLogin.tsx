@@ -86,7 +86,7 @@ const AdminLogin: React.FC = () => {
             Panel de Administración
           </h2>
           <p className="text-marian-blue-100 dark:text-gray-300">
-            Acceso exclusivo para administradores de Luz de Fe
+            Acceso exclusivo para administradores de Camino de Fe
           </p>
         </div>
 

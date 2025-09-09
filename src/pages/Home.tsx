@@ -71,7 +71,7 @@ const Home: React.FC = () => {
             <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6 animate-fade-in">
               Bienvenido a{' '}
               <span className="text-sacred-gold-400 dark:text-sacred-gold-300">
-                Luz de Fe
+                Camino de Fe
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-marian-blue-100 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed animate-slide-up">
