@@ -4,7 +4,7 @@ import { Settings, Save, RefreshCw, Database, Shield, Bell, Clock } from 'lucide
 const SystemSettings: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [settings, setSettings] = useState({
-    site_name: 'Luz de Fe',
+    site_name: 'Camino de Fe',
     site_description: 'Portal católico para evangelización y formación espiritual',
     auto_publish_time: '06:00',
     backup_retention_days: 30,

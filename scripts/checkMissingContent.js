@@ -179,7 +179,7 @@ async function generateDetailedReport() {
 
 // Ejecutar script
 async function main() {
-  console.log('🌟 Luz de Fe - Verificador de Contenido');
+  console.log('🌟 Camino de Fe - Verificador de Contenido');
   console.log('=' .repeat(50));
   
   const days = process.argv[2] ? parseInt(process.argv[2]) : 30;

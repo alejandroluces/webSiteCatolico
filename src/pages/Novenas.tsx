@@ -140,7 +140,7 @@ const Novenas: React.FC = () => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: selectedNovena ? selectedNovena.title : 'Novenas - Luz de Fe',
+        title: selectedNovena ? selectedNovena.title : 'Novenas - Camino de Fe',
         text: selectedNovena ? selectedNovena.description : 'Descubre nuestras novenas católicas',
         url: window.location.href,
       });

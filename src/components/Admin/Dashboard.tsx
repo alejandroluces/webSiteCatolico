@@ -64,7 +64,7 @@ const Dashboard: React.FC = () => {
               Panel de Control
             </h1>
             <p className="text-gray-600 dark:text-gray-300 mt-2">
-              Gestión y monitoreo del sistema Luz de Fe
+              Gestión y monitoreo del sistema Camino de Fe
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Última actualización: {lastUpdate.toLocaleTimeString()}

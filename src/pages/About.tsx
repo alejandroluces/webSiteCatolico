@@ -36,7 +36,7 @@ const About: React.FC = () => {
       <section className="bg-gradient-to-br from-marian-blue-900 to-marian-blue-700 dark:from-gray-900 dark:to-gray-700 text-white py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">
-            Acerca de Luz de Fe
+            Acerca de Camino de Fe
           </h1>
           <p className="text-xl text-marian-blue-100 dark:text-gray-300 leading-relaxed">
             Somos una comunidad católica digital dedicada a evangelizar, formar e inspirar 
@@ -55,7 +55,7 @@ const About: React.FC = () => {
               </h2>
               <div className="space-y-4 text-gray-700 dark:text-gray-300 leading-relaxed">
                 <p>
-                  Luz de Fe nació con el deseo de llevar la luz del Evangelio a cada rincón del mundo digital. 
+                  Camino de Fe nació con el deseo de llevar la luz del Evangelio a cada rincón del mundo digital.
                   Creemos que la fe católica puede y debe adaptarse a los nuevos tiempos sin perder su esencia.
                 </p>
                 <p>

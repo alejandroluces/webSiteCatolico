@@ -400,7 +400,7 @@ function setupCronJob() {
  * Punto de entrada del script
  */
 async function main() {
-  console.log('🌟 Luz de Fe - Sincronización del Evangelio del Día');
+  console.log('🌟 Camino de Fe - Sincronización del Evangelio del Día');
   console.log('='.repeat(50));
 
   const args = process.argv.slice(2);
