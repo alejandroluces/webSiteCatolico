@@ -106,7 +106,7 @@ async function generateReflection(gospelData) {
   Formato: Párrafos bien estructurados sin encabezados ni conclusiones explícitas.`;
   
   const result = await genAI.models.generateContent({
-    model: "gemini-1.5-pro",
+    model: "gemini-2.0-flash-001",
     contents: prompt,
   });
   const reflection = result.candidates[0].content.parts[0].text;
