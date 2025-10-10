@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getPrayerRequests, addPrayerRequest, incrementPrayerCount, PrayerRequest } from '../services/prayerRequestsService';
 import { Heart, Send, Clock, Users, MessageCircle, Plus, Filter, Search } from 'lucide-react';
 import AdBanner from '../components/Ads/AdBanner';
 
@@ -25,62 +26,22 @@ const PrayerRequests: React.FC = () => {
     { id: 'paz', name: 'Paz', count: 3 },
   ];
 
-  const prayerRequests = [
-    {
-      id: 1,
-      name: 'María G.',
-      intention: 'Por la salud de mi madre que está enferma. Que Dios le conceda fortaleza y una pronta recuperación.',
-      category: 'salud',
-      date: '2 horas',
-      prayers: 15,
-      isUrgent: true,
-    },
-    {
-      id: 2,
-      name: 'Anónimo',
-      intention: 'Por la unidad de mi familia. Que el Señor nos ayude a perdonarnos y a vivir en armonía.',
-      category: 'familia',
-      date: '4 horas',
-      prayers: 23,
-      isUrgent: false,
-    },
-    {
-      id: 3,
-      name: 'Carlos M.',
-      intention: 'Por encontrar trabajo. Que Dios me guíe hacia una oportunidad laboral que me permita sostener a mi familia.',
-      category: 'trabajo',
-      date: '6 horas',
-      prayers: 18,
-      isUrgent: false,
-    },
-    {
-      id: 4,
-      name: 'Ana L.',
-      intention: 'Por la paz en el mundo y especialmente por los países en conflicto. Que cese la violencia.',
-      category: 'paz',
-      date: '8 horas',
-      prayers: 31,
-      isUrgent: false,
-    },
-    {
-      id: 5,
-      name: 'Familia Rodríguez',
-      intention: 'Por nuestro hijo que está pasando por una crisis de fe. Que el Señor toque su corazón.',
-      category: 'familia',
-      date: '12 horas',
-      prayers: 27,
-      isUrgent: false,
-    },
-    {
-      id: 6,
-      name: 'Anónimo',
-      intention: 'Por mi conversión personal y por alejarme de los vicios que me alejan de Dios.',
-      category: 'general',
-      date: '1 día',
-      prayers: 42,
-      isUrgent: false,
-    },
-  ];
+  const [prayerRequests, setPrayerRequests] = useState<PrayerRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const data = await getPrayerRequests();
+        setPrayerRequests(data);
+      } catch (error) {
+        console.error('Error al cargar peticiones:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRequests();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -102,9 +63,19 @@ const PrayerRequests: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const saved = await addPrayerRequest({
+        name: newRequest.isAnonymous ? 'Anónimo' : newRequest.name || 'Anónimo',
+        intention: newRequest.intention,
+        category: newRequest.category,
+        is_anonymous: newRequest.isAnonymous,
+      });
+      setPrayerRequests(prev => [saved, ...prev]);
       setIsSubmitted(true);
+    } catch (error) {
+      console.error('Error al guardar la petición:', error);
+      alert('Hubo un error al guardar la petición. Intenta nuevamente.');
+    } finally {
       setIsSubmitting(false);
       setNewRequest({
         name: '',
@@ -114,19 +85,41 @@ const PrayerRequests: React.FC = () => {
         isAnonymous: false,
       });
       setShowForm(false);
-    }, 2000);
+    }
   };
 
   const filteredRequests = prayerRequests.filter(request => {
     const matchesCategory = selectedCategory === 'all' || request.category === selectedCategory;
     const matchesSearch = request.intention.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         request.name.toLowerCase().includes(searchTerm.toLowerCase());
+                         (request.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const handlePray = (requestId: number) => {
-    // Placeholder for prayer functionality
-    alert('¡Gracias por orar! Tu oración ha sido registrada.');
+  const [prayedRequests, setPrayedRequests] = useState<number[]>(() => {
+    const stored = localStorage.getItem('prayedRequests');
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  const handlePray = async (requestId: number) => {
+    if (prayedRequests.includes(requestId)) {
+      alert('Ya has orado por esta intención.');
+      return;
+    }
+
+    try {
+      await incrementPrayerCount(requestId);
+      setPrayerRequests(prev =>
+        prev.map(req =>
+          req.id === requestId ? { ...req, prayers: (req.prayers ?? 0) + 1 } : req
+        )
+      );
+      const updated = [...prayedRequests, requestId];
+      setPrayedRequests(updated);
+      localStorage.setItem('prayedRequests', JSON.stringify(updated));
+      alert('¡Gracias por orar! Tu oración ha sido registrada.');
+    } catch (error) {
+      console.error('Error al registrar oración:', error);
+    }
   };
 
   if (isSubmitted) {
@@ -181,7 +174,7 @@ const PrayerRequests: React.FC = () => {
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 text-center">
             <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
-              {prayerRequests.reduce((sum, req) => sum + req.prayers, 0)}
+              {prayerRequests.reduce((sum, req) => sum + (req.prayers ?? 0), 0)}
             </div>
             <div className="text-gray-600 dark:text-gray-300">Oraciones Ofrecidas</div>
           </div>
@@ -347,9 +340,7 @@ const PrayerRequests: React.FC = () => {
           {filteredRequests.map((request) => (
             <div
               key={request.id}
-              className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 ${
-                request.isUrgent ? 'border-l-4 border-l-red-500' : ''
-              }`}
+              className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6`}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
@@ -357,11 +348,7 @@ const PrayerRequests: React.FC = () => {
                     <h3 className="text-lg font-semibold text-marian-blue-900 dark:text-white">
                       {request.name}
                     </h3>
-                    {request.isUrgent && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
-                        Urgente
-                      </span>
-                    )}
+                    
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-marian-blue-100 text-marian-blue-800 dark:bg-gray-600 dark:text-gray-300 capitalize">
                       {categories.find(cat => cat.id === request.category)?.name}
                     </span>
@@ -372,7 +359,7 @@ const PrayerRequests: React.FC = () => {
                   <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                     <div className="flex items-center space-x-1">
                       <Clock className="h-4 w-4" />
-                      <span>Hace {request.date}</span>
+                      <span>{new Date(request.created_at || '').toLocaleString()}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Users className="h-4 w-4" />
@@ -384,11 +371,18 @@ const PrayerRequests: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => handlePray(request.id)}
-                  className="inline-flex items-center px-4 py-2 bg-marian-blue-600 hover:bg-marian-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                  onClick={() => request.id && handlePray(request.id)}
+                  disabled={request.id ? prayedRequests.includes(request.id) : false}
+                  className={`inline-flex items-center px-4 py-2 font-medium rounded-lg transition-colors duration-200 ${
+                    request.id && prayedRequests.includes(request.id)
+                      ? 'bg-gray-400 cursor-not-allowed text-white'
+                      : 'bg-marian-blue-600 hover:bg-marian-blue-700 text-white'
+                  }`}
                 >
                   <Heart className="mr-2 h-4 w-4" />
-                  Orar por esta intención
+                  {request.id && prayedRequests.includes(request.id)
+                    ? 'Ya oraste por esta intención'
+                    : 'Orar por esta intención'}
                 </button>
                 <button className="inline-flex items-center px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-marian-blue-600 dark:hover:text-sacred-gold-400 transition-colors duration-200">
                   <MessageCircle className="mr-2 h-4 w-4" />
