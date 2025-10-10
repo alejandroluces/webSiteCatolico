@@ -110,15 +110,17 @@ const Home: React.FC = () => {
             <div className="text-red-500">{quoteError}</div>
           )}
           {todayQuote && !isQuoteLoading && !quoteError && (
-            <div className="relative">
-              <Quote className="absolute top-0 left-0 h-8 w-8 text-sacred-gold-400 dark:text-sacred-gold-300 opacity-50 -translate-x-4 -translate-y-4" />
-              <blockquote className="text-2xl md:text-3xl font-serif text-marian-blue-900 dark:text-white italic mb-4">
-                "{todayQuote.text}"
+            <div className="relative py-10 px-6 bg-gradient-to-r from-sacred-gold-100/20 via-transparent to-sacred-gold-100/20 rounded-2xl shadow-lg border border-sacred-gold-300/30 backdrop-blur-sm transition-all duration-500 hover:shadow-sacred-gold-400/40">
+              <Quote className="absolute top-0 left-0 h-10 w-10 text-sacred-gold-400 dark:text-sacred-gold-300 opacity-60 -translate-x-6 -translate-y-6" />
+              <blockquote className="text-1xl md:text-2xl font-serif font-semibold text-marian-blue-900 dark:text-white italic leading-snug mb-6 drop-shadow-md animate-fade-in">
+                “{todayQuote.text}”
               </blockquote>
-              <cite className="text-lg text-marian-blue-700 dark:text-gray-300 font-medium">
+              <cite className="block text-xl md:text-2xl text-sacred-gold-600 dark:text-sacred-gold-400 font-semibold tracking-wide">
                 — {todayQuote.reference}
               </cite>
-              <Quote className="absolute bottom-0 right-0 h-8 w-8 text-sacred-gold-400 dark:text-sacred-gold-300 opacity-50 translate-x-4 translate-y-4 rotate-180" />
+              <div className="absolute bottom-0 right-0">
+                <Quote className="h-10 w-10 text-sacred-gold-400 dark:text-sacred-gold-300 opacity-60 translate-x-6 translate-y-6 rotate-180" />
+              </div>
             </div>
           )}
         </div>
