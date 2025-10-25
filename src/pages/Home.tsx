@@ -53,7 +53,7 @@ const Home: React.FC = () => {
   const { quote: todayQuote, isLoading: isQuoteLoading, error: quoteError } = useDailyQuote();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-marian-blue-50/30 to-sacred-gold-50/20 dark:bg-gray-900">
       {/* Hero Section */}
       <section 
         className="relative bg-gradient-to-br from-marian-blue-900 via-marian-blue-800 to-marian-blue-700 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 text-white overflow-hidden"
@@ -123,7 +123,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Gospel and Features */}
-      <section className="py-16 bg-white dark:bg-gray-900">
+      <section className="py-16 bg-gradient-to-b from-white/80 to-marian-blue-50/40 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Gospel Widget */}
@@ -142,7 +142,7 @@ const Home: React.FC = () => {
                   <Link
                     key={feature.title}
                     to={feature.href}
-                    className="group flex items-start space-x-4 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700"
+                    className="group flex items-start space-x-4 p-4 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200/50 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-750"
                   >
                     <div className={`${feature.color} group-hover:scale-110 transition-transform duration-300`}>
                       <feature.icon className="h-6 w-6" />

@@ -27,7 +27,7 @@ const GospelCard: React.FC<GospelCardProps> = ({ gospel, isHighlighted = false }
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl ${
+    <div className={`bg-gradient-to-br from-white via-white to-marian-blue-50/30 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200/60 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-marian-blue-200/50 dark:hover:shadow-gray-900/50 ${
       isHighlighted ? 'ring-2 ring-sacred-gold-400 dark:ring-sacred-gold-500' : ''
     }`}>
       {/* Imagen del evangelio si existe */}
