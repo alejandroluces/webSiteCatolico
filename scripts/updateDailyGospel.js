@@ -82,10 +82,18 @@ async function getGospelFromJson(date) {
       reference: data.gospel.reference,
       content: data.gospel.text,
       prayer: data.prayer,
-      image: imageName ? `/images/gospels/${imageName}` : null
+      image: imageName ? `/images/gospels/${imageName}` : null,
+      reading: data.gospel.reading ? {
+        title: data.gospel.reading.title,
+        reference: data.gospel.reading.reference,
+        content: data.gospel.reading.text
+      } : null
     };
     
     console.log(`✅ Evangelio encontrado: ${gospelData.title}`);
+    if (gospelData.reading) {
+      console.log(`✅ Lectura del día encontrada: ${gospelData.reading.title}`);
+    }
     return gospelData;
     
   } catch (error) {
@@ -229,11 +237,64 @@ async function saveGospelToDatabase(gospelData, reflection, audioUrls) {
       await scheduleContent(result.id, gospelData.date);
     }
     
+    // Si hay lectura del día, también guardarla
+    if (gospelData.reading) {
+      await saveReadingToDatabase(gospelData);
+    }
+    
     return result;
     
   } catch (error) {
     console.error('❌ Error al guardar en la base de datos:', error);
     return null;
+  }
+}
+
+/**
+ * Guarda la lectura del día en la base de datos
+ */
+async function saveReadingToDatabase(gospelData) {
+  try {
+    console.log('💾 Guardando lectura del día en la base de datos...');
+    
+    const readingContent = {
+      date: gospelData.date,
+      type: 'reading',
+      title: gospelData.reading.title,
+      reference: gospelData.reading.reference,
+      content: gospelData.reading.content,
+      liturgical_season: 'Tiempo Ordinario',
+      liturgical_color: 'Verde',
+      status: 'published',
+      is_active: true,
+      updated_at: new Date().toISOString()
+    };
+    
+    const { data: existingReading } = await supabase
+      .from('daily_content')
+      .select('id')
+      .eq('date', gospelData.date)
+      .eq('type', 'reading')
+      .single();
+    
+    if (existingReading) {
+      const { error } = await supabase
+        .from('daily_content')
+        .update(readingContent)
+        .eq('id', existingReading.id);
+      if (error) throw new Error(`Error al actualizar lectura: ${error.message}`);
+      console.log(`✅ Lectura actualizada con ID: ${existingReading.id}`);
+    } else {
+      const { data, error } = await supabase
+        .from('daily_content')
+        .insert([readingContent])
+        .select();
+      if (error) throw new Error(`Error al insertar lectura: ${error.message}`);
+      console.log(`✅ Nueva lectura creada con ID: ${data[0].id}`);
+    }
+    
+  } catch (error) {
+    console.error('❌ Error al guardar la lectura:', error);
   }
 }
 
