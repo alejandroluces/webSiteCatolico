@@ -64,29 +64,57 @@ async function processGospelForDate(dateString) {
     // 2. Generar la reflexión
     const reflection = await generateReflection(data.gospel.text);
 
-    // 3. Preparar el objeto para Supabase
+    // 3. Preparar el objeto para Supabase (Evangelio)
     const imageName = data.imagePath ? path.basename(data.imagePath) : null;
-    const contentToInsert = {
+    const gospelContent = {
       date: data.date,
+      type: 'gospel',
       title: data.gospel.title,
       reference: data.gospel.reference,
-      text: data.gospel.text,
+      content: data.gospel.text,
       prayer: data.prayer,
       reflection: reflection,
       image_url: imageName ? `/images/gospels/${imageName}` : null,
+      status: 'published',
+      is_active: true,
     };
 
-    // 4. Insertar o actualizar en Supabase
-    console.log(`🚀 Subiendo contenido para ${data.date} a Supabase...`);
-    const { error } = await supabase
+    // 4. Insertar o actualizar el evangelio en Supabase
+    console.log(`🚀 Subiendo evangelio para ${data.date} a Supabase...`);
+    const { error: gospelError } = await supabase
       .from('daily_content')
-      .upsert(contentToInsert, { onConflict: 'date' }); // 'upsert' actualiza si la fecha ya existe
+      .upsert(gospelContent, { onConflict: 'date,type' });
 
-    if (error) {
-      throw error;
+    if (gospelError) {
+      throw gospelError;
     }
 
-    console.log(`✅ Contenido para ${data.date} sincronizado exitosamente.`);
+    console.log(`✅ Evangelio para ${data.date} sincronizado exitosamente.`);
+
+    // 5. Si existe lectura del día, también insertarla
+    if (data.gospel.reading) {
+      const readingContent = {
+        date: data.date,
+        type: 'reading',
+        title: data.gospel.reading.title,
+        reference: data.gospel.reading.reference,
+        content: data.gospel.reading.text,
+        status: 'published',
+        is_active: true,
+      };
+
+      console.log(`🚀 Subiendo lectura para ${data.date} a Supabase...`);
+      const { error: readingError } = await supabase
+        .from('daily_content')
+        .upsert(readingContent, { onConflict: 'date,type' });
+
+      if (readingError) {
+        throw readingError;
+      }
+
+      console.log(`✅ Lectura para ${data.date} sincronizada exitosamente.`);
+    }
+
 
   } catch (error) {
     if (error.code === 'ENOENT') {
