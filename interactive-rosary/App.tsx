@@ -42,6 +42,7 @@ const App: React.FC = () => {
           <PrayerDisplay
             prayer={currentPrayer}
             mystery={currentMystery}
+            currentPrayerIndex={currentPrayerIndex}
           />
           
           <Navigation

@@ -38,6 +38,7 @@ export default {
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
+        'fade-out': 'fadeOut 0.3s ease-out',
         'slide-up': 'slideUp 0.6s ease-out',
         'bounce-gentle': 'bounceGentle 2s infinite',
       },
@@ -45,6 +46,14 @@ export default {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
+        },
+        fadeOut: {
+          'from': { opacity: '1' },
+          'to': { opacity: '0' },
+        },
+        backgroundPulse: {
+          '0%, 100%': { backgroundColor: 'rgba(240, 247, 255, 0.7)' }, // marian-blue-50 with backdrop
+          '50%': { backgroundColor: 'rgba(224, 239, 255, 0.9)' }, // marian-blue-100 with backdrop
         },
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
