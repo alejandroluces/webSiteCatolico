@@ -31,16 +31,20 @@ export const useRosary = () => {
   const currentBead = ROSARY_SEQUENCE[currentPrayerIndex];
   
   const currentPrayer = useMemo((): Prayer | null => {
+    let prayerData: Prayer | null;
+
     if (currentBead.prayerKey === 'mystery_announcement') {
       const mysteries = MYSTERIES[selectedMysteryType];
       const mystery = mysteries[currentBead.mysteryIndex ?? 0];
-      return { name: mystery.name, text: mystery.announcement };
+      prayerData = { name: mystery.name, text: mystery.announcement };
+    } else if (currentBead.prayerKey === 'apostles_creed') {
+      prayerData = PRAYERS.sign_of_cross;
+    } else {
+      prayerData = PRAYERS[currentBead.prayerKey];
     }
-    // The apostles_creed is merged into sign_of_cross now.
-    // This key still exists in the type for safety but isn't in the sequence.
-    if (currentBead.prayerKey === 'apostles_creed') return PRAYERS.sign_of_cross;
-    
-    return PRAYERS[currentBead.prayerKey];
+
+    // Return a new object to ensure re-render even if the prayer is the same
+    return prayerData ? { ...prayerData } : null;
   }, [currentPrayerIndex, selectedMysteryType, currentBead]);
 
   const currentMystery = useMemo((): Mystery | null => {
