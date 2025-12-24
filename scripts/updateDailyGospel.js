@@ -20,6 +20,14 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const geminiApiKey = process.env.GEMINI_API_KEY;
 const openaiApiKey = process.env.OPENAI_API_KEY;
+const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
+
+// Configuración de proveedores para generar la reflexión
+const reflectionProvider = (process.env.REFLECTION_PROVIDER || 'auto').toLowerCase();
+const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash-001';
+const openaiReflectionModel = process.env.OPENAI_REFLECTION_MODEL || 'gpt-4o-mini';
+const deepseekBaseUrl = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1';
+const deepseekModel = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
 
 // Verificar variables de entorno requeridas
 if (!supabaseUrl || !supabaseServiceKey) {
@@ -27,20 +35,34 @@ if (!supabaseUrl || !supabaseServiceKey) {
   process.exit(1);
 }
 
-if (!geminiApiKey) {
-  console.error('❌ Falta la clave de API de Google Gemini');
+// OpenAI se usa para TTS en este script (audios). Si no lo quieres, habría que agregar una opción para omitir audios.
+if (!openaiApiKey) {
+  console.error('❌ Falta la clave de API de OpenAI (se usa para generar audios TTS)');
   process.exit(1);
 }
 
-if (!openaiApiKey) {
-  console.error('❌ Falta la clave de API de OpenAI');
+// Validar proveedor seleccionado
+const validProviders = ['auto', 'gemini', 'openai', 'deepseek', 'none'];
+if (!validProviders.includes(reflectionProvider)) {
+  console.error(`❌ REFLECTION_PROVIDER inválido: "${reflectionProvider}". Valores válidos: ${validProviders.join(', ')}`);
+  process.exit(1);
+}
+
+if (reflectionProvider === 'gemini' && !geminiApiKey) {
+  console.error('❌ REFLECTION_PROVIDER=gemini pero falta GEMINI_API_KEY');
+  process.exit(1);
+}
+
+if (reflectionProvider === 'deepseek' && !deepseekApiKey) {
+  console.error('❌ REFLECTION_PROVIDER=deepseek pero falta DEEPSEEK_API_KEY');
   process.exit(1);
 }
 
 // Inicializar clientes
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
-const genAI = new GoogleGenAI(geminiApiKey);
+const genAI = geminiApiKey ? new GoogleGenAI(geminiApiKey) : null;
 const openai = new OpenAI({ apiKey: openaiApiKey });
+const deepseek = deepseekApiKey ? new OpenAI({ apiKey: deepseekApiKey, baseURL: deepseekBaseUrl }) : null;
 
 /**
  * Obtiene la fecha actual en formato YYYY-MM-DD
@@ -105,21 +127,144 @@ async function getGospelFromJson(date) {
 /**
  * Genera una reflexión para el evangelio usando Gemini AI
  */
+function isQuotaOrRateLimitError(error) {
+  const msg = String(error?.message || '');
+  return (
+    error?.status === 429 ||
+    msg.includes('RESOURCE_EXHAUSTED') ||
+    msg.toLowerCase().includes('quota exceeded') ||
+    msg.toLowerCase().includes('rate limit')
+  );
+}
+
+function buildReflectionPrompt(gospelData) {
+  return `
+Eres un experto en teología católica y espiritualidad cristiana.
+
+Escribe una reflexión profunda y significativa sobre el siguiente evangelio:
+- Referencia: ${gospelData.reference}
+- Título: ${gospelData.title}
+- Texto: ${gospelData.content}
+
+Requisitos:
+- 300 a 500 palabras.
+- Fiel a la doctrina católica.
+- Con aplicaciones prácticas para la vida diaria.
+- Inspiradora, con lenguaje accesible pero profundo.
+- Formato: párrafos bien estructurados, sin encabezados y sin conclusiones explícitas.
+`;
+}
+
+function generateFallbackReflection(gospelData) {
+  // Fallback no-AI para no bloquear la publicación cuando no hay cuotas.
+  return (
+    `Al contemplar el Evangelio de hoy (${gospelData.reference}), somos invitados a mirar nuestra vida a la luz de la Palabra. ` +
+    `No se trata solo de entender un texto, sino de dejarnos tocar por Cristo en lo concreto: en nuestras relaciones, en la forma de hablar, ` +
+    `en la paciencia ante lo que cuesta y en la misericordia con la que tratamos a los demás.\n\n` +
+    `Una clave espiritual es pasar de la prisa a la escucha: detenernos unos minutos, releer una frase del Evangelio y preguntarnos ` +
+    `qué nos pide el Señor hoy. A veces la conversión se expresa en gestos pequeños pero reales: pedir perdón, evitar un juicio injusto, ` +
+    `servir en silencio, o sostener con oración a quien lo necesita.\n\n` +
+    `Pidamos la gracia de vivir este día con fe sencilla, confiando en que Dios trabaja incluso en lo ordinario. ` +
+    `Que María nos enseñe a guardar la Palabra en el corazón y a responder con obras de amor.`
+  );
+}
+
 async function generateReflection(gospelData) {
-  console.log('🤖 Generando reflexión con Gemini AI...');
-  const prompt = `
-  Eres un experto en teología católica y espiritualidad cristiana. Escribe una reflexión profunda y significativa sobre el siguiente evangelio:
-  Referencia: ${gospelData.reference}, Título: ${gospelData.title}, Texto: ${gospelData.content}
-  La reflexión debe tener entre 300-500 palabras, ser fiel a la doctrina católica, incluir aplicaciones prácticas para la vida diaria, ser inspiradora y usar un lenguaje accesible pero profundo.
-  Formato: Párrafos bien estructurados sin encabezados ni conclusiones explícitas.`;
-  
-  const result = await genAI.models.generateContent({
-    model: "gemini-2.0-flash-001",
-    contents: prompt,
-  });
-  const reflection = result.candidates[0].content.parts[0].text;
-  console.log('✅ Reflexión generada exitosamente');
-  return reflection;
+  const prompt = buildReflectionPrompt(gospelData);
+
+  if (reflectionProvider === 'none') {
+    console.log('⏭️ REFLECTION_PROVIDER=none: usando reflexión de respaldo (sin IA).');
+    return generateFallbackReflection(gospelData);
+  }
+
+  const providersToTry =
+    reflectionProvider === 'auto' ? ['gemini', 'openai', 'deepseek'] : [reflectionProvider];
+
+  for (const provider of providersToTry) {
+    try {
+      if (provider === 'gemini') {
+        if (!genAI) {
+          console.log('⚠️ Gemini no configurado (falta GEMINI_API_KEY). Saltando...');
+          continue;
+        }
+
+        console.log(`🤖 Generando reflexión con Gemini AI (modelo: ${geminiModel})...`);
+        const result = await genAI.models.generateContent({
+          model: geminiModel,
+          contents: prompt,
+        });
+
+        const reflection = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!reflection) throw new Error('Respuesta vacía desde Gemini');
+
+        console.log('✅ Reflexión generada exitosamente con Gemini');
+        return reflection;
+      }
+
+      if (provider === 'openai') {
+        console.log(`🤖 Generando reflexión con OpenAI (modelo: ${openaiReflectionModel})...`);
+        const completion = await openai.chat.completions.create({
+          model: openaiReflectionModel,
+          temperature: 0.7,
+          messages: [
+            {
+              role: 'system',
+              content:
+                'Eres un experto en teología católica y espiritualidad cristiana. Responde solo con el texto de la reflexión en párrafos, sin encabezados.',
+            },
+            { role: 'user', content: prompt },
+          ],
+        });
+
+        const reflection = completion?.choices?.[0]?.message?.content;
+        if (!reflection) throw new Error('Respuesta vacía desde OpenAI');
+
+        console.log('✅ Reflexión generada exitosamente con OpenAI');
+        return reflection;
+      }
+
+      if (provider === 'deepseek') {
+        if (!deepseek) {
+          console.log('⚠️ DeepSeek no configurado (falta DEEPSEEK_API_KEY). Saltando...');
+          continue;
+        }
+
+        console.log(`🤖 Generando reflexión con DeepSeek (modelo: ${deepseekModel})...`);
+        const completion = await deepseek.chat.completions.create({
+          model: deepseekModel,
+          temperature: 0.7,
+          messages: [
+            {
+              role: 'system',
+              content:
+                'Eres un experto en teología católica y espiritualidad cristiana. Responde solo con el texto de la reflexión en párrafos, sin encabezados.',
+            },
+            { role: 'user', content: prompt },
+          ],
+        });
+
+        const reflection = completion?.choices?.[0]?.message?.content;
+        if (!reflection) throw new Error('Respuesta vacía desde DeepSeek');
+
+        console.log('✅ Reflexión generada exitosamente con DeepSeek');
+        return reflection;
+      }
+
+      console.log(`⚠️ Proveedor no soportado: ${provider}. Saltando...`);
+    } catch (error) {
+      const quotaMsg = isQuotaOrRateLimitError(error)
+        ? ' (cuota/rate limit)'
+        : '';
+      console.error(`❌ Error generando reflexión con ${provider}${quotaMsg}:`, error?.message || error);
+
+      // En modo auto, ante cualquier error, se intenta el siguiente proveedor.
+      // En modo fijo, también seguimos intentando por si el usuario quiere fallback manual agregando varios en auto.
+      continue;
+    }
+  }
+
+  console.log('⚠️ No se pudo generar la reflexión con ningún proveedor. Usando reflexión de respaldo (sin IA).');
+  return generateFallbackReflection(gospelData);
 }
 
 /**
