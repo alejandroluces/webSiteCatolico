@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, BookOpen, Star, Crown, Cross, MapPin, Search, Filter } from 'lucide-react';
-import AdBanner from '../components/Ads/AdBanner';
 import LiturgicalInfo from '../components/LiturgicalCalendar/LiturgicalInfo';
 import UpcomingCelebrations from '../components/LiturgicalCalendar/UpcomingCelebrations';
 import { useLiturgicalMonth } from '../hooks/useLiturgicalCalendar';
@@ -232,8 +231,6 @@ const LiturgicalCalendar: React.FC = () => {
           </div>
         </div>
 
-        <AdBanner position="inline" size="medium" />
-
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Calendar */}
           <div className="lg:col-span-3">
@@ -342,11 +339,8 @@ const LiturgicalCalendar: React.FC = () => {
               />
             )}
 
-            <AdBanner position="sidebar" />
           </div>
         </div>
-
-        <AdBanner position="inline" size="small" />
 
         {/* Upcoming Celebrations */}
         <div className="mt-12">

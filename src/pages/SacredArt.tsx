@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Palette, Search, Filter, Heart, Eye, Download, Share2, Calendar, User } from 'lucide-react';
-import AdBanner from '../components/Ads/AdBanner';
 
 const SacredArt: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -202,8 +201,6 @@ const SacredArt: React.FC = () => {
           </div>
         </div>
 
-        <AdBanner position="inline" size="medium" />
-
         {/* Featured Artwork */}
         {filteredArtworks.length > 0 && (
           <div className="mb-12">
@@ -354,8 +351,6 @@ const SacredArt: React.FC = () => {
             </div>
           ))}
         </div>
-
-        <AdBanner position="inline" size="small" />
 
         {filteredArtworks.length === 0 && (
           <div className="text-center py-12">

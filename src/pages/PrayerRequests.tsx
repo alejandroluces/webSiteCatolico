@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getPrayerRequests, addPrayerRequest, incrementPrayerCount, PrayerRequest } from '../services/prayerRequestsService';
 import { Heart, Send, Clock, Users, MessageCircle, Plus, Filter, Search } from 'lucide-react';
-import AdBanner from '../components/Ads/AdBanner';
 
 const PrayerRequests: React.FC = () => {
   const [newRequest, setNewRequest] = useState({
@@ -299,8 +298,6 @@ const PrayerRequests: React.FC = () => {
           </div>
         )}
 
-        <AdBanner position="inline" size="medium" />
-
         {/* Search and Filter */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -392,8 +389,6 @@ const PrayerRequests: React.FC = () => {
             </div>
           ))}
         </div>
-
-        <AdBanner position="inline" size="small" />
 
         {filteredRequests.length === 0 && (
           <div className="text-center py-12">

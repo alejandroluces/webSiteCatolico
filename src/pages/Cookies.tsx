@@ -61,7 +61,7 @@ const Cookies: React.FC = () => {
       description: 'Estas cookies se utilizan para mostrar anuncios relevantes y medir la efectividad de las campañas.',
       required: false,
       examples: [
-        'Google AdSense para anuncios relevantes',
+        'Anuncios relevantes',
         'Seguimiento de conversiones',
         'Personalización de anuncios',
         'Integración con redes sociales'
@@ -291,10 +291,10 @@ const Cookies: React.FC = () => {
               
               <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
                 <h3 className="font-semibold text-marian-blue-900 dark:text-white mb-2">
-                  Google AdSense
+                  Publicidad
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Muestra anuncios relevantes y mide su efectividad.
+                  Algunos proveedores pueden mostrar anuncios y medir su efectividad.
                 </p>
                 <a
                   href="https://policies.google.com/technologies/ads"
