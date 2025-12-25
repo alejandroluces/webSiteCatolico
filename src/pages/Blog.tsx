@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, Calendar, User, ArrowRight, Search, Filter, Tag } from 'lucide-react';
-import AdBanner from '../components/Ads/AdBanner';
 
 const Blog: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -117,8 +116,6 @@ const Blog: React.FC = () => {
             </div>
           </div>
         </div>
-
-        <AdBanner position="inline" size="medium" />
 
         {/* Search and Filter */}
         <div className="mb-8">
@@ -242,8 +239,6 @@ const Blog: React.FC = () => {
             </article>
           ))}
         </div>
-
-        <AdBanner position="inline" size="small" />
 
         {/* Pagination */}
         {totalPages > 1 && (

@@ -219,7 +219,6 @@ const Privacy: React.FC = () => {
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
               <li><strong>Google Analytics:</strong> Para análisis de tráfico web</li>
-              <li><strong>Google AdSense:</strong> Para mostrar anuncios relevantes</li>
               <li><strong>Servicios de email:</strong> Para envío de boletines</li>
               <li><strong>Redes sociales:</strong> Para funciones de compartir</li>
             </ul>

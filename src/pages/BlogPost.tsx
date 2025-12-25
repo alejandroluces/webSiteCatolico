@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { Calendar, User, ArrowLeft, Share2, BookOpen, Heart, Tag, Clock, AlertTriangle } from 'lucide-react';
-import AdBanner from '../components/Ads/AdBanner';
 
 // Definición de la interfaz para un post del blog
 interface Post {
@@ -210,8 +209,6 @@ const BlogPost: React.FC = () => {
               />
             </div>
 
-            <AdBanner position="inline" size="medium" />
-
             {/* Tags */}
             <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-semibold text-marian-blue-900 dark:text-white mb-4">
@@ -276,8 +273,6 @@ const BlogPost: React.FC = () => {
                   y acompañamiento espiritual.
                 </p>
               </div>
-
-              <AdBanner position="sidebar" />
 
               {/* Related Posts */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">

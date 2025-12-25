@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Sparkles, Calendar, Heart, BookOpen, ArrowLeft, ArrowRight, Share2, Download } from 'lucide-react';
-import AdBanner from '../components/Ads/AdBanner';
 
 const Novenas: React.FC = () => {
   const { novenaId } = useParams();
@@ -175,8 +174,6 @@ const Novenas: React.FC = () => {
             </div>
           </div>
 
-          <AdBanner position="inline" size="medium" />
-
           {/* Day Navigation */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
@@ -259,8 +256,6 @@ const Novenas: React.FC = () => {
             </div>
           </div>
 
-          <AdBanner position="inline" size="small" />
-
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <button
@@ -324,8 +319,6 @@ const Novenas: React.FC = () => {
             tradicionales para momentos especiales de tu vida espiritual.
           </p>
         </div>
-
-        <AdBanner position="inline" size="medium" />
 
         {/* Novenas Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">

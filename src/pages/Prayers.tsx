@@ -1,7 +1,6 @@
 import React, { useState, Fragment, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Heart, Search, BookOpen, Users, Briefcase, Shield, Home, Cross, X, Star, Play, Pause } from 'lucide-react';
-import AdBanner from '../components/Ads/AdBanner';
 import { Dialog, Transition } from '@headlessui/react';
 
 interface Prayer {
@@ -1288,8 +1287,6 @@ Corazón de María. Amén.`
           </div>
         </div>
 
-        <AdBanner position="inline" size="medium" />
-
         {/* Category Filter */}
         <div className="mb-8">
           <div className="flex flex-wrap justify-center gap-3">
@@ -1344,8 +1341,6 @@ Corazón de María. Amén.`
             );
           })}
         </div>
-
-        <AdBanner position="inline" size="small" />
 
         {filteredPrayers.length === 0 && (
           <div className="text-center py-12">
