@@ -68,6 +68,50 @@ Para ejecutar este proyecto en tu entorno local, sigue estos pasos:
     ```
     La aplicación estará disponible en `http://localhost:5173`.
 
+## 📲 WhatsApp (Suscripción + Envío) en local
+
+### Levantar el proyecto con Functions (recomendado para probar WhatsApp)
+
+Para que funcionen los endpoints `/.netlify/functions/*` en tu PC, debes usar el proxy de Netlify:
+
+```bash
+npm run dev:netlify
+```
+
+> Importante: no ejecutes `npm run dev` al mismo tiempo, porque puede ocupar el puerto 5173 y Netlify dev terminará levantando Vite en otro puerto.
+
+Abre la web en:
+- **http://localhost:8888**
+
+> Nota: `http://localhost:5173` es el Vite interno. Ahí `/.netlify/functions/*` dará 404.
+
+### Variables necesarias para enviar WhatsApp
+
+En tu `.env` (no commitear), agrega:
+
+```env
+SUPABASE_URL=...
+SUPABASE_SERVICE_ROLE_KEY=...
+
+GREEN_API_ID_INSTANCE=...
+GREEN_API_TOKEN=...
+GREEN_API_API_URL=https://7105.api.greenapi.com
+```
+
+### Probar envío manual (sin esperar a las 07:00)
+
+Con `npm run dev:netlify` corriendo:
+
+```bash
+npm run test:whatsapp:send
+# o con fecha específica
+node scripts/testWhatsAppSend.js --date=2025-12-25
+```
+
+Esto llama a:
+`/.netlify/functions/whatsapp-send-daily-gospel?force=1`
+
+
 ## 📜 Scripts Disponibles
 
 Este proyecto incluye varios scripts para facilitar el desarrollo y el mantenimiento.
