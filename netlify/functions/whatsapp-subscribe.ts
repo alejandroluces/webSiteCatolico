@@ -10,6 +10,16 @@ type Body = {
 
 const normalizePhone = (raw: string) => raw.replace(/\D/g, '');
 
+const cleanEnv = (v: string) =>
+  (v || '')
+    .trim()
+    // netlify / shells sometimes wrap values with quotes
+    .replace(/^[`'\"]+/, '')
+    .replace(/[`'\"]+$/, '')
+    // common copy/paste trailing semicolon
+    .replace(/;$/, '')
+    .trim();
+
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ message: 'Método no permitido' }) };
@@ -17,8 +27,9 @@ export const handler: Handler = async (event) => {
 
   // En PROD (Netlify) a veces se configura solo VITE_SUPABASE_URL.
   // Permitimos fallback para evitar errores de configuración.
-  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
-  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  // Además, sanitizamos comillas/; por copy-paste desde .env.
+  const SUPABASE_URL = cleanEnv(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '');
+  const SUPABASE_SERVICE_ROLE_KEY = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY || '');
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     console.error('Missing env for whatsapp-subscribe', {
       hasSupabaseUrl: Boolean(SUPABASE_URL),
@@ -78,8 +89,20 @@ export const handler: Handler = async (event) => {
     );
 
   if (error) {
-    console.error('Supabase error:', error);
-    return { statusCode: 500, body: JSON.stringify({ message: 'No se pudo guardar la suscripción.' }) };
+    console.error('Supabase error (whatsapp-subscribe):', {
+      message: error.message,
+      code: (error as any).code,
+      details: (error as any).details,
+      hint: (error as any).hint,
+    });
+
+    // Mensaje más útil para PROD sin exponer datos sensibles.
+    const msg =
+      (error as any).code === 'PGRST301' || /JWT|token/i.test(error.message)
+        ? 'No se pudo guardar la suscripción. Revisa que SUPABASE_SERVICE_ROLE_KEY sea válida (sin comillas) y corresponda al mismo proyecto.'
+        : 'No se pudo guardar la suscripción.';
+
+    return { statusCode: 500, body: JSON.stringify({ message: msg }) };
   }
 
   return {
