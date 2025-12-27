@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { BookOpen, User, Heart, Calendar, Sparkles, ArrowRight } from 'lucide-react';
 import GospelWidget from '../components/GospelWidget';
 import { useDailyQuote } from '../hooks/useDailyQuote';
+import WhatsAppGospelSignup from '../components/WhatsAppGospelSignup';
 
 const Home: React.FC = () => {
   const features = [
@@ -129,6 +130,10 @@ const Home: React.FC = () => {
             {/* Gospel Widget */}
             <div className="lg:col-span-1">
               <GospelWidget />
+
+              <div className="mt-6">
+                <WhatsAppGospelSignup />
+              </div>
             </div>
             
             {/* Features */}
