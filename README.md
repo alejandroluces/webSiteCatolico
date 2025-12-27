@@ -108,7 +108,7 @@ Configúralas en:
 
 Variables mínimas requeridas por `/.netlify/functions/whatsapp-subscribe`:
 
-- `SUPABASE_URL`
+- `SUPABASE_URL` (o alternativamente `VITE_SUPABASE_URL`)
 - `SUPABASE_SERVICE_ROLE_KEY`
 
 > Nota: `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` son para el frontend.
