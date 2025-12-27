@@ -15,7 +15,9 @@ export const handler: Handler = async (event) => {
     return { statusCode: 405, body: JSON.stringify({ message: 'Método no permitido' }) };
   }
 
-  const SUPABASE_URL = process.env.SUPABASE_URL || '';
+  // En PROD (Netlify) a veces se configura solo VITE_SUPABASE_URL.
+  // Permitimos fallback para evitar errores de configuración.
+  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     console.error('Missing env for whatsapp-subscribe', {
@@ -24,7 +26,10 @@ export const handler: Handler = async (event) => {
     });
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Backend no configurado (Supabase).' }),
+      body: JSON.stringify({
+        message:
+          'Backend no configurado (Supabase). Configura SUPABASE_URL (o VITE_SUPABASE_URL) y SUPABASE_SERVICE_ROLE_KEY en Netlify.',
+      }),
     };
   }
 
