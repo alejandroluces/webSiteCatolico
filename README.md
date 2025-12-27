@@ -114,6 +114,25 @@ Variables mínimas requeridas por `/.netlify/functions/whatsapp-subscribe`:
 > Nota: `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` son para el frontend.
 > La función serverless necesita la **service role** para escribir en la tabla `whatsapp_subscriptions`.
 
+### Si aparece error RLS (42501)
+
+Si en Netlify Logs ves algo como:
+`new row violates row-level security policy for table "whatsapp_subscriptions" (42501)`
+
+Entonces Supabase está bloqueando el INSERT por políticas RLS.
+
+Opciones:
+1) **Recomendado (más simple y robusto):** permitir `INSERT` para roles `anon/authenticated` en la tabla.
+   Hay una migración lista en el repo:
+   `supabase/migrations/20251227_allow_anon_insert_whatsapp_subscriptions.sql`
+
+   **Nota importante:** el endpoint usa `upsert` (INSERT con ON CONFLICT DO UPDATE).
+   Para que `upsert` funcione con RLS, normalmente también necesitas permitir `UPDATE`.
+   La migración ya incluye la policy `whatsapp_subscriptions_anon_update`.
+
+2) Alternativa: asegurar que la function esté usando realmente `SUPABASE_SERVICE_ROLE_KEY`
+   (sin comillas / sin `;`, y que corresponda al mismo proyecto).
+
 ### Probar envío manual (sin esperar a las 07:00)
 
 Con `npm run dev:netlify` corriendo:
