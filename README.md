@@ -98,6 +98,22 @@ GREEN_API_TOKEN=...
 GREEN_API_API_URL=https://7105.api.greenapi.com
 ```
 
+## 📲 WhatsApp en Producción (Netlify)
+
+Si en producción ves el error **"Backend no configurado (Supabase)."** al intentar suscribirte,
+significa que a tu sitio en Netlify le faltan variables de entorno.
+
+Configúralas en:
+**Netlify → Site settings → Build & deploy → Environment → Environment variables**
+
+Variables mínimas requeridas por `/.netlify/functions/whatsapp-subscribe`:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+> Nota: `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` son para el frontend.
+> La función serverless necesita la **service role** para escribir en la tabla `whatsapp_subscriptions`.
+
 ### Probar envío manual (sin esperar a las 07:00)
 
 Con `npm run dev:netlify` corriendo:

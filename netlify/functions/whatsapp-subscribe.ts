@@ -18,6 +18,10 @@ export const handler: Handler = async (event) => {
   const SUPABASE_URL = process.env.SUPABASE_URL || '';
   const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    console.error('Missing env for whatsapp-subscribe', {
+      hasSupabaseUrl: Boolean(SUPABASE_URL),
+      hasServiceRole: Boolean(SUPABASE_SERVICE_ROLE_KEY),
+    });
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Backend no configurado (Supabase).' }),
@@ -78,4 +82,3 @@ export const handler: Handler = async (event) => {
     body: JSON.stringify({ message: '¡Listo! Desde mañana recibirás el Evangelio por WhatsApp.' }),
   };
 };
-
