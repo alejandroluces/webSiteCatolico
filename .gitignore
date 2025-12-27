@@ -2,6 +2,16 @@
 /node_modules
 /dist
 
+# Sub-proyectos
+WhatsAppExcelMonitorElevenLabsV2/**/node_modules/
+
+# No versionar repos/clones internos o carpetas con metadata git
+WhatsAppExcelMonitorElevenLabsV2/.git_disabled/
+
+# Reportes y excels/imágenes de trabajo (son datos, no código)
+WhatsAppExcelMonitorElevenLabsV2/scripts/reportes/
+WhatsAppExcelMonitorElevenLabsV2/scripts/excel/
+
 # Archivos de entorno - ¡No subir a Git!
 .env
 .env.*.local
@@ -10,3 +20,5 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# Local Netlify folder
+.netlify
