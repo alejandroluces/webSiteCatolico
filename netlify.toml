@@ -14,3 +14,11 @@
 
 [build.environment]
   NODE_VERSION = "18"
+
+[functions]
+  directory = "netlify/functions"
+
+[[scheduled.functions]]
+  name = "whatsapp-send-daily-gospel"
+  # Ejecutar cada 10 minutos y la función decide si está dentro de la ventana 07:00 America/Santiago.
+  schedule = "*/10 * * * *"
