@@ -69,24 +69,29 @@ export const handler: Handler = async (event) => {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-  // Upsert by unique phone
-  const { error } = await supabase
-    .from('whatsapp_subscriptions')
-    .upsert(
-      [
-        {
-          first_name: firstName,
-          last_name: lastName || null,
-          phone,
-          email: email || null,
-          is_active: true,
-          unsubscribed_at: null,
-          timezone: 'America/Santiago',
-          source: 'website',
-        },
-      ],
-      { onConflict: 'phone' }
-    );
+  // Nota: en algunos proyectos, PostgREST + RLS puede bloquear el `upsert` aunque existan
+  // policies de INSERT/UPDATE. Para evitar el 42501 en producción, hacemos:
+  // 1) INSERT normal
+  // 2) si hay conflicto (23505), hacemos UPDATE por teléfono.
+
+  const payload = {
+    first_name: firstName,
+    last_name: lastName || null,
+    phone,
+    email: email || null,
+    is_active: true,
+    unsubscribed_at: null,
+    timezone: 'America/Santiago',
+    source: 'website',
+  };
+
+  const { error: insertError } = await supabase.from('whatsapp_subscriptions').insert([payload]);
+
+  const isDuplicate = insertError && (insertError as any).code === '23505';
+
+  const { error } = isDuplicate
+    ? await supabase.from('whatsapp_subscriptions').update(payload).eq('phone', phone)
+    : { error: insertError };
 
   if (error) {
     console.error('Supabase error (whatsapp-subscribe):', {
