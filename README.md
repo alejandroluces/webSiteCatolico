@@ -133,6 +133,18 @@ Opciones:
 2) Alternativa: asegurar que la function esté usando realmente `SUPABASE_SERVICE_ROLE_KEY`
    (sin comillas / sin `;`, y que corresponda al mismo proyecto).
 
+### Pausar/Reanudar suscripciones (bloqueo temporal)
+
+Si quieres **bloquear temporalmente** que se registren nuevos suscriptores, puedes
+quitar las policies `anon/authenticated` en Supabase.
+
+- Bloquear (deshabilitar suscripción pública):
+  - `supabase/scripts/block_whatsapp_subscriptions.sql`
+- Desbloquear (habilitar suscripción pública):
+  - `supabase/scripts/unblock_whatsapp_subscriptions.sql`
+
+Ejecuta esos scripts en **Supabase → SQL Editor**.
+
 ### Probar envío manual (sin esperar a las 07:00)
 
 Con `npm run dev:netlify` corriendo:
@@ -145,6 +157,27 @@ node scripts/testWhatsAppSend.js --date=2025-12-25
 
 Esto llama a:
 `/.netlify/functions/whatsapp-send-daily-gospel?force=1`
+
+## 📄 Sincronizar suscriptores (Supabase) -> Excel (rango de fechas)
+
+Además del script por día (`scripts/syncWhatsappSubscribersToExcel.py`), existe un wrapper
+para procesar un rango completo:
+
+```bash
+python scripts/syncWhatsappSubscribersToExcelRange.py --from-date 01082025 --to-date 07082025
+```
+
+Opciones útiles:
+
+- Simular sin escribir archivos:
+```bash
+python scripts/syncWhatsappSubscribersToExcelRange.py --from-date 01082025 --to-date 07082025 --dry-run
+```
+
+- Pasar una carpeta distinta de excels:
+```bash
+python scripts/syncWhatsappSubscribersToExcelRange.py --from-date 01082025 --to-date 07082025 --excel-folder "WhatsAppExcelMonitorElevenLabsV2/scripts/excel"
+```
 
 
 ## 📜 Scripts Disponibles
