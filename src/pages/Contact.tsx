@@ -42,7 +42,7 @@ const Contact: React.FC = () => {
     {
       icon: Mail,
       title: 'Correo Electrónico',
-      details: 'contacto@luzdefe.com',
+      details: 'contacto@technologyLG.cl',
       description: 'Respuesta en 24-48 horas',
     },
     {
@@ -54,7 +54,7 @@ const Contact: React.FC = () => {
     {
       icon: MapPin,
       title: 'Ubicación',
-      details: 'Madrid, España',
+      details: 'Santigo, Chile',
       description: 'Oficinas centrales',
     },
   ];
@@ -156,7 +156,7 @@ const Contact: React.FC = () => {
                 </div>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-                *Horario peninsular español (CET/CEST)
+                
               </p>
             </div>
           </div>

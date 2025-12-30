@@ -26,8 +26,8 @@ export async function subscribeToWhatsAppGospel(
       ok: false,
       message:
         isVitePort
-          ? 'Estás abriendo la web en el puerto 5173 (Vite) y ahí las funciones `/.netlify/functions/*` no existen. Para probar en local, ejecuta `npm run dev:netlify` y abre la web en: http://localhost:8888'
-          : 'El endpoint de suscripción no está disponible en este modo. Para probar en local, ejecuta: `npm run dev:netlify` y abre http://localhost:8888',
+          ? 'Estás abriendo la web en el puerto 5173 (Vite) y ahí las funciones `/.netlify/functions/*` no existen. Para probar en local, ejecuta `npm run dev:netlify` y abre la web en: http://localhost:8890 (o el puerto que configure Netlify Dev, por defecto suele ser 8888).'
+          : 'El endpoint de suscripción no está disponible en este modo. Para probar en local, ejecuta: `npm run dev:netlify` y abre http://localhost:8890 (o el puerto que configure Netlify Dev).',
     };
   }
 

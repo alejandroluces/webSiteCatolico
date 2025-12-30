@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { MessageCircle, Loader2, X } from 'lucide-react';
 import { subscribeToWhatsAppGospel } from '../services/whatsappSubscriptionService';
+import { sendSignupEmailNotification } from '../services/emailjsNotification';
 
 const normalizePhone = (raw: string) => raw.replace(/[^0-9+]/g, '');
 
@@ -43,11 +44,18 @@ const WhatsAppGospelSignup: React.FC = () => {
 
     setLoading(true);
     try {
-      const res = await subscribeToWhatsAppGospel({
+      const payload = {
         firstName: firstName.trim(),
         lastName: lastName.trim() || undefined,
         phone: cleanedPhone,
         email: email.trim() || undefined,
+      };
+
+      const res = await subscribeToWhatsAppGospel({
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        phone: payload.phone,
+        email: payload.email,
       });
 
       setResult({
@@ -56,6 +64,13 @@ const WhatsAppGospelSignup: React.FC = () => {
       });
 
       if (res.ok) {
+        // Notificación por correo (desde navegador). No bloquea el éxito de la suscripción si falla.
+        try {
+          await sendSignupEmailNotification(payload);
+        } catch (err) {
+          console.warn('EmailJS notification failed (frontend)', err);
+        }
+
         setFirstName('');
         setLastName('');
         setPhone('');

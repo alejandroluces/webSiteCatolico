@@ -271,7 +271,7 @@ Privacidad:
               <MapPin className="h-6 w-6 text-sacred-gold-400" />
               <span className="text-sm">Dirección</span>
               <span className="text-marian-blue-100 dark:text-gray-300">
-                Madrid, España
+                Santiago, Chile
               </span>
             </div>
           </div>
