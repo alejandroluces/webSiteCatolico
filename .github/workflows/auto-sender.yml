@@ -1,0 +1,46 @@
+name: WhatsApp Auto Sender
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at 00:00 UTC
+  workflow_dispatch:      # Allow manual trigger
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: WhatsAppExcelMonitorElevenLabsV2/scripts
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: WhatsAppExcelMonitorElevenLabsV2/scripts/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create excel directory (if missing)
+        run: mkdir -p excel
+
+      - name: Run WhatsApp Auto Sender
+        env:
+          # Optional: If script is modified to use env vars, set them here
+          # ID_INSTANCE: ${{ secrets.ID_INSTANCE }}
+          # API_TOKEN: ${{ secrets.API_TOKEN }}
+          # ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          # VOICE_ID: ${{ secrets.VOICE_ID }}
+          NODE_TLS_REJECT_UNAUTHORIZED: '0'
+        run: node autoSender.js
+
+      - name: Upload report artifact (if generated)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: whatsapp-report
+          path: WhatsAppExcelMonitorElevenLabsV2/scripts/reportes/
+          retention-days: 7
