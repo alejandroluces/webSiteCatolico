@@ -290,7 +290,8 @@ async function main() {
       excelPath = path.join(EXCEL_FOLDER, `${currentDate}.xlsx`);
       if (!fs.existsSync(excelPath)) {
         console.log(`No se encontró archivo para la fecha actual: ${currentDate}.xlsx`);
-        process.exit(1);
+        console.log('No hay mensajes programados para enviar hoy.');
+        process.exit(0); // Exit with success code when no file exists
       }
     }
 
