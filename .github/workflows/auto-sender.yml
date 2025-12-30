@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: whatsapp-report
-          path: WhatsAppExcelMonitorElevenLabsV2/scripts/excel/
+          path: webSiteCatolico/WhatsAppExcelMonitorElevenLabsV2/scripts/excel/
           retention-days: 7
 
           
