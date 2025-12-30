@@ -111,6 +111,79 @@ Variables mínimas requeridas por `/.netlify/functions/whatsapp-subscribe`:
 - `SUPABASE_URL` (o alternativamente `VITE_SUPABASE_URL`)
 - `SUPABASE_SERVICE_ROLE_KEY`
 
+### ✉️ Notificación por correo al suscribirse (EmailJS)
+
+El endpoint `/.netlify/functions/whatsapp-subscribe` ahora puede enviar una **notificación por correo**
+cada vez que alguien se suscribe para recibir el Evangelio por WhatsApp.
+
+#### 1) Crear el template en EmailJS
+
+En EmailJS:
+1. **Email Services**: crea/conecta tu servicio (por ejemplo Gmail) y copia el **Service ID**.
+2. **Email Templates**: crea un template y copia el **Template ID**.
+3. Ve a tu cuenta/keys y copia:
+   - **Public Key**
+   - **Private Key** (a veces aparece como **Access Token**)
+
+En el template, usa estas variables (template params) según lo que envía la función:
+
+- `{{to_email}}`  (correo donde quieres recibir la notificación)
+- `{{first_name}}`
+- `{{last_name}}`
+- `{{phone}}`
+- `{{email}}`
+- `{{subscribed_at}}`
+- `{{source}}`
+- `{{channel}}`
+
+> Importante: configura el campo **To Email** del template como `{{to_email}}`.
+
+#### 2) Variables de entorno en Netlify
+
+En **Netlify → Site settings → Build & deploy → Environment → Environment variables**, agrega:
+
+```env
+NOTIFICATION_EMAIL=tu_correo@dominio.com
+
+EMAILJS_SERVICE_ID=service_xxx
+EMAILJS_TEMPLATE_ID=template_xxx
+EMAILJS_PUBLIC_KEY=xxxxx
+EMAILJS_PRIVATE_KEY=xxxxx
+```
+
+> Seguridad: `EMAILJS_PRIVATE_KEY` **NO** debe ir al frontend. Está pensado para ejecutarse solo en la function.
+
+##### Si ves error 403 (bloqueo server-side)
+
+Si en logs aparece:
+`API calls are disabled for non-browser applications`
+
+Tu cuenta/plan de EmailJS está bloqueando envíos desde backend/serverless.
+
+En ese caso, este repo también soporta notificación **desde el navegador** (frontend) usando solo:
+
+```env
+VITE_EMAILJS_SERVICE_ID=service_xxx
+VITE_EMAILJS_TEMPLATE_ID=template_xxx
+VITE_EMAILJS_PUBLIC_KEY=xxxxx
+VITE_NOTIFICATION_EMAIL=tu_correo@dominio.com
+```
+
+> Nota: el envío desde backend queda deshabilitado por defecto. Para habilitarlo (si tu plan lo permite), configura:
+> `EMAILJS_ENABLE_SERVER=1`
+
+#### 3) Prueba en local
+
+1. Copia `.env.example` a `.env` y completa las variables.
+2. Levanta con funciones:
+```bash
+npm run dev:netlify
+```
+3. Abre: **http://localhost:8888** y suscríbete.
+
+Si la suscripción se guarda pero no llega el correo, revisa la consola/logs de Netlify dev
+(`EmailJS notification failed ...`).
+
 > Nota: `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` son para el frontend.
 > La función serverless necesita la **service role** para escribir en la tabla `whatsapp_subscriptions`.
 
