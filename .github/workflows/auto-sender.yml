@@ -30,10 +30,10 @@ jobs:
       - name: Run WhatsApp Auto Sender
         env:
           # Optional: If script is modified to use env vars, set them here
-          # ID_INSTANCE: ${{ secrets.ID_INSTANCE }}
-          # API_TOKEN: ${{ secrets.API_TOKEN }}
-          # ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-          # VOICE_ID: ${{ secrets.VOICE_ID }}
+          ID_INSTANCE: ${{ secrets.ID_INSTANCE }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          VOICE_ID: ${{ secrets.VOICE_ID }}
           NODE_TLS_REJECT_UNAUTHORIZED: '0'
         run: node autoSender.js
 
@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: whatsapp-report
-          path: webSiteCatolico/WhatsAppExcelMonitorElevenLabsV2/scripts/excel/
+          path: WhatsAppExcelMonitorElevenLabsV2/scripts/excel/
           retention-days: 7
 
           
