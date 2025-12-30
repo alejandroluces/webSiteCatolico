@@ -14,11 +14,107 @@ const cleanEnv = (v: string) =>
   (v || '')
     .trim()
     // netlify / shells sometimes wrap values with quotes
-    .replace(/^[`'\"]+/, '')
-    .replace(/[`'\"]+$/, '')
+    .replace(/^[`'"]+/, '')
+    .replace(/[`'"]+$/, '')
     // common copy/paste trailing semicolon
     .replace(/;$/, '')
     .trim();
+
+type PostgrestErrorLike = {
+  message: string;
+  code?: string;
+  details?: string;
+  hint?: string;
+};
+
+const asPostgrestErrorLike = (e: unknown): PostgrestErrorLike | null => {
+  if (!e || typeof e !== 'object') return null;
+  const maybe = e as Partial<PostgrestErrorLike>;
+  if (typeof maybe.message !== 'string') return null;
+  return {
+    message: maybe.message,
+    code: typeof maybe.code === 'string' ? maybe.code : undefined,
+    details: typeof maybe.details === 'string' ? maybe.details : undefined,
+    hint: typeof maybe.hint === 'string' ? maybe.hint : undefined,
+  };
+};
+
+const sendEmailJsNotification = async (params: {
+  firstName: string;
+  lastName?: string;
+  phone: string;
+  email?: string;
+}) => {
+  // Por defecto, **deshabilitado**: muchas cuentas de EmailJS bloquean envíos desde serverless
+  // con el error 403: "API calls are disabled for non-browser applications".
+  // Si tu plan permite server-side, habilita explícitamente con:
+  // EMAILJS_ENABLE_SERVER=1
+  const EMAILJS_ENABLE_SERVER = cleanEnv(process.env.EMAILJS_ENABLE_SERVER || '') === '1';
+  if (!EMAILJS_ENABLE_SERVER) return;
+
+  // EmailJS: se recomienda llamar desde backend para NO exponer accessToken/privKey.
+  // Docs API: https://www.emailjs.com/docs/rest-api/send-email/
+  const EMAILJS_SERVICE_ID = cleanEnv(process.env.EMAILJS_SERVICE_ID || '');
+  const EMAILJS_TEMPLATE_ID = cleanEnv(process.env.EMAILJS_TEMPLATE_ID || '');
+  const EMAILJS_PUBLIC_KEY = cleanEnv(process.env.EMAILJS_PUBLIC_KEY || '');
+  // En EmailJS suele llamarse "Private Key" o "Access Token" (según UI).
+  const EMAILJS_PRIVATE_KEY = cleanEnv(
+    process.env.EMAILJS_PRIVATE_KEY || process.env.EMAILJS_ACCESS_TOKEN || ''
+  );
+
+  // Email destino para recibir notificación (puedes reutilizar esta variable ya existente en el repo)
+  const NOTIFICATION_EMAIL = cleanEnv(process.env.NOTIFICATION_EMAIL || '');
+
+  const isConfigured =
+    Boolean(EMAILJS_SERVICE_ID) &&
+    Boolean(EMAILJS_TEMPLATE_ID) &&
+    Boolean(EMAILJS_PUBLIC_KEY) &&
+    Boolean(EMAILJS_PRIVATE_KEY) &&
+    Boolean(NOTIFICATION_EMAIL);
+
+  if (!isConfigured) {
+    console.warn('EmailJS notification skipped (missing env)', {
+      hasServiceId: Boolean(EMAILJS_SERVICE_ID),
+      hasTemplateId: Boolean(EMAILJS_TEMPLATE_ID),
+      hasPublicKey: Boolean(EMAILJS_PUBLIC_KEY),
+      hasPrivateKey: Boolean(EMAILJS_PRIVATE_KEY),
+      hasNotificationEmail: Boolean(NOTIFICATION_EMAIL),
+    });
+    return;
+  }
+
+  const payload = {
+    service_id: EMAILJS_SERVICE_ID,
+    template_id: EMAILJS_TEMPLATE_ID,
+    user_id: EMAILJS_PUBLIC_KEY,
+    accessToken: EMAILJS_PRIVATE_KEY,
+    template_params: {
+      // IMPORTANTE: configura tu template EmailJS para usar estas variables.
+      // Para enviar a tu correo, en el template pon "To Email" = {{to_email}}
+      to_email: NOTIFICATION_EMAIL,
+      first_name: params.firstName,
+      last_name: params.lastName || '',
+      phone: params.phone,
+      email: params.email || '',
+      subscribed_at: new Date().toISOString(),
+      source: 'website',
+      channel: 'whatsapp-gospel',
+    },
+  };
+
+  const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resp.ok) {
+    const raw = await resp.text().catch(() => '');
+    console.error('EmailJS notification failed', { status: resp.status, raw });
+  } else {
+    console.log('EmailJS notification sent');
+  }
+};
 
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -87,27 +183,43 @@ export const handler: Handler = async (event) => {
 
   const { error: insertError } = await supabase.from('whatsapp_subscriptions').insert([payload]);
 
-  const isDuplicate = insertError && (insertError as any).code === '23505';
+  const insertErrLike = asPostgrestErrorLike(insertError);
+  const isDuplicate = Boolean(insertErrLike && insertErrLike.code === '23505');
 
   const { error } = isDuplicate
     ? await supabase.from('whatsapp_subscriptions').update(payload).eq('phone', phone)
     : { error: insertError };
 
   if (error) {
+    const errLike = asPostgrestErrorLike(error) || { message: 'Unknown error' };
     console.error('Supabase error (whatsapp-subscribe):', {
-      message: error.message,
-      code: (error as any).code,
-      details: (error as any).details,
-      hint: (error as any).hint,
+      message: errLike.message,
+      code: errLike.code,
+      details: errLike.details,
+      hint: errLike.hint,
     });
 
     // Mensaje más útil para PROD sin exponer datos sensibles.
     const msg =
-      (error as any).code === 'PGRST301' || /JWT|token/i.test(error.message)
+      errLike.code === 'PGRST301' || /JWT|token/i.test(errLike.message)
         ? 'No se pudo guardar la suscripción. Revisa que SUPABASE_SERVICE_ROLE_KEY sea válida (sin comillas) y corresponda al mismo proyecto.'
         : 'No se pudo guardar la suscripción.';
 
     return { statusCode: 500, body: JSON.stringify({ message: msg }) };
+  }
+
+  // Notificación por correo (NO bloquea la suscripción si falla)
+  try {
+    await sendEmailJsNotification({
+      firstName,
+      lastName: lastName || undefined,
+      phone,
+      email: email || undefined,
+    });
+  } catch (e) {
+    console.error('EmailJS notification threw error', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 
   return {
