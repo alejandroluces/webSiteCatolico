@@ -10,7 +10,7 @@ WhatsAppExcelMonitorElevenLabsV2/.git_disabled/
 
 # Reportes y excels/imágenes de trabajo (son datos, no código)
 WhatsAppExcelMonitorElevenLabsV2/scripts/reportes/
-WhatsAppExcelMonitorElevenLabsV2/scripts/excel/
+
 
 # Archivos de entorno - ¡No subir a Git!
 .env
