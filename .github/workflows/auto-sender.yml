@@ -42,7 +42,7 @@ jobs:
         uses: REMOVED_PRIVATE_ARTIFACT_UPLOAD@v4
         with:
           name: whatsapp-report
-          path: WhatsAppExcelMonitorElevenLabsV2/scripts/excel/
+          path: webSiteCatolico/WhatsAppExcelMonitorElevenLabsV2/scripts/excel/
           retention-days: 7
 
           
