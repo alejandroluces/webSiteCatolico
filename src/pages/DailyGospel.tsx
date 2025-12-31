@@ -2,9 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BookOpen, Calendar, Share2, Heart, ArrowLeft, ArrowRight, Volume2, Play, Pause } from 'lucide-react';
 import { useDailyContent } from '../hooks/useDailyContent';
 
+const FALLBACK_GOSPEL_IMAGE = '/images/Santisimo.png';
+
 const DailyGospel: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined);
   const { content, isLoading, error, refetch } = useDailyContent('gospel', selectedDate);
+  const [imageSrc, setImageSrc] = useState<string>(FALLBACK_GOSPEL_IMAGE);
   
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [isPaused, setIsPaused] = useState<boolean>(true);
@@ -18,6 +21,13 @@ const DailyGospel: React.FC = () => {
       };
     }
   }, [playingAudio]);
+
+  useEffect(() => {
+    // Siempre mostrar una imagen:
+    // 1) si hay imagen del día -> usarla
+    // 2) si no hay / falla -> fallback (Santisimo.png)
+    setImageSrc(content?.image_url || FALLBACK_GOSPEL_IMAGE);
+  }, [content?.image_url]);
 
   const handlePlayPause = (audioUrl: string) => {
     if (playingAudio === audioUrl) {
@@ -144,11 +154,19 @@ const DailyGospel: React.FC = () => {
 
         {!isLoading && !error && content && (
           <>
-            {content.image_url && (
-              <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
-                <img src={content.image_url} alt={content.title} className="w-full h-auto object-cover" />
-              </div>
-            )}
+            <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
+              <img
+                src={imageSrc}
+                alt={content.title}
+                className="w-full h-auto object-cover"
+                onError={() => {
+                  // Evitar bucle infinito si el fallback también faltara
+                  if (imageSrc !== FALLBACK_GOSPEL_IMAGE) {
+                    setImageSrc(FALLBACK_GOSPEL_IMAGE);
+                  }
+                }}
+              />
+            </div>
             
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
               <div className="bg-gradient-to-r from-marian-blue-600 to-marian-blue-700 dark:from-gray-700 dark:to-gray-600 text-white p-6 flex justify-between items-center">

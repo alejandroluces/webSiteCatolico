@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { BookOpen, Calendar, ArrowRight } from 'lucide-react';
 import { DailyContent } from '../hooks/useDailyContent';
 
+const FALLBACK_GOSPEL_IMAGE = '/images/Santisimo.png';
+
 interface GospelCardProps {
   gospel: DailyContent;
   isHighlighted?: boolean;
@@ -30,14 +32,20 @@ const GospelCard: React.FC<GospelCardProps> = ({ gospel, isHighlighted = false }
     <div className={`bg-gradient-to-br from-white via-white to-marian-blue-50/30 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200/60 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-marian-blue-200/50 dark:hover:shadow-gray-900/50 ${
       isHighlighted ? 'ring-2 ring-sacred-gold-400 dark:ring-sacred-gold-500' : ''
     }`}>
-      {/* Imagen del evangelio si existe */}
-      {gospel.image_url && (
-        <div className="relative h-48 overflow-hidden">
-          <img 
-            src={gospel.image_url} 
-            alt={gospel.title} 
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-          />
+      {/* Imagen del evangelio (con fallback) */}
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={gospel.image_url || FALLBACK_GOSPEL_IMAGE}
+          alt={gospel.title}
+          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          onError={(e) => {
+            const img = e.currentTarget;
+            // Evitar loop si el fallback también faltara
+            if (!img.src.endsWith(FALLBACK_GOSPEL_IMAGE)) {
+              img.src = FALLBACK_GOSPEL_IMAGE;
+            }
+          }}
+        />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
           <div className="absolute bottom-4 left-4 text-white">
             <div className="flex items-center space-x-2 text-sm">
@@ -45,17 +53,10 @@ const GospelCard: React.FC<GospelCardProps> = ({ gospel, isHighlighted = false }
               <span>{formatDate(gospel.date)}</span>
             </div>
           </div>
-        </div>
-      )}
+      </div>
       
       <div className="p-6">
-        {/* Si no hay imagen, mostrar la fecha aquí */}
-        {!gospel.image_url && (
-          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-3">
-            <Calendar className="h-4 w-4" />
-            <span>{formatDate(gospel.date)}</span>
-          </div>
-        )}
+        {/* La fecha ya se muestra en el overlay de la imagen */}
         
         <h3 className="text-xl font-serif font-semibold text-marian-blue-900 dark:text-white mb-3">
           {gospel.title}
