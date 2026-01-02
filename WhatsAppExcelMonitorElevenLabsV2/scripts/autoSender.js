@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
 const FormData = require('form-data');
+const crypto = require('crypto');
 
 // Helpers para manipular celdas del Excel
 function getHeaderMap(worksheet) {
@@ -73,6 +74,26 @@ function selectWorksheetWithHeaders(workbook, requiredHeaders) {
   const sheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[sheetName];
   return { sheetName, worksheet, headerMap: getHeaderMap(worksheet) };
+}
+
+function getFileSha1(filePath) {
+  const buf = fs.readFileSync(filePath);
+  return crypto.createHash('sha1').update(buf).digest('hex');
+}
+
+function getWorksheetStats(worksheet) {
+  const cellAddrs = Object.keys(worksheet).filter(k => !k.startsWith('!'));
+  if (cellAddrs.length === 0) {
+    return { cellCount: 0, maxRow1Based: 0, maxCol1Based: 0 };
+  }
+  let maxR = 0;
+  let maxC = 0;
+  for (const addr of cellAddrs) {
+    const { r, c } = XLSX.utils.decode_cell(addr);
+    if (r > maxR) maxR = r;
+    if (c > maxC) maxC = c;
+  }
+  return { cellCount: cellAddrs.length, maxRow1Based: maxR + 1, maxCol1Based: maxC + 1 };
 }
 
 // Configuración
@@ -317,6 +338,15 @@ async function main() {
   try {
     console.log('Iniciando proceso de envío automático...');
 
+    // Debug para diferenciar ejecución local vs Render y confirmar qué build está corriendo
+    console.log('Runtime:', {
+      node: process.version,
+      cwd: process.cwd(),
+      __dirname,
+      renderCommit: process.env.RENDER_GIT_COMMIT || null,
+      netlifyCommit: process.env.COMMIT_REF || null
+    });
+
     const DRY_RUN = String(process.env.DRY_RUN || '').toLowerCase() === 'true';
     const LIMIT = process.env.LIMIT ? Number(process.env.LIMIT) : null;
     if (DRY_RUN) {
@@ -362,14 +392,25 @@ async function main() {
 
     // Leer el archivo Excel
     try {
+      const stat = fs.statSync(excelPath);
+      console.log('Excel debug:', {
+        excelPath,
+        sizeBytes: stat.size,
+        sha1: getFileSha1(excelPath)
+      });
+
       const workbook = XLSX.readFile(excelPath);
+      console.log('Workbook sheets:', workbook.SheetNames);
       const { sheetName, worksheet, headerMap } = selectWorksheetWithHeaders(workbook, [
         'CELULAR',
         'TEXTO_MENSAJE',
         'SMS'
       ]);
 
+      const statsBefore = getWorksheetStats(worksheet);
+
       const { originalRef, newRef } = normalizeWorksheetRef(worksheet);
+      const statsAfter = getWorksheetStats(worksheet);
       const data = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
       // Necesitamos poder marcar SMS=1 en el Excel para no reenviar en siguientes ejecuciones
@@ -378,6 +419,7 @@ async function main() {
       console.log(`Archivo encontrado: ${path.basename(excelPath)}`);
       console.log(`Hoja seleccionada: ${sheetName}`);
       console.log(`Rango Excel (!ref): ${originalRef || 'N/A'} -> ${newRef || 'N/A'}`);
+      console.log('Worksheet stats:', { before: statsBefore, after: statsAfter });
       console.log(`Total de registros: ${data.length}`);
       console.log(`Modo de envío: ${[
         imageBuffer ? 'Con imagen adjunta' : 'Sin imagen',
