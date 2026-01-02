@@ -31,6 +31,50 @@ function setCell(worksheet, r1Based, c0Based, value) {
   worksheet[addr].t = typeof value === 'number' ? 'n' : 's';
 }
 
+/**
+ * Algunos Excels vienen con un `!ref` (rango) incorrecto/incompleto.
+ * `sheet_to_json` usa `!ref` para decidir qué filas leer, así que si el rango
+ * está “cortado”, el script termina leyendo 1 sola fila aunque existan más.
+ *
+ * Esta función recalcula el rango real escaneando las celdas presentes.
+ */
+function normalizeWorksheetRef(worksheet) {
+  const originalRef = worksheet['!ref'];
+
+  const cellAddrs = Object.keys(worksheet).filter(k => !k.startsWith('!'));
+  if (cellAddrs.length === 0) {
+    return { originalRef, newRef: originalRef };
+  }
+
+  let minR = Infinity, minC = Infinity, maxR = 0, maxC = 0;
+  for (const addr of cellAddrs) {
+    const { r, c } = XLSX.utils.decode_cell(addr);
+    if (r < minR) minR = r;
+    if (c < minC) minC = c;
+    if (r > maxR) maxR = r;
+    if (c > maxC) maxC = c;
+  }
+
+  const newRef = XLSX.utils.encode_range({ s: { r: minR, c: minC }, e: { r: maxR, c: maxC } });
+  worksheet['!ref'] = newRef;
+  return { originalRef, newRef };
+}
+
+function selectWorksheetWithHeaders(workbook, requiredHeaders) {
+  // Elegimos la primera hoja que contenga los headers clave (case-insensitive)
+  for (const sheetName of workbook.SheetNames) {
+    const ws = workbook.Sheets[sheetName];
+    const headerMap = getHeaderMap(ws);
+    const hasAll = requiredHeaders.every(h => typeof headerMap[String(h).trim().toUpperCase()] === 'number');
+    if (hasAll) return { sheetName, worksheet: ws, headerMap };
+  }
+
+  // fallback: primera hoja
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
+  return { sheetName, worksheet, headerMap: getHeaderMap(worksheet) };
+}
+
 // Configuración
 const EXCEL_FOLDER = path.join(__dirname, 'excel');
 const ID_INSTANCE = '7105451115';
@@ -272,6 +316,15 @@ let generateReport = (data, results)=> {
 async function main() {
   try {
     console.log('Iniciando proceso de envío automático...');
+
+    const DRY_RUN = String(process.env.DRY_RUN || '').toLowerCase() === 'true';
+    const LIMIT = process.env.LIMIT ? Number(process.env.LIMIT) : null;
+    if (DRY_RUN) {
+      console.log('⚠️ DRY_RUN=true -> No se enviarán mensajes reales. Solo validación/preview.');
+    }
+    if (Number.isFinite(LIMIT)) {
+      console.log(`⚠️ LIMIT=${LIMIT} -> Se procesarán como máximo ${LIMIT} registros.`);
+    }
     
     // Verificar conexión de WhatsApp
     if (!await checkWhatsAppConnection()) {
@@ -310,19 +363,38 @@ async function main() {
     // Leer el archivo Excel
     try {
       const workbook = XLSX.readFile(excelPath);
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(worksheet);
+      const { sheetName, worksheet, headerMap } = selectWorksheetWithHeaders(workbook, [
+        'CELULAR',
+        'TEXTO_MENSAJE',
+        'SMS'
+      ]);
+
+      const { originalRef, newRef } = normalizeWorksheetRef(worksheet);
+      const data = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
       // Necesitamos poder marcar SMS=1 en el Excel para no reenviar en siguientes ejecuciones
-      const headerMap = getHeaderMap(worksheet);
       const smsCol = headerMap['SMS'];
 
       console.log(`Archivo encontrado: ${path.basename(excelPath)}`);
+      console.log(`Hoja seleccionada: ${sheetName}`);
+      console.log(`Rango Excel (!ref): ${originalRef || 'N/A'} -> ${newRef || 'N/A'}`);
       console.log(`Total de registros: ${data.length}`);
       console.log(`Modo de envío: ${[
         imageBuffer ? 'Con imagen adjunta' : 'Sin imagen',
         includeAudio ? 'Con audio' : 'Sin audio'
       ].filter(Boolean).join(', ')}`);
+
+      const pendingCount = data.filter(r => r.SMS === 0 || r.SMS === '0' || r.SMS === '' || r.SMS == null).length;
+      console.log(`Registros pendientes (SMS=0/vacío): ${pendingCount}`);
+
+      // Diagnóstico rápido para validar lectura/filtros (evita imprimir el texto completo)
+      const previewRows = data.slice(0, 10).map((r, idx) => ({
+        fila: idx + 2, // +2 porque json_to_sheet omite header row
+        celular: r.CELULAR || '',
+        sms: r.SMS,
+        whatsapp: r.WHATSAPP || r.WHA || ''
+      }));
+      console.log('Preview primeras filas (max 10):', previewRows);
 
       let successCount = 0;
       let failCount = 0;
@@ -344,11 +416,16 @@ async function main() {
 
       // Procesar cada registro
       for (let i = 0; i < data.length; i++) {
+        if (Number.isFinite(LIMIT) && i >= LIMIT) {
+          console.log(`⚠️ LIMIT alcanzado (${LIMIT}). Deteniendo procesamiento.`);
+          break;
+        }
+
         const row = data[i];
         
         try {
           // Verificar si el mensaje debe enviarse
-          if (row.SMS === 0 || row.SMS === '0') {
+          if (row.SMS === 0 || row.SMS === '0' || row.SMS === '' || row.SMS == null) {
             // Verificar que exista el número de teléfono
             if (!row.CELULAR) {
               throw new Error('Número de teléfono vacío');
@@ -359,19 +436,22 @@ async function main() {
               throw new Error('Mensaje vacío');
             }
             
-            const result = await sendWhatsAppMessage(
-              row.CELULAR,
-              row.TEXTO_MENSAJE,
-              imageBuffer,
-              audioBuffer
-            );
+            const result = DRY_RUN
+              ? { success: true }
+              : await sendWhatsAppMessage(
+                  row.CELULAR,
+                  row.TEXTO_MENSAJE,
+                  imageBuffer,
+                  audioBuffer
+                );
             
             if (result.success) {
               successCount++;
               console.log(`✓ [${i+1}/${data.length}] Mensaje enviado a: ${row.CELULAR}`);
 
               // Marcar SMS=1 en el Excel (fila i+2 porque la fila 1 es header)
-              if (typeof smsCol === 'number') {
+              // Solo si NO es DRY_RUN
+              if (!DRY_RUN && typeof smsCol === 'number') {
                 setCell(worksheet, i + 2, smsCol, 1);
               }
 
@@ -443,9 +523,12 @@ async function main() {
 
       // Persistir cambios (SMS=1) para que los próximos runs no reenvíen
       try {
-        XLSX.writeFile(workbook, excelPath);
+        if (!DRY_RUN) {
+          XLSX.writeFile(workbook, excelPath);
+        }
       } catch (e) {
         console.error('⚠️ No se pudo guardar el Excel con SMS actualizado:', e.message);
+        console.error('   Tip: si tienes el Excel abierto en tu PC, ciérralo e intenta de nuevo.');
       }
 
     } catch (error) {
