@@ -33,8 +33,8 @@ function setCell(worksheet, r1Based, c0Based, value) {
 
 // Configuración
 const EXCEL_FOLDER = path.join(__dirname, 'excel');
-const ID_INSTANCE = '7105177366';
-const API_TOKEN = 'bd102a3ed2aa476fb608deba38ea6d97e73c42f0f04947e392';
+const ID_INSTANCE = '7105451115';
+const API_TOKEN = 'fa2e670b70be427eba9fef6aca111afb4cbcfd442b4a4238b5';
 const BASE_URL = `https://api.greenapi.com/waInstance${ID_INSTANCE}`;
 const MEDIA_URL = `https://7105.media.greenapi.com/waInstance${ID_INSTANCE}`;
 const ELEVENLABS_API_KEY = 'sk_b06dc7ddcb6fa1962332aa6cc8f5c13088f48680f7b473a3';
