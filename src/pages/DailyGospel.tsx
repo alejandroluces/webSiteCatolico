@@ -1,13 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, Calendar, Share2, Heart, ArrowLeft, ArrowRight, Volume2, Play, Pause } from 'lucide-react';
+import { BookOpen, Calendar, Share2, Heart, ArrowLeft, ArrowRight, Play, Pause } from 'lucide-react';
 import { useDailyContent } from '../hooks/useDailyContent';
+import DateCalendarPopover from '../components/UI/DateCalendarPopover';
+import { useAvailableDailyContentDates } from '../hooks/useAvailableDailyContentDates';
 
 const FALLBACK_GOSPEL_IMAGE = '/images/Santisimo.png';
 
 const DailyGospel: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined);
+  const getInitialDateFromUrl = () => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const date = params.get('date');
+      return date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+
+  const [selectedDate, setSelectedDate] = useState<string | undefined>(getInitialDateFromUrl());
   const { content, isLoading, error, refetch } = useDailyContent('gospel', selectedDate);
   const [imageSrc, setImageSrc] = useState<string>(FALLBACK_GOSPEL_IMAGE);
+
+  const {
+    enabledDates,
+    isLoading: isLoadingDates,
+    error: datesError,
+  } = useAvailableDailyContentDates('gospel', 18);
   
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [isPaused, setIsPaused] = useState<boolean>(true);
@@ -75,6 +93,29 @@ const DailyGospel: React.FC = () => {
   const goToPreviousDay = () => {
     const currentDate = selectedDate ? new Date(selectedDate) : new Date();
     currentDate.setDate(currentDate.getDate() - 1);
+
+    // If we have enabledDates, jump to previous enabled date.
+    if (enabledDates && enabledDates.size > 0) {
+      const iso = currentDate.toISOString().split('T')[0];
+      // Fast path: if iso is enabled
+      if (enabledDates.has(iso)) {
+        setSelectedDate(iso);
+        return;
+      }
+
+      // Step back up to 365 days to find an enabled date.
+      const probe = new Date(currentDate);
+      for (let i = 0; i < 365; i++) {
+        const d = probe.toISOString().split('T')[0];
+        if (enabledDates.has(d)) {
+          setSelectedDate(d);
+          return;
+        }
+        probe.setDate(probe.getDate() - 1);
+      }
+      return;
+    }
+
     setSelectedDate(currentDate.toISOString().split('T')[0]);
   };
 
@@ -84,6 +125,21 @@ const DailyGospel: React.FC = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (currentDate <= today) {
+      // If we have enabledDates, jump to next enabled date.
+      if (enabledDates && enabledDates.size > 0) {
+        const probe = new Date(currentDate);
+        for (let i = 0; i < 365; i++) {
+          const d = probe.toISOString().split('T')[0];
+          if (enabledDates.has(d)) {
+            setSelectedDate(d);
+            return;
+          }
+          probe.setDate(probe.getDate() + 1);
+          if (probe > today) return;
+        }
+        return;
+      }
+
       setSelectedDate(currentDate.toISOString().split('T')[0]);
     }
   };
@@ -91,6 +147,17 @@ const DailyGospel: React.FC = () => {
   const goToToday = () => {
     setSelectedDate(undefined);
   };
+
+  // Keep the URL in sync (so links like /evangelio-del-dia?date=YYYY-MM-DD work)
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (selectedDate) {
+      url.searchParams.set('date', selectedDate);
+    } else {
+      url.searchParams.delete('date');
+    }
+    window.history.replaceState({}, '', url.toString());
+  }, [selectedDate]);
 
   const handleShare = () => {
     if (navigator.share) {
@@ -124,17 +191,32 @@ const DailyGospel: React.FC = () => {
               Evangelio del Día
             </h1>
           </div>
-          <div className="flex items-center justify-center space-x-4 text-gray-600 dark:text-gray-300">
-            <div className="flex items-center space-x-1">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-gray-600 dark:text-gray-300">
+            <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              <span className="capitalize">{formatDate(selectedDate)}</span>
+              <DateCalendarPopover
+                label="Fecha"
+                selectedDate={selectedDate}
+                onSelectDate={(iso) => setSelectedDate(iso)}
+                enabledDates={enabledDates}
+                isLoading={isLoadingDates}
+                maxDate={new Date()}
+                formatSelectedDate={formatDate}
+              />
             </div>
+
             {selectedDate && (
               <button onClick={goToToday} className="text-marian-blue-600 dark:text-sacred-gold-400 text-sm hover:underline">
                 Ver hoy
               </button>
             )}
           </div>
+
+          {datesError && (
+            <div className="mt-3 text-sm text-amber-600 dark:text-amber-400">
+              {datesError}
+            </div>
+          )}
         </div>
 
         {isLoading && (
