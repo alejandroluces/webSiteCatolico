@@ -29,6 +29,12 @@ Este sistema permite automatizar el envío de mensajes de WhatsApp basado en arc
 ### Imagen Adjunta (Opcional)
 1. Si desea incluir una imagen en los mensajes:
    - Debe tener el mismo nombre que el archivo Excel (sin el _A)
+
+#### Fallback de imagen
+
+Si **no** existe una imagen con el nombre del día (por ejemplo `DDMMYYYY.png/.jpg/.jpeg`), el envío automático usará por defecto:
+
+- `scripts/excel/Santisimo.png` (o `santisimo.png`)
    - Debe usar una de estas extensiones: .jpg, .jpeg, o .png
    - Ejemplo: `22022025.jpg`
    - Colocarla en la misma carpeta `excel/`
