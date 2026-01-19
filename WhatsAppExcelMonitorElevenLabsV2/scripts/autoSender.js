@@ -98,12 +98,27 @@ function getWorksheetStats(worksheet) {
 
 // Configuración
 const EXCEL_FOLDER = path.join(__dirname, 'excel');
+// Imagen por defecto cuando NO existe una imagen asociada a la fecha
+// Nota: en sistemas Linux el nombre es case-sensitive, por eso probamos ambas variantes.
+const DEFAULT_IMAGE_CANDIDATES = ['Santisimo.png', 'santisimo.png'];
 const ID_INSTANCE = '***REMOVED_GREEN_API_INSTANCE***';
 const API_TOKEN = '***REMOVED_GREEN_API_TOKEN***';
 const BASE_URL = `https://api.greenapi.com/waInstance${ID_INSTANCE}`;
 const MEDIA_URL = `https://7105.media.greenapi.com/waInstance${ID_INSTANCE}`;
 const ELEVENLABS_API_KEY = '***REMOVED_ELEVENLABS_KEY***';
 const VOICE_ID = 'pqHfZKP75CvOlQylNhV4';
+
+function getImageContentTypeFromExt(ext) {
+  switch (String(ext || '').toLowerCase()) {
+    case '.png':
+      return 'image/png';
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    default:
+      return 'application/octet-stream';
+  }
+}
 
 // Función para obtener la fecha actual en formato DDMMYYYY
 function getCurrentDate() {
@@ -192,7 +207,7 @@ function formatPhoneNumber(phone) {
 }
 
 // Función para enviar un mensaje de WhatsApp con archivos adjuntos
-async function sendWhatsAppMessage(phoneNumber, message, imageBuffer = null, audioBuffer = null) {
+async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuffer = null) {
   try {
     const formattedPhone = formatPhoneNumber(phoneNumber);
     
@@ -201,13 +216,13 @@ async function sendWhatsAppMessage(phoneNumber, message, imageBuffer = null, aud
     }
 
     // Enviar mensaje con imagen si existe
-    if (imageBuffer) {
+    if (image && image.buffer) {
       const formData = new FormData();
       formData.append('chatId', `${formattedPhone}@c.us`);
       formData.append('caption', message);
-      formData.append('file', imageBuffer, {
-        filename: 'image.jpg',
-        contentType: 'image/jpeg'
+      formData.append('file', image.buffer, {
+        filename: image.filename || 'image.png',
+        contentType: image.contentType || 'image/png'
       });
 
       const response = await axios.post(
@@ -379,14 +394,34 @@ async function main() {
     }
 
     // Verificar si existe una imagen para el día
-    let imageBuffer = null;
+    let image = null;
     const imageExtensions = ['.jpg', '.jpeg', '.png'];
     for (const ext of imageExtensions) {
       const imagePath = path.join(EXCEL_FOLDER, `${currentDate}${ext}`);
       if (fs.existsSync(imagePath)) {
-        imageBuffer = fs.readFileSync(imagePath);
+        image = {
+          buffer: fs.readFileSync(imagePath),
+          filename: `${currentDate}${ext}`,
+          contentType: getImageContentTypeFromExt(ext)
+        };
         console.log(`Imagen encontrada: ${currentDate}${ext}`);
         break;
+      }
+    }
+
+    // Fallback: si NO hay imagen asociada a la fecha, usar Santisimo.png
+    if (!image) {
+      for (const candidate of DEFAULT_IMAGE_CANDIDATES) {
+        const fallbackPath = path.join(EXCEL_FOLDER, candidate);
+        if (fs.existsSync(fallbackPath)) {
+          image = {
+            buffer: fs.readFileSync(fallbackPath),
+            filename: candidate,
+            contentType: getImageContentTypeFromExt(path.extname(candidate))
+          };
+          console.log(`⚠️ No hay imagen para ${currentDate}. Usando imagen por defecto: ${candidate}`);
+          break;
+        }
       }
     }
 
@@ -422,7 +457,7 @@ async function main() {
       console.log('Worksheet stats:', { before: statsBefore, after: statsAfter });
       console.log(`Total de registros: ${data.length}`);
       console.log(`Modo de envío: ${[
-        imageBuffer ? 'Con imagen adjunta' : 'Sin imagen',
+        image ? 'Con imagen adjunta' : 'Sin imagen',
         includeAudio ? 'Con audio' : 'Sin audio'
       ].filter(Boolean).join(', ')}`);
 
@@ -483,7 +518,7 @@ async function main() {
               : await sendWhatsAppMessage(
                   row.CELULAR,
                   row.TEXTO_MENSAJE,
-                  imageBuffer,
+                  image,
                   audioBuffer
                 );
             
