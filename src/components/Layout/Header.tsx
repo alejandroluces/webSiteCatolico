@@ -11,6 +11,7 @@ const Header: React.FC = () => {
   const navigation = [
     { name: 'Inicio', href: '/' },
     { name: 'Evangelio', href: '/evangelio-del-dia' },
+    { name: 'Santísimo 24h', href: '/santisimo-24h' },
     { name: 'Santo del Día', href: '/santo-del-dia' },
     { name: 'Oraciones', href: '/oraciones' },
     { name: 'Blog', href: '/blog' },

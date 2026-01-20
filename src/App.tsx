@@ -24,6 +24,7 @@ import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Cookies from './pages/Cookies';
+import Santisimo24h from './pages/Santisimo24h';
 
 // Admin Pages
 import AdminLogin from './pages/Admin/AdminLogin';
@@ -159,6 +160,12 @@ function App() {
           <Route path="/politica-cookies" element={
             <Layout>
               <Cookies />
+            </Layout>
+          } />
+
+          <Route path="/santisimo-24h" element={
+            <Layout>
+              <Santisimo24h />
             </Layout>
           } />
         </Routes>
