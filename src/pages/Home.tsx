@@ -1,12 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, User, Heart, Calendar, Sparkles, ArrowRight } from 'lucide-react';
+import { BookOpen, User, Heart, Calendar, Sparkles, ArrowRight, Church } from 'lucide-react';
 import GospelWidget from '../components/GospelWidget';
 import { useDailyQuote } from '../hooks/useDailyQuote';
 import WhatsAppGospelSignup from '../components/WhatsAppGospelSignup';
 
 const Home: React.FC = () => {
   const features = [
+    {
+      icon: Church,
+      title: 'Santísimo 24h',
+      description: 'Acompaña la Exposición del Santísimo con un video diario para orar y contemplar.',
+      href: '/santisimo-24h',
+      color: 'text-sacred-gold-600 dark:text-sacred-gold-400',
+    },
     {
       icon: BookOpen,
       title: 'Evangelio del Día',
