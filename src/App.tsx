@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/Layout/Layout';
 import ScrollToTop from './components/ScrollToTop';
@@ -12,8 +12,6 @@ import SaintOfTheDay from './pages/SaintOfTheDay';
 import Prayers from './pages/Prayers';
 import DailyReadings from './pages/DailyReadings';
 import Novenas from './pages/Novenas';
-import Blog from './pages/Blog';
-import BlogPost from './pages/BlogPost';
 import AprendeARezar from './pages/AprendeARezar';
 import RosarioInteractivoPage from './pages/RosarioInteractivo';
 import LiturgicalCalendar from './pages/LiturgicalCalendar';
@@ -102,16 +100,10 @@ function App() {
               <Novenas />
             </Layout>
           } />
-          <Route path="/blog" element={
-            <Layout>
-              <Blog />
-            </Layout>
-          } />
-          <Route path="/blog/:slug" element={
-            <Layout>
-              <BlogPost />
-            </Layout>
-          } />
+
+          {/* Blog eliminado: redirigir URLs antiguas */}
+          <Route path="/blog/*" element={<Navigate to="/" replace />} />
+
           <Route path="/aprende-a-rezar" element={
             <Layout>
               <AprendeARezar />

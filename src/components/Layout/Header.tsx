@@ -14,7 +14,6 @@ const Header: React.FC = () => {
     { name: 'Santísimo 24h', href: '/santisimo-24h' },
     { name: 'Santo del Día', href: '/santo-del-dia' },
     { name: 'Oraciones', href: '/oraciones' },
-    { name: 'Blog', href: '/blog' },
     { name: 'Aprende a Rezar el rosario', href: '/aprende-a-rezar' },
   ];
 

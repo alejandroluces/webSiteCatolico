@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, X, BookOpen, User, Calendar, Heart, Sparkles } from 'lucide-react';
+import { Search, X, BookOpen, User, Heart, Sparkles } from 'lucide-react';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -9,7 +9,7 @@ interface SearchModalProps {
 interface SearchResult {
   id: string;
   title: string;
-  type: 'evangelio' | 'santo' | 'oracion' | 'blog' | 'novena';
+  type: 'evangelio' | 'santo' | 'oracion' | 'novena';
   excerpt: string;
   url: string;
 }
@@ -43,13 +43,6 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
     },
     {
       id: '4',
-      title: 'Cómo vivir la fe en el día a día',
-      type: 'blog' as const,
-      excerpt: 'Descubre maneras prácticas de integrar la fe católica...',
-      url: '/blog/como-vivir-la-fe',
-    },
-    {
-      id: '5',
       title: 'Novena al Sagrado Corazón',
       type: 'novena' as const,
       excerpt: 'Nueve días de oración al Corazón de Jesús...',
@@ -84,8 +77,6 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
         return <Heart className="h-4 w-4" />;
       case 'novena':
         return <Sparkles className="h-4 w-4" />;
-      case 'blog':
-        return <Calendar className="h-4 w-4" />;
       default:
         return <Search className="h-4 w-4" />;
     }
@@ -101,8 +92,6 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
         return 'Oración';
       case 'novena':
         return 'Novena';
-      case 'blog':
-        return 'Blog';
       default:
         return 'Resultado';
     }

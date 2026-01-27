@@ -49,13 +49,6 @@ const Home: React.FC = () => {
       href: '/novenas',
       color: 'text-indigo-600 dark:text-indigo-400',
     },
-    {
-      icon: BookOpen,
-      title: 'Blog Católico',
-      description: 'Artículos sobre espiritualidad, fe, familia y vida cristiana.',
-      href: '/blog',
-      color: 'text-green-600 dark:text-green-400',
-    },
   ];
 
   const { quote: todayQuote, isLoading: isQuoteLoading, error: quoteError } = useDailyQuote();
