@@ -14,11 +14,18 @@
     "content:report": "node scripts/generateContentReport.js",
     "update:gospel": "node scripts/syncDailyGospelFromJson.js",
     "sync:gospel": "node scripts/syncDailyGospelFromJson.js",
+    "audio:migrate:r2": "node scripts/migrateAudioToR2.js",
+    "audio:migrate:r2:dry": "node scripts/migrateAudioToR2.js --dry-run",
+    "audio:local-to-r2": "node scripts/uploadLocalAudioToR2.js",
+    "audio:local-to-r2:dry": "node scripts/uploadLocalAudioToR2.js --dry-run",
+    "audio:supabase:cleanup": "node scripts/deleteSupabaseAudio.js --execute",
+    "audio:supabase:cleanup:dry": "node scripts/deleteSupabaseAudio.js --dry-run",
     "start:server": "node server.js",
     "test:whatsapp:send": "node scripts/testWhatsAppSend.js",
     "test:greenapi": "node scripts/testGreenApiConnection.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1010.0",
     "@emailjs/browser": "^4.4.1",
     "@google/genai": "*",
     "@headlessui/react": "^2.2.7",

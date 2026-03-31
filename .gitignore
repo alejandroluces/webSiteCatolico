@@ -22,3 +22,5 @@ yarn-debug.log*
 yarn-error.log*
 # Local Netlify folder
 .netlify
+r2_audio_updates.sql
+.env.example
