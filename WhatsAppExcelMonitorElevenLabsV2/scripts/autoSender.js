@@ -266,23 +266,43 @@ async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuff
     }
 
     // Enviar mensaje con imagen si existe
-    if (image && image.buffer) {
+    if (image && image.path) {
+      const imageExists = fs.existsSync(image.path);
+      const imageSize = imageExists ? fs.statSync(image.path).size : 0;
+      console.log('Enviando imagen por Green API:', {
+        url: `${MEDIA_URL}/sendFileByUpload/***`,
+        filename: image.filename,
+        contentType: image.contentType,
+        exists: imageExists,
+        sizeBytes: imageSize
+      });
+
+      if (!imageExists) {
+        throw new Error(`La imagen no existe en la ruta indicada: ${image.path}`);
+      }
+      if (imageSize === 0) {
+        throw new Error(`La imagen está vacía (0 bytes): ${image.path}`);
+      }
+
       const formData = new FormData();
       formData.append('chatId', `${formattedPhone}@c.us`);
       formData.append('caption', message);
-      formData.append('file', image.buffer, {
+      formData.append('file', fs.createReadStream(image.path), {
         filename: image.filename || 'image.png',
         contentType: image.contentType || 'image/png'
       });
+      formData.append('fileName', image.filename || 'image.png');
 
       const response = await axios.post(
         `${MEDIA_URL}/sendFileByUpload/${API_TOKEN}`,
         formData,
         {
           headers: {
-            ...formData.getHeaders(),
-            'Content-Length': formData.getLengthSync()
-          }
+            ...formData.getHeaders()
+          },
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity,
+          timeout: 60000
         }
       );
 
@@ -318,9 +338,11 @@ async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuff
         audioFormData,
         {
           headers: {
-            ...audioFormData.getHeaders(),
-            'Content-Length': audioFormData.getLengthSync()
-          }
+            ...audioFormData.getHeaders()
+          },
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity,
+          timeout: 60000
         }
       );
 
@@ -436,12 +458,16 @@ async function main() {
     });
 
     const DRY_RUN = String(process.env.DRY_RUN || '').toLowerCase() === 'true';
+    const DISABLE_IMAGE = String(process.env.DISABLE_IMAGE || '').toLowerCase() === 'true';
     const LIMIT = process.env.LIMIT ? Number(process.env.LIMIT) : null;
     if (DRY_RUN) {
       console.log('⚠️ DRY_RUN=true -> No se enviarán mensajes reales. Solo validación/preview.');
     }
     if (Number.isFinite(LIMIT)) {
       console.log(`⚠️ LIMIT=${LIMIT} -> Se procesarán como máximo ${LIMIT} registros.`);
+    }
+    if (DISABLE_IMAGE) {
+      console.log('⚠️ DISABLE_IMAGE=true -> Se enviarán solo mensajes de texto.');
     }
     
     // Verificar conexión de WhatsApp
@@ -473,7 +499,7 @@ async function main() {
       const imagePath = path.join(EXCEL_FOLDER, `${currentDate}${ext}`);
       if (fs.existsSync(imagePath)) {
         image = {
-          buffer: fs.readFileSync(imagePath),
+          path: imagePath,
           filename: `${currentDate}${ext}`,
           contentType: getImageContentTypeFromExt(ext)
         };
@@ -488,7 +514,7 @@ async function main() {
         const fallbackPath = path.join(EXCEL_FOLDER, candidate);
         if (fs.existsSync(fallbackPath)) {
           image = {
-            buffer: fs.readFileSync(fallbackPath),
+            path: fallbackPath,
             filename: candidate,
             contentType: getImageContentTypeFromExt(path.extname(candidate))
           };
@@ -591,7 +617,7 @@ async function main() {
               : await sendWhatsAppMessage(
                   row.CELULAR,
                   row.TEXTO_MENSAJE,
-                  null,
+                  DISABLE_IMAGE ? null : image,
                   audioBuffer
                 );
             
