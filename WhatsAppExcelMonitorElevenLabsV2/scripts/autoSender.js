@@ -591,7 +591,7 @@ async function main() {
               : await sendWhatsAppMessage(
                   row.CELULAR,
                   row.TEXTO_MENSAJE,
-                  image,
+                  null,
                   audioBuffer
                 );
             
