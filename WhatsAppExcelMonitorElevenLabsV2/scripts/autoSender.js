@@ -170,6 +170,52 @@ function getImageContentTypeFromExt(ext) {
   }
 }
 
+async function uploadFileToGreenApi(image) {
+  const imageExists = fs.existsSync(image.path);
+  const imageSize = imageExists ? fs.statSync(image.path).size : 0;
+
+  if (!imageExists) {
+    throw new Error(`La imagen no existe: ${image.path}`);
+  }
+
+  if (imageSize === 0) {
+    throw new Error(`La imagen está vacía: ${image.path}`);
+  }
+
+  console.log('Subiendo imagen a Green API storage:', {
+    url: `${MEDIA_URL}/uploadFile/***`,
+    filename: image.filename,
+    contentType: image.contentType,
+    sizeBytes: imageSize
+  });
+
+  const response = await axios.post(
+    `${MEDIA_URL}/uploadFile/${API_TOKEN}`,
+    fs.createReadStream(image.path),
+    {
+      headers: {
+        'Content-Type': image.contentType || 'application/octet-stream',
+        'Content-Length': imageSize,
+        'GA-Filename': image.filename || 'image.png'
+      },
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+      timeout: 60000
+    }
+  );
+
+  if (!response.data?.urlFile) {
+    throw new Error(`UploadFile no devolvió urlFile: ${JSON.stringify(response.data)}`);
+  }
+
+  console.log('Imagen subida correctamente:', {
+    filename: image.filename,
+    hasUrlFile: Boolean(response.data.urlFile)
+  });
+
+  return response.data.urlFile;
+}
+
 // Función para obtener la fecha actual en formato DDMMYYYY
 function getCurrentDate() {
   const now = new Date();
@@ -257,7 +303,7 @@ function formatPhoneNumber(phone) {
 }
 
 // Función para enviar un mensaje de WhatsApp con archivos adjuntos
-async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuffer = null) {
+async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuffer = null, uploadedImageUrl = null) {
   try {
     const formattedPhone = formatPhoneNumber(phoneNumber);
     
@@ -265,63 +311,50 @@ async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuff
       throw new Error('Número de teléfono inválido o con formato incorrecto');
     }
 
-    // Enviar mensaje con imagen si existe
-    if (image && image.path) {
-      const imageExists = fs.existsSync(image.path);
-      const imageSize = imageExists ? fs.statSync(image.path).size : 0;
-      console.log('Enviando imagen por Green API:', {
-        url: `${MEDIA_URL}/sendFileByUpload/***`,
-        filename: image.filename,
-        contentType: image.contentType,
-        exists: imageExists,
-        sizeBytes: imageSize
-      });
-
-      if (!imageExists) {
-        throw new Error(`La imagen no existe en la ruta indicada: ${image.path}`);
-      }
-      if (imageSize === 0) {
-        throw new Error(`La imagen está vacía (0 bytes): ${image.path}`);
-      }
-
-      const formData = new FormData();
-      formData.append('chatId', `${formattedPhone}@c.us`);
-      formData.append('caption', message);
-      formData.append('file', fs.createReadStream(image.path), {
+    if (image && uploadedImageUrl) {
+      const shortCaption = process.env.IMAGE_CAPTION || 'Evangelio y oraciones del día';
+      const chatId = `${formattedPhone}@c.us`;
+      console.log('Enviando imagen por URL en Green API:', {
+        url: `${BASE_URL}/sendFileByUrl/***`,
         filename: image.filename || 'image.png',
-        contentType: image.contentType || 'image/png'
+        hasUrlFile: Boolean(uploadedImageUrl)
       });
-      formData.append('fileName', image.filename || 'image.png');
 
-      const response = await axios.post(
-        `${MEDIA_URL}/sendFileByUpload/${API_TOKEN}`,
-        formData,
+      const fileResponse = await axios.post(
+        `${BASE_URL}/sendFileByUrl/${API_TOKEN}`,
+        {
+          chatId,
+          urlFile: uploadedImageUrl,
+          fileName: image.filename || 'image.png',
+          caption: shortCaption
+        },
         {
           headers: {
-            ...formData.getHeaders()
+            'Content-Type': 'application/json'
           },
-          maxBodyLength: Infinity,
-          maxContentLength: Infinity,
           timeout: 60000
         }
       );
 
-      if (!response.data.idMessage) {
-        throw new Error('No se recibió confirmación del mensaje con imagen');
+      if (!fileResponse.data?.idMessage) {
+        throw new Error(`No se recibió confirmación de imagen por URL: ${JSON.stringify(fileResponse.data)}`);
       }
-    } else {
-      // Enviar mensaje de texto si no hay imagen
-      const response = await axios.post(
-        `${BASE_URL}/sendMessage/${API_TOKEN}`,
-        {
-          chatId: `${formattedPhone}@c.us`,
-          message: message
-        }
-      );
+    }
 
-      if (!response.data.idMessage) {
-        throw new Error('No se recibió confirmación del mensaje');
+    const chatId = `${formattedPhone}@c.us`;
+    const textResponse = await axios.post(
+      `${BASE_URL}/sendMessage/${API_TOKEN}`,
+      {
+        chatId,
+        message
+      },
+      {
+        timeout: 60000
       }
+    );
+
+    if (!textResponse.data?.idMessage) {
+      throw new Error('La imagen fue enviada, pero no se recibió confirmación del mensaje de texto');
     }
 
     // Si hay audio, enviarlo como mensaje adicional
@@ -590,6 +623,16 @@ async function main() {
         }
       }
 
+      let uploadedImageUrl = null;
+      if (image && !DISABLE_IMAGE && !DRY_RUN) {
+        try {
+          uploadedImageUrl = await uploadFileToGreenApi(image);
+        } catch (uploadError) {
+          console.error('No se pudo subir la imagen a Green API:', uploadError.message);
+          process.exit(1);
+        }
+      }
+
       // Procesar cada registro
       for (let i = 0; i < data.length; i++) {
         if (Number.isFinite(LIMIT) && i >= LIMIT) {
@@ -618,7 +661,8 @@ async function main() {
                   row.CELULAR,
                   row.TEXTO_MENSAJE,
                   DISABLE_IMAGE ? null : image,
-                  audioBuffer
+                  audioBuffer,
+                  uploadedImageUrl
                 );
             
             if (result.success) {
