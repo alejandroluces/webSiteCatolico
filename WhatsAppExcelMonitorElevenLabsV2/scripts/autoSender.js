@@ -1,4 +1,5 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+require('dotenv').config({ path: require('path').resolve(__dirname, '..', '.env') });
 const https = require('https');
 const insecureAgent = new https.Agent({ rejectUnauthorized: false });
 const axios = require('axios');
@@ -101,12 +102,19 @@ const EXCEL_FOLDER = path.join(__dirname, 'excel');
 // Imagen por defecto cuando NO existe una imagen asociada a la fecha
 // Nota: en sistemas Linux el nombre es case-sensitive, por eso probamos ambas variantes.
 const DEFAULT_IMAGE_CANDIDATES = ['Santisimo.png', 'santisimo.png'];
-const ID_INSTANCE = '7105451115';
-const API_TOKEN = 'fa2e670b70be427eba9fef6aca111afb4cbcfd442b4a4238b5';
-const BASE_URL = `https://api.greenapi.com/waInstance${ID_INSTANCE}`;
-const MEDIA_URL = `https://7105.media.greenapi.com/waInstance${ID_INSTANCE}`;
-const ELEVENLABS_API_KEY = 'sk_b06dc7ddcb6fa1962332aa6cc8f5c13088f48680f7b473a3';
-const VOICE_ID = 'pqHfZKP75CvOlQylNhV4';
+const cleanEnv = (value) =>
+  String(value || '')
+    .trim()
+    .replace(/^['"]|['"]$/g, '')
+    .replace(/;$/, '')
+    .trim();
+
+const ID_INSTANCE = cleanEnv(process.env.GREEN_API_ID_INSTANCE) || '7105451115';
+const API_TOKEN = cleanEnv(process.env.GREEN_API_TOKEN) || 'fa2e670b70be427eba9fef6aca111afb4cbcfd442b4a4238b5';
+const BASE_URL = cleanEnv(process.env.GREEN_API_BASE_URL) || `https://api.greenapi.com/waInstance${ID_INSTANCE}`;
+const MEDIA_URL = cleanEnv(process.env.GREEN_API_MEDIA_URL) || `https://7105.media.greenapi.com/waInstance${ID_INSTANCE}`;
+const ELEVENLABS_API_KEY = cleanEnv(process.env.ELEVENLABS_API_KEY) || 'sk_b06dc7ddcb6fa1962332aa6cc8f5c13088f48680f7b473a3';
+const VOICE_ID = cleanEnv(process.env.ELEVENLABS_VOICE_ID) || 'pqHfZKP75CvOlQylNhV4';
 
 function getImageContentTypeFromExt(ext) {
   switch (String(ext || '').toLowerCase()) {
@@ -352,6 +360,11 @@ let generateReport = (data, results)=> {
 async function main() {
   try {
     console.log('Iniciando proceso de envío automático...');
+
+    if (!ID_INSTANCE || !API_TOKEN || !BASE_URL || !MEDIA_URL) {
+      console.error('Faltan credenciales de GreenAPI. Revisa GREEN_API_ID_INSTANCE, GREEN_API_TOKEN, GREEN_API_BASE_URL, GREEN_API_MEDIA_URL en el .env');
+      process.exit(1);
+    }
 
     // Debug para diferenciar ejecución local vs Render y confirmar qué build está corriendo
     console.log('Runtime:', {
