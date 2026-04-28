@@ -210,6 +210,15 @@ VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
+# Audio Storage (recomendado para MP3 históricos)
+AUDIO_STORAGE_PROVIDER=auto
+R2_ACCOUNT_ID=your_cloudflare_account_id
+R2_ACCESS_KEY_ID=your_r2_access_key_id
+R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+R2_BUCKET_NAME=your_r2_bucket_name
+R2_PUBLIC_BASE_URL=https://your-public-r2-domain
+R2_AUDIO_PREFIX=audio_content
+
 # Content Management
 CONTENT_AUTO_PUBLISH=true
 CONTENT_BACKUP_ENABLED=true

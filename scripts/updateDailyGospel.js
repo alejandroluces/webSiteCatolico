@@ -12,6 +12,11 @@ import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
 import cron from 'node-cron';
 import OpenAI from 'openai';
+import {
+  resolveAudioStorageProvider,
+  shouldSaveLocalAudioCopy,
+  uploadAudioBuffer,
+} from './lib/audioStorage.js';
 
 // Cargar variables de entorno
 config();
@@ -28,6 +33,16 @@ const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash-001';
 const openaiReflectionModel = process.env.OPENAI_REFLECTION_MODEL || 'gpt-4o-mini';
 const deepseekBaseUrl = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1';
 const deepseekModel = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
+const saveLocalAudioCopy = shouldSaveLocalAudioCopy(process.env);
+
+let audioStorageProvider;
+
+try {
+  audioStorageProvider = resolveAudioStorageProvider(process.env);
+} catch (error) {
+  console.error(`❌ ${error.message}`);
+  process.exit(1);
+}
 
 // Verificar variables de entorno requeridas
 if (!supabaseUrl || !supabaseServiceKey) {
@@ -268,7 +283,64 @@ async function generateReflection(gospelData) {
 }
 
 /**
- * Genera audio desde texto usando OpenAI TTS y lo sube a Supabase Storage
+ * Guarda opcionalmente una copia local del audio generado.
+ */
+async function saveLocalAudioCopyIfEnabled(fileName, audioBuffer) {
+  if (!saveLocalAudioCopy) {
+    return null;
+  }
+
+  const localFolderPath = path.join(process.cwd(), 'public', 'audio');
+  const localFilePath = path.join(localFolderPath, fileName);
+
+  await fs.mkdir(localFolderPath, { recursive: true });
+  await fs.writeFile(localFilePath, audioBuffer);
+
+  console.log(`✅ Audio guardado localmente en: ${localFilePath}`);
+  return localFilePath;
+}
+
+/**
+ * Sube el audio al proveedor configurado y devuelve la URL pública.
+ */
+async function uploadAudioToConfiguredStorage(audioBuffer, fileName, type) {
+  if (audioStorageProvider === 'r2') {
+    console.log(`☁️ Subiendo audio a Cloudflare R2: ${fileName}`);
+
+    const { publicUrl } = await uploadAudioBuffer({
+      buffer: audioBuffer,
+      fileName,
+      contentType: 'audio/mpeg',
+    });
+
+    console.log(`✅ Audio para "${type}" guardado en R2: ${publicUrl}`);
+    return publicUrl;
+  }
+
+  const filePath = `audio_content/${fileName}`;
+
+  console.log(`☁️ Subiendo audio a Supabase Storage: ${filePath}`);
+  const { error } = await supabase.storage
+    .from('audio_content')
+    .upload(filePath, audioBuffer, {
+      contentType: 'audio/mpeg',
+      upsert: true,
+    });
+
+  if (error) {
+    throw new Error(`Error al subir el audio a Supabase: ${error.message}`);
+  }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('audio_content')
+    .getPublicUrl(filePath);
+
+  console.log(`✅ Audio para "${type}" guardado en Supabase Storage: ${publicUrl}`);
+  return publicUrl;
+}
+
+/**
+ * Genera audio desde texto usando OpenAI TTS y lo sube al storage configurado.
  */
 async function generateAndSaveAudio(text, date, type) {
   if (!text || text.trim() === '') {
@@ -285,38 +357,10 @@ async function generateAndSaveAudio(text, date, type) {
     });
     
     const audioBuffer = Buffer.from(await mp3.arrayBuffer());
-
     const fileName = `${date}_${type}.mp3`;
-    const localFolderPath = path.join(process.cwd(), 'public', 'audio');
-    const localFilePath = path.join(localFolderPath, fileName);
 
-    // Ensure the local directory exists
-    await fs.mkdir(localFolderPath, { recursive: true });
-
-    // Save the audio file locally
-    await fs.writeFile(localFilePath, audioBuffer);
-    console.log(`✅ Audio guardado localmente en: ${localFilePath}`);
-
-    const filePath = `audio_content/${fileName}`;
-
-    console.log(`☁️ Subiendo audio a Supabase Storage: ${filePath}`);
-    const { data, error } = await supabase.storage
-      .from('audio_content')
-      .upload(filePath, audioBuffer, {
-        contentType: 'audio/mpeg',
-        upsert: true,
-      });
-
-    if (error) {
-      throw new Error(`Error al subir el audio a Supabase: ${error.message}`);
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('audio_content')
-      .getPublicUrl(filePath);
-
-    console.log(`✅ Audio para "${type}" guardado en: ${publicUrl}`);
-    return publicUrl;
+    await saveLocalAudioCopyIfEnabled(fileName, audioBuffer);
+    return await uploadAudioToConfiguredStorage(audioBuffer, fileName, type);
   } catch (error) {
     console.error(`❌ Error al generar o guardar el audio para "${type}":`, error);
     return null;
@@ -471,6 +515,7 @@ async function updateDailyGospel(date = getTodayDate()) {
   console.log('🌟 Camino de Fe - Actualización Automática del Evangelio');
   console.log('='.repeat(50));
   console.log(`📅 Fecha: ${date}`);
+  console.log(`🎧 Storage de audio activo: ${audioStorageProvider}${saveLocalAudioCopy ? ' + copia local' : ''}`);
   
   try {
     const gospelData = await getGospelFromJson(date);
@@ -556,3 +601,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 }
 
 export { updateDailyGospel };
+
+

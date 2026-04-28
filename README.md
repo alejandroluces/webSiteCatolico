@@ -21,6 +21,7 @@ Este proyecto está construido con tecnologías modernas, enfocado en el rendimi
 -   **Frontend:** [React](https://react.dev/) con [Vite](https://vitejs.dev/) y [TypeScript](https://www.typescriptlang.org/)
 -   **Estilos:** [Tailwind CSS](https://tailwindcss.com/) para un diseño rápido y personalizable.
 -   **Backend y Base de Datos:** [Supabase](https://supabase.io/) como BaaS (Backend as a Service).
+-   **Storage de Audios:** [Cloudflare R2](https://www.cloudflare.com/developer-platform/r2/) recomendado para MP3 y archivos estáticos pesados.
 -   **Inteligencia Artificial:** [Google Gemini](https://ai.google/) para la generación de reflexiones.
 -   **Servidor (para tareas programadas):** [Node.js](https://nodejs.org/) con [Express](https://expressjs.com/).
 -   **Despliegue:** [Netlify](https://www.netlify.com/) para el frontend y tareas serverless.
@@ -252,6 +253,88 @@ python scripts/syncWhatsappSubscribersToExcelRange.py --from-date 01082025 --to-
 python scripts/syncWhatsappSubscribersToExcelRange.py --from-date 01082025 --to-date 07082025 --excel-folder "WhatsAppExcelMonitorElevenLabsV2/scripts/excel"
 ```
 
+## ☁️ Migrar audios a Cloudflare R2
+
+Si quieres dejar de pagar almacenamiento en Supabase por los MP3 del Evangelio, el proyecto ya queda preparado para usar **Cloudflare R2**.
+
+### 1) Configurar variables de entorno
+
+Agrega en tu `.env`:
+
+```env
+AUDIO_STORAGE_PROVIDER=r2
+R2_ACCOUNT_ID=tu_account_id
+R2_ACCESS_KEY_ID=tu_access_key_id
+R2_SECRET_ACCESS_KEY=tu_secret_access_key
+R2_BUCKET_NAME=tu_bucket
+R2_PUBLIC_BASE_URL=https://tu-dominio-publico-r2
+R2_AUDIO_PREFIX=audio_content
+```
+
+> `R2_PUBLIC_BASE_URL` puede ser un dominio custom de R2 o la URL pública `*.r2.dev` del bucket.
+
+### 2) Migrar audios existentes
+
+Primero ejecuta una simulación:
+
+```bash
+npm run audio:migrate:r2:dry
+```
+
+Si todo se ve bien, ejecuta la migración real:
+
+```bash
+npm run audio:migrate:r2
+```
+
+También puedes limitar o filtrar por fechas:
+
+```bash
+node scripts/migrateAudioToR2.js --from-date=2025-09-01 --to-date=2025-09-30 --limit=20
+```
+
+### Si Supabase quedó bloqueado por quota de storage
+
+Si el proyecto de Supabase ya no deja consultar `daily_content` por `exceed_storage_size_quota`, usa el fallback local:
+
+```bash
+npm run audio:local-to-r2:dry
+```
+
+Eso toma los MP3 existentes en `public/audio`, simula la subida a R2 y genera un archivo SQL (`data/r2_audio_updates.sql`) con los `UPDATE` necesarios para `daily_content`.
+
+Cuando quieras hacer la subida real:
+
+```bash
+npm run audio:local-to-r2
+```
+
+Después, cuando Supabase vuelva a estar disponible, ejecuta el SQL generado en **Supabase SQL Editor**.
+
+### 3) Nuevos audios
+
+Una vez configurado `AUDIO_STORAGE_PROVIDER=r2`, el script `scripts/updateDailyGospel.js` dejará de subir los nuevos MP3 a Supabase Storage y los publicará directamente en R2.
+
+### 4) Liberar espacio en Supabase
+
+Cuando confirmes que los audios ya cargan bien desde R2, recién ahí elimina los archivos viejos del bucket `audio_content` de Supabase.
+
+Puedes hacerlo de forma segura así:
+
+```bash
+npm run audio:supabase:cleanup:dry
+```
+
+Eso lista los objetos detectados en `audio_content/audio_content/` sin borrar nada.
+
+Si el resultado te parece correcto, ejecuta el borrado real:
+
+```bash
+npm run audio:supabase:cleanup
+```
+
+> Recomendación: primero verifica que varias URLs desde R2 funcionen bien y que el SQL de `data/r2_audio_updates.sql` ya fue aplicado a `daily_content`.
+
 
 ## 📜 Scripts Disponibles
 
@@ -268,6 +351,12 @@ Este proyecto incluye varios scripts para facilitar el desarrollo y el mantenimi
 | `npm run content:report`  | Genera un informe sobre el estado del contenido.                         |
 | `npm run update:gospel`   | Ejecuta el script para actualizar el evangelio del día.                  |
 | `npm run sync:gospel`     | Sincroniza los datos del evangelio desde una fuente externa.             |
+| `npm run audio:migrate:r2` | Migra los audios históricos de Supabase/local a Cloudflare R2.         |
+| `npm run audio:migrate:r2:dry` | Simula la migración de audios a Cloudflare R2.                    |
+| `npm run audio:local-to-r2` | Sube los MP3 de `public/audio` a R2 y genera SQL de actualización.    |
+| `npm run audio:local-to-r2:dry` | Simula la subida local a R2 y genera SQL de actualización.      |
+| `npm run audio:supabase:cleanup:dry` | Simula el borrado de audios viejos en Supabase Storage.   |
+| `npm run audio:supabase:cleanup` | Borra los audios viejos del bucket de Supabase Storage.       |
 | `npm run start:server`    | Inicia el servidor Node.js para tareas programadas y procesos de fondo. |
 | `node scripts/runGospelUpdateRange.js` | Actualiza los evangelios para un rango de fechas específico de forma interactiva. |
 
