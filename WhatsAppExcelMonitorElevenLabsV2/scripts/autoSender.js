@@ -1,4 +1,3 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const path = require('path');
 // Cargar .env solo si dotenv está disponible (local). En Render usamos process.env.
 try {
@@ -7,10 +6,7 @@ try {
 } catch (error) {
   console.log('dotenv no disponible; usando variables de entorno del runtime.');
 }
-const https = require('https');
-const insecureAgent = new https.Agent({ rejectUnauthorized: false });
 const axios = require('axios');
-axios.defaults.httpsAgent = insecureAgent;
 
 const fs = require('fs');
 const XLSX = require('xlsx');
@@ -195,8 +191,7 @@ async function uploadFileToGreenApi(image) {
     {
       headers: {
         'Content-Type': image.contentType || 'application/octet-stream',
-        'Content-Length': imageSize,
-        'GA-Filename': image.filename || 'image.png'
+        'Content-Length': imageSize
       },
       maxBodyLength: Infinity,
       maxContentLength: Infinity,
