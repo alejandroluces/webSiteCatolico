@@ -1,12 +1,18 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-require('dotenv').config({ path: require('path').resolve(__dirname, '..', '.env') });
+const path = require('path');
+// Cargar .env solo si dotenv está disponible (local). En Render usamos process.env.
+try {
+  require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+  console.log('dotenv cargado desde archivo local (.env)');
+} catch (error) {
+  console.log('dotenv no disponible; usando variables de entorno del runtime.');
+}
 const https = require('https');
 const insecureAgent = new https.Agent({ rejectUnauthorized: false });
 const axios = require('axios');
 axios.defaults.httpsAgent = insecureAgent;
 
 const fs = require('fs');
-const path = require('path');
 const XLSX = require('xlsx');
 const FormData = require('form-data');
 const crypto = require('crypto');
@@ -109,12 +115,48 @@ const cleanEnv = (value) =>
     .replace(/;$/, '')
     .trim();
 
-const ID_INSTANCE = cleanEnv(process.env.GREEN_API_ID_INSTANCE) || '7105451115';
-const API_TOKEN = cleanEnv(process.env.GREEN_API_TOKEN) || 'fa2e670b70be427eba9fef6aca111afb4cbcfd442b4a4238b5';
-const BASE_URL = cleanEnv(process.env.GREEN_API_BASE_URL) || `https://api.greenapi.com/waInstance${ID_INSTANCE}`;
-const MEDIA_URL = cleanEnv(process.env.GREEN_API_MEDIA_URL) || `https://7105.media.greenapi.com/waInstance${ID_INSTANCE}`;
-const ELEVENLABS_API_KEY = cleanEnv(process.env.ELEVENLABS_API_KEY) || 'sk_b06dc7ddcb6fa1962332aa6cc8f5c13088f48680f7b473a3';
-const VOICE_ID = cleanEnv(process.env.ELEVENLABS_VOICE_ID) || 'pqHfZKP75CvOlQylNhV4';
+const GREEN_API_BASE_URL = cleanEnv(
+  process.env.GREEN_API_BASE_URL || process.env.GREEN_API_API_URL
+);
+const ID_INSTANCE = cleanEnv(process.env.GREEN_API_ID_INSTANCE);
+const API_TOKEN = cleanEnv(process.env.GREEN_API_TOKEN);
+const ELEVENLABS_API_KEY = cleanEnv(process.env.ELEVENLABS_API_KEY);
+const VOICE_ID = cleanEnv(process.env.ELEVENLABS_VOICE_ID);
+
+function deriveGreenApiHost(idInstance) {
+  const digits = String(idInstance || '').replace(/\D/g, '');
+  const prefix = digits.slice(0, 4);
+  return prefix ? `${prefix}` : null;
+}
+
+function buildGreenApiUrl({ baseUrl, idInstance, type }) {
+  const cleanBase = cleanEnv(baseUrl);
+  if (cleanBase) return cleanBase;
+  const hostPrefix = deriveGreenApiHost(idInstance);
+  if (!hostPrefix) return null;
+  if (type === 'media') {
+    return `https://${hostPrefix}.media.greenapi.com/waInstance${idInstance}`;
+  }
+  return `https://${hostPrefix}.api.greenapi.com/waInstance${idInstance}`;
+}
+
+const BASE_URL = buildGreenApiUrl({
+  baseUrl: GREEN_API_BASE_URL,
+  idInstance: ID_INSTANCE,
+  type: 'api'
+});
+const MEDIA_URL = buildGreenApiUrl({
+  baseUrl: cleanEnv(process.env.GREEN_API_MEDIA_URL),
+  idInstance: ID_INSTANCE,
+  type: 'media'
+});
+
+function maskToken(value) {
+  const raw = String(value || '');
+  if (!raw) return 'NOT_SET';
+  const visible = raw.slice(-4);
+  return `***${visible} (len=${raw.length})`;
+}
 
 function getImageContentTypeFromExt(ext) {
   switch (String(ext || '').toLowerCase()) {
@@ -289,9 +331,18 @@ async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuff
 
     return { success: true };
   } catch (error) {
-    return { 
-      success: false, 
-      error: error.message || 'Error desconocido'
+    const responseStatus = error?.response?.status;
+    const responseData = error?.response?.data;
+    const message = error?.message || 'Error desconocido';
+    const details = {
+      status: responseStatus || null,
+      data: responseData || null,
+      message
+    };
+    return {
+      success: false,
+      error: message,
+      details
     };
   }
 }
@@ -361,8 +412,17 @@ async function main() {
   try {
     console.log('Iniciando proceso de envío automático...');
 
+    console.log('Env check:', {
+      GREEN_API_ID_INSTANCE: ID_INSTANCE ? 'SET' : 'NOT_SET',
+      GREEN_API_TOKEN: maskToken(API_TOKEN),
+      GREEN_API_BASE_URL: GREEN_API_BASE_URL ? 'SET' : 'NOT_SET',
+      GREEN_API_MEDIA_URL: process.env.GREEN_API_MEDIA_URL ? 'SET' : 'NOT_SET',
+      ELEVENLABS_API_KEY: maskToken(ELEVENLABS_API_KEY),
+      ELEVENLABS_VOICE_ID: VOICE_ID ? 'SET' : 'NOT_SET'
+    });
+
     if (!ID_INSTANCE || !API_TOKEN || !BASE_URL || !MEDIA_URL) {
-      console.error('Faltan credenciales de GreenAPI. Revisa GREEN_API_ID_INSTANCE, GREEN_API_TOKEN, GREEN_API_BASE_URL, GREEN_API_MEDIA_URL en el .env');
+      console.error('Faltan credenciales de GreenAPI. Revisa GREEN_API_ID_INSTANCE, GREEN_API_TOKEN y URLs (GREEN_API_BASE_URL/GREEN_API_API_URL, GREEN_API_MEDIA_URL).');
       process.exit(1);
     }
 
@@ -552,7 +612,10 @@ async function main() {
               });
             } else {
               failCount++;
-              const errorMsg = `✗ [${i+1}/${data.length}] Error al enviar a: ${row.CELULAR} - ${result.error}`;
+              const details = result.details
+                ? ` | status=${result.details.status} | message=${result.details.message} | data=${JSON.stringify(result.details.data)}`
+                : '';
+              const errorMsg = `✗ [${i+1}/${data.length}] Error al enviar a: ${row.CELULAR} - ${result.error}${details}`;
               console.log(errorMsg);
               errorDetails.push({
                 index: i + 1,
