@@ -264,7 +264,7 @@ Privacidad:
               <Phone className="h-6 w-6 text-sacred-gold-400" />
               <span className="text-sm">Teléfono</span>
               <span className="text-marian-blue-100 dark:text-gray-300">
-                +34 600 000 000
+                +56 932 228 352
               </span>
             </div>
             <div className="flex flex-col items-center space-y-2">
