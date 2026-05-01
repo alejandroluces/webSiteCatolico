@@ -124,39 +124,44 @@ const Home: React.FC = () => {
       </section>
 
       {/* Gospel and Features */}
-      <section className="py-16 bg-gradient-to-b from-white/80 to-marian-blue-50/40 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Gospel Widget */}
-            <div className="lg:col-span-1">
-              <GospelWidget />
+      <section className="relative py-16 lg:py-20 bg-gradient-to-b from-white/90 via-marian-blue-50/40 to-marian-blue-100/30 dark:bg-gray-900 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none opacity-40" aria-hidden="true">
+          <div className="absolute -top-20 -right-16 w-72 h-72 bg-sacred-gold-300/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 -left-16 w-80 h-80 bg-marian-blue-300/20 rounded-full blur-3xl" />
+        </div>
 
-              <div className="mt-6">
-                <WhatsAppGospelSignup />
-              </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] gap-8 lg:gap-10 items-start">
+            {/* Gospel Widget */}
+            <div className="lg:col-span-1 space-y-6">
+              <GospelWidget />
+              <WhatsAppGospelSignup />
             </div>
             
             {/* Features */}
-            <div className="lg:col-span-2">
-              <h2 className="text-3xl font-serif font-bold text-marian-blue-900 dark:text-white mb-6">
+            <div className="lg:col-span-1">
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-marian-blue-900 dark:text-white mb-2">
                 Explora Nuestro Contenido
               </h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-7 max-w-2xl">
+                Recursos seleccionados para acompañar tu camino diario de fe, oración y formación espiritual.
+              </p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {features.slice(0, 4).map((feature, index) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                {features.slice(0, 4).map((feature) => (
                   <Link
                     key={feature.title}
                     to={feature.href}
-                    className="group flex items-start space-x-4 p-4 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200/50 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-750"
+                    className="group flex items-start space-x-4 p-5 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200/60 dark:border-gray-700 hover:-translate-y-1 hover:bg-white dark:hover:bg-gray-750 h-full"
                   >
-                    <div className={`${feature.color} group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`${feature.color} group-hover:scale-110 transition-transform duration-300 mt-0.5`}>
                       <feature.icon className="h-6 w-6" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h3 className="text-lg font-serif font-semibold text-gray-900 dark:text-white mb-1">
                         {feature.title}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 leading-relaxed">
                         {feature.description}
                       </p>
                       <div className="flex items-center text-marian-blue-600 dark:text-sacred-gold-400 text-sm font-medium group-hover:text-sacred-gold-600 dark:group-hover:text-sacred-gold-300 transition-colors duration-300">
