@@ -1,11 +1,14 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-const https = require('https');
-const insecureAgent = new https.Agent({ rejectUnauthorized: false });
+const path = require('path');
+// Cargar .env solo si dotenv está disponible (local). En Render usamos process.env.
+try {
+  require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+  console.log('dotenv cargado desde archivo local (.env)');
+} catch (error) {
+  console.log('dotenv no disponible; usando variables de entorno del runtime.');
+}
 const axios = require('axios');
-axios.defaults.httpsAgent = insecureAgent;
 
 const fs = require('fs');
-const path = require('path');
 const XLSX = require('xlsx');
 const FormData = require('form-data');
 const crypto = require('crypto');
@@ -101,12 +104,55 @@ const EXCEL_FOLDER = path.join(__dirname, 'excel');
 // Imagen por defecto cuando NO existe una imagen asociada a la fecha
 // Nota: en sistemas Linux el nombre es case-sensitive, por eso probamos ambas variantes.
 const DEFAULT_IMAGE_CANDIDATES = ['Santisimo.png', 'santisimo.png'];
-const ID_INSTANCE = '7105451115';
-const API_TOKEN = 'fa2e670b70be427eba9fef6aca111afb4cbcfd442b4a4238b5';
-const BASE_URL = `https://api.greenapi.com/waInstance${ID_INSTANCE}`;
-const MEDIA_URL = `https://7105.media.greenapi.com/waInstance${ID_INSTANCE}`;
-const ELEVENLABS_API_KEY = 'sk_b06dc7ddcb6fa1962332aa6cc8f5c13088f48680f7b473a3';
-const VOICE_ID = 'pqHfZKP75CvOlQylNhV4';
+const cleanEnv = (value) =>
+  String(value || '')
+    .trim()
+    .replace(/^['"]|['"]$/g, '')
+    .replace(/;$/, '')
+    .trim();
+
+const GREEN_API_BASE_URL = cleanEnv(
+  process.env.GREEN_API_BASE_URL || process.env.GREEN_API_API_URL
+);
+const ID_INSTANCE = cleanEnv(process.env.GREEN_API_ID_INSTANCE);
+const API_TOKEN = cleanEnv(process.env.GREEN_API_TOKEN);
+const ELEVENLABS_API_KEY = cleanEnv(process.env.ELEVENLABS_API_KEY);
+const VOICE_ID = cleanEnv(process.env.ELEVENLABS_VOICE_ID);
+
+function deriveGreenApiHost(idInstance) {
+  const digits = String(idInstance || '').replace(/\D/g, '');
+  const prefix = digits.slice(0, 4);
+  return prefix ? `${prefix}` : null;
+}
+
+function buildGreenApiUrl({ baseUrl, idInstance, type }) {
+  const cleanBase = cleanEnv(baseUrl);
+  if (cleanBase) return cleanBase;
+  const hostPrefix = deriveGreenApiHost(idInstance);
+  if (!hostPrefix) return null;
+  if (type === 'media') {
+    return `https://${hostPrefix}.media.greenapi.com/waInstance${idInstance}`;
+  }
+  return `https://${hostPrefix}.api.greenapi.com/waInstance${idInstance}`;
+}
+
+const BASE_URL = buildGreenApiUrl({
+  baseUrl: GREEN_API_BASE_URL,
+  idInstance: ID_INSTANCE,
+  type: 'api'
+});
+const MEDIA_URL = buildGreenApiUrl({
+  baseUrl: cleanEnv(process.env.GREEN_API_MEDIA_URL),
+  idInstance: ID_INSTANCE,
+  type: 'media'
+});
+
+function maskToken(value) {
+  const raw = String(value || '');
+  if (!raw) return 'NOT_SET';
+  const visible = raw.slice(-4);
+  return `***${visible} (len=${raw.length})`;
+}
 
 function getImageContentTypeFromExt(ext) {
   switch (String(ext || '').toLowerCase()) {
@@ -118,6 +164,51 @@ function getImageContentTypeFromExt(ext) {
     default:
       return 'application/octet-stream';
   }
+}
+
+async function uploadFileToGreenApi(image) {
+  const imageExists = fs.existsSync(image.path);
+  const imageSize = imageExists ? fs.statSync(image.path).size : 0;
+
+  if (!imageExists) {
+    throw new Error(`La imagen no existe: ${image.path}`);
+  }
+
+  if (imageSize === 0) {
+    throw new Error(`La imagen está vacía: ${image.path}`);
+  }
+
+  console.log('Subiendo imagen a Green API storage:', {
+    url: `${MEDIA_URL}/uploadFile/***`,
+    filename: image.filename,
+    contentType: image.contentType,
+    sizeBytes: imageSize
+  });
+
+  const response = await axios.post(
+    `${MEDIA_URL}/uploadFile/${API_TOKEN}`,
+    fs.createReadStream(image.path),
+    {
+      headers: {
+        'Content-Type': image.contentType || 'application/octet-stream',
+        'Content-Length': imageSize
+      },
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+      timeout: 60000
+    }
+  );
+
+  if (!response.data?.urlFile) {
+    throw new Error(`UploadFile no devolvió urlFile: ${JSON.stringify(response.data)}`);
+  }
+
+  console.log('Imagen subida correctamente:', {
+    filename: image.filename,
+    hasUrlFile: Boolean(response.data.urlFile)
+  });
+
+  return response.data.urlFile;
 }
 
 // Función para obtener la fecha actual en formato DDMMYYYY
@@ -207,7 +298,7 @@ function formatPhoneNumber(phone) {
 }
 
 // Función para enviar un mensaje de WhatsApp con archivos adjuntos
-async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuffer = null) {
+async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuffer = null, uploadedImageUrl = null) {
   try {
     const formattedPhone = formatPhoneNumber(phoneNumber);
     
@@ -215,43 +306,50 @@ async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuff
       throw new Error('Número de teléfono inválido o con formato incorrecto');
     }
 
-    // Enviar mensaje con imagen si existe
-    if (image && image.buffer) {
-      const formData = new FormData();
-      formData.append('chatId', `${formattedPhone}@c.us`);
-      formData.append('caption', message);
-      formData.append('file', image.buffer, {
+    if (image && uploadedImageUrl) {
+      const shortCaption = process.env.IMAGE_CAPTION || 'Evangelio y oraciones del día';
+      const chatId = `${formattedPhone}@c.us`;
+      console.log('Enviando imagen por URL en Green API:', {
+        url: `${BASE_URL}/sendFileByUrl/***`,
         filename: image.filename || 'image.png',
-        contentType: image.contentType || 'image/png'
+        hasUrlFile: Boolean(uploadedImageUrl)
       });
 
-      const response = await axios.post(
-        `${MEDIA_URL}/sendFileByUpload/${API_TOKEN}`,
-        formData,
+      const fileResponse = await axios.post(
+        `${BASE_URL}/sendFileByUrl/${API_TOKEN}`,
+        {
+          chatId,
+          urlFile: uploadedImageUrl,
+          fileName: image.filename || 'image.png',
+          caption: shortCaption
+        },
         {
           headers: {
-            ...formData.getHeaders(),
-            'Content-Length': formData.getLengthSync()
-          }
+            'Content-Type': 'application/json'
+          },
+          timeout: 60000
         }
       );
 
-      if (!response.data.idMessage) {
-        throw new Error('No se recibió confirmación del mensaje con imagen');
+      if (!fileResponse.data?.idMessage) {
+        throw new Error(`No se recibió confirmación de imagen por URL: ${JSON.stringify(fileResponse.data)}`);
       }
-    } else {
-      // Enviar mensaje de texto si no hay imagen
-      const response = await axios.post(
-        `${BASE_URL}/sendMessage/${API_TOKEN}`,
-        {
-          chatId: `${formattedPhone}@c.us`,
-          message: message
-        }
-      );
+    }
 
-      if (!response.data.idMessage) {
-        throw new Error('No se recibió confirmación del mensaje');
+    const chatId = `${formattedPhone}@c.us`;
+    const textResponse = await axios.post(
+      `${BASE_URL}/sendMessage/${API_TOKEN}`,
+      {
+        chatId,
+        message
+      },
+      {
+        timeout: 60000
       }
+    );
+
+    if (!textResponse.data?.idMessage) {
+      throw new Error('La imagen fue enviada, pero no se recibió confirmación del mensaje de texto');
     }
 
     // Si hay audio, enviarlo como mensaje adicional
@@ -268,9 +366,11 @@ async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuff
         audioFormData,
         {
           headers: {
-            ...audioFormData.getHeaders(),
-            'Content-Length': audioFormData.getLengthSync()
-          }
+            ...audioFormData.getHeaders()
+          },
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity,
+          timeout: 60000
         }
       );
 
@@ -281,9 +381,18 @@ async function sendWhatsAppMessage(phoneNumber, message, image = null, audioBuff
 
     return { success: true };
   } catch (error) {
-    return { 
-      success: false, 
-      error: error.message || 'Error desconocido'
+    const responseStatus = error?.response?.status;
+    const responseData = error?.response?.data;
+    const message = error?.message || 'Error desconocido';
+    const details = {
+      status: responseStatus || null,
+      data: responseData || null,
+      message
+    };
+    return {
+      success: false,
+      error: message,
+      details
     };
   }
 }
@@ -353,6 +462,20 @@ async function main() {
   try {
     console.log('Iniciando proceso de envío automático...');
 
+    console.log('Env check:', {
+      GREEN_API_ID_INSTANCE: ID_INSTANCE ? 'SET' : 'NOT_SET',
+      GREEN_API_TOKEN: maskToken(API_TOKEN),
+      GREEN_API_BASE_URL: GREEN_API_BASE_URL ? 'SET' : 'NOT_SET',
+      GREEN_API_MEDIA_URL: process.env.GREEN_API_MEDIA_URL ? 'SET' : 'NOT_SET',
+      ELEVENLABS_API_KEY: maskToken(ELEVENLABS_API_KEY),
+      ELEVENLABS_VOICE_ID: VOICE_ID ? 'SET' : 'NOT_SET'
+    });
+
+    if (!ID_INSTANCE || !API_TOKEN || !BASE_URL || !MEDIA_URL) {
+      console.error('Faltan credenciales de GreenAPI. Revisa GREEN_API_ID_INSTANCE, GREEN_API_TOKEN y URLs (GREEN_API_BASE_URL/GREEN_API_API_URL, GREEN_API_MEDIA_URL).');
+      process.exit(1);
+    }
+
     // Debug para diferenciar ejecución local vs Render y confirmar qué build está corriendo
     console.log('Runtime:', {
       node: process.version,
@@ -363,12 +486,16 @@ async function main() {
     });
 
     const DRY_RUN = String(process.env.DRY_RUN || '').toLowerCase() === 'true';
+    const DISABLE_IMAGE = String(process.env.DISABLE_IMAGE || '').toLowerCase() === 'true';
     const LIMIT = process.env.LIMIT ? Number(process.env.LIMIT) : null;
     if (DRY_RUN) {
       console.log('⚠️ DRY_RUN=true -> No se enviarán mensajes reales. Solo validación/preview.');
     }
     if (Number.isFinite(LIMIT)) {
       console.log(`⚠️ LIMIT=${LIMIT} -> Se procesarán como máximo ${LIMIT} registros.`);
+    }
+    if (DISABLE_IMAGE) {
+      console.log('⚠️ DISABLE_IMAGE=true -> Se enviarán solo mensajes de texto.');
     }
     
     // Verificar conexión de WhatsApp
@@ -400,7 +527,7 @@ async function main() {
       const imagePath = path.join(EXCEL_FOLDER, `${currentDate}${ext}`);
       if (fs.existsSync(imagePath)) {
         image = {
-          buffer: fs.readFileSync(imagePath),
+          path: imagePath,
           filename: `${currentDate}${ext}`,
           contentType: getImageContentTypeFromExt(ext)
         };
@@ -415,7 +542,7 @@ async function main() {
         const fallbackPath = path.join(EXCEL_FOLDER, candidate);
         if (fs.existsSync(fallbackPath)) {
           image = {
-            buffer: fs.readFileSync(fallbackPath),
+            path: fallbackPath,
             filename: candidate,
             contentType: getImageContentTypeFromExt(path.extname(candidate))
           };
@@ -491,6 +618,16 @@ async function main() {
         }
       }
 
+      let uploadedImageUrl = null;
+      if (image && !DISABLE_IMAGE && !DRY_RUN) {
+        try {
+          uploadedImageUrl = await uploadFileToGreenApi(image);
+        } catch (uploadError) {
+          console.error('No se pudo subir la imagen a Green API:', uploadError.message);
+          process.exit(1);
+        }
+      }
+
       // Procesar cada registro
       for (let i = 0; i < data.length; i++) {
         if (Number.isFinite(LIMIT) && i >= LIMIT) {
@@ -518,8 +655,9 @@ async function main() {
               : await sendWhatsAppMessage(
                   row.CELULAR,
                   row.TEXTO_MENSAJE,
-                  image,
-                  audioBuffer
+                  DISABLE_IMAGE ? null : image,
+                  audioBuffer,
+                  uploadedImageUrl
                 );
             
             if (result.success) {
@@ -539,7 +677,10 @@ async function main() {
               });
             } else {
               failCount++;
-              const errorMsg = `✗ [${i+1}/${data.length}] Error al enviar a: ${row.CELULAR} - ${result.error}`;
+              const details = result.details
+                ? ` | status=${result.details.status} | message=${result.details.message} | data=${JSON.stringify(result.details.data)}`
+                : '';
+              const errorMsg = `✗ [${i+1}/${data.length}] Error al enviar a: ${row.CELULAR} - ${result.error}${details}`;
               console.log(errorMsg);
               errorDetails.push({
                 index: i + 1,
