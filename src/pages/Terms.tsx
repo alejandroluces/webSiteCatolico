@@ -257,7 +257,7 @@ Privacidad:
               <Mail className="h-6 w-6 text-sacred-gold-400" />
               <span className="text-sm">Email</span>
               <span className="text-marian-blue-100 dark:text-gray-300">
-                legal@luzdefe.com
+                legal@caminodefe.cl
               </span>
             </div>
             <div className="flex flex-col items-center space-y-2">
