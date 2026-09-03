@@ -69,6 +69,61 @@ Para ejecutar este proyecto en tu entorno local, sigue estos pasos:
     ```
     La aplicación estará disponible en `http://localhost:5173`.
 
+## 🔄 Pipeline Unificado de Contenido Diario
+
+El proyecto incluye un pipeline para reemplazar el flujo manual de copiar archivos desde:
+
+```text
+C:\Users\Alejandro Luces\Desktop\Repositorio_proyc_web\Evangelio\output
+```
+
+hacia el proyecto raíz.
+
+Configura primero en `.env`:
+
+```env
+EVANGELIO_PROJECT_PATH=C:\Users\Alejandro Luces\Desktop\Repositorio_proyc_web\Evangelio
+CONTENT_PIPELINE_DEFAULT_WHATSAPP_MODE=none
+```
+
+Comandos principales:
+
+```bash
+# Simula importación + validación + sync Supabase sin escribir ni enviar
+npm run content:pipeline -- --from=2026-09-01 --to=2026-09-07 --dry-run
+
+# Copia archivos desde Evangelio/output, valida y actualiza Supabase
+npm run content:pipeline -- --from=2026-09-01 --to=2026-09-07 --execute
+
+# Ejecuta también el scraper externo antes de importar
+npm run content:pipeline -- --from=2026-09-01 --to=2026-09-07 --execute --scrape
+
+# Solo prepara Excel con suscriptores activos, sin enviar WhatsApp
+npm run content:pipeline -- --date=2026-09-03 --execute --whatsapp=prepare-excel
+
+# Enviar WhatsApp desde Supabase/Netlify requiere npm run dev:netlify activo
+npm run content:pipeline -- --date=2026-09-03 --execute --whatsapp=send-netlify
+```
+
+Scripts por pieza:
+
+```bash
+npm run content:import -- --date=2026-09-03 --dry-run
+npm run content:validate-files -- --date=2026-09-03
+npm run content:sync-files -- --date=2026-09-03 --execute
+```
+
+Notas importantes:
+
+- `--dry-run` es seguro: no copia, no escribe Supabase y no envía WhatsApp.
+- Por defecto el pipeline usa `--gospel-sync=full`: genera reflexión y audios con `scripts/updateDailyGospel.js`.
+- Si necesitas solo subir JSON sin IA ni audios, usa `--gospel-sync=basic`.
+- El importador no pisa archivos diferentes sin `--force`.
+- El modo WhatsApp debe ser único por ejecución para evitar doble envío.
+- `send-netlify` usa `whatsapp_subscriptions.last_sent_date` para evitar reenvíos.
+- `send-excel` usa `SMS=1` dentro del Excel para evitar reenvíos.
+- La especificación completa está en `docs/SPEC_AUTOMATIZACION_CONTENIDO.md`.
+
 ## 📲 WhatsApp (Suscripción + Envío) en local
 
 ### Levantar el proyecto con Functions (recomendado para probar WhatsApp)
@@ -349,6 +404,10 @@ Este proyecto incluye varios scripts para facilitar el desarrollo y el mantenimi
 | `npm run content:publish` | Publica contenido programado (ej. artículos de blog).                  |
 | `npm run content:check`   | Verifica si falta contenido diario en la base de datos.                  |
 | `npm run content:report`  | Genera un informe sobre el estado del contenido.                         |
+| `npm run content:import`  | Importa archivos desde `Evangelio/output` al proyecto raíz.              |
+| `npm run content:validate-files` | Valida JSON/Excel locales del contenido diario.                  |
+| `npm run content:sync-files` | Sincroniza JSON locales de Evangelio/Santo/Lectura a Supabase.       |
+| `npm run content:pipeline` | Ejecuta el pipeline unificado de importación, validación, Supabase y WhatsApp. |
 | `npm run update:gospel`   | Ejecuta el script para actualizar el evangelio del día.                  |
 | `npm run sync:gospel`     | Sincroniza los datos del evangelio desde una fuente externa.             |
 | `npm run audio:migrate:r2` | Migra los audios históricos de Supabase/local a Cloudflare R2.         |
