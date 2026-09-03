@@ -34,15 +34,4 @@ jobs:
           API_TOKEN: ${{ secrets.API_TOKEN }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           VOICE_ID: ${{ secrets.VOICE_ID }}
-          REMOVED_TLS_BYPASS_ENV: '0'
         run: node autoSender.js
-
-      - name: Upload report artifact (if generated)
-        if: always()
-        uses: REMOVED_PRIVATE_ARTIFACT_UPLOAD@v4
-        with:
-          name: whatsapp-report
-          path: WhatsAppExcelMonitorElevenLabsV2/scripts/excel/
-          retention-days: 7
-
-          

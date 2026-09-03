@@ -21,8 +21,8 @@ app.add_middleware(
 )
 
 # Configuración Green API
-ID_INSTANCE = os.getenv("ID_INSTANCE", "***REMOVED_GREEN_API_INSTANCE***")
-API_TOKEN = os.getenv("API_TOKEN", "***REMOVED_GREEN_API_TOKEN***")
+ID_INSTANCE = os.getenv("ID_INSTANCE", "")
+API_TOKEN = os.getenv("API_TOKEN", "")
 BASE_URL = f"https://api.greenapi.com/waInstance{ID_INSTANCE}"
 
 def check_instance_status():

@@ -80,7 +80,6 @@ export const handler: Handler = async (event) => {
     idInstance: GREEN_ID_INSTANCE,
     idLength: GREEN_ID_INSTANCE.length,
     tokenLength: GREEN_API_TOKEN.length,
-    REMOVED_TOKEN_DEBUG_FIELD: GREEN_API_TOKEN.slice(-6),
     tokenLooksHex: /^[a-f0-9]+$/i.test(GREEN_API_TOKEN),
   };
 
@@ -221,7 +220,6 @@ export const handler: Handler = async (event) => {
             debug: {
               apiHost,
               baseUrl: BASE_URL,
-              REMOVED_TOKEN_DEBUG_FIELD: GREEN_API_TOKEN.slice(0, 6) + '...',
               tokenMeta,
               errors: debugErrors,
             },

@@ -56,16 +56,14 @@ Una aplicación web moderna para el envío masivo de mensajes de WhatsApp, con s
 
 4. **Configurar variables de entorno**
    
-   Crear un archivo `.env` en la raíz del proyecto:
-   ```env
-   REMOVED_FRONTEND_OPENAI_KEY_ENV=tu_api_key_de_openai
-   ```
-
-   Y en la carpeta `backend`:
+   Crear un archivo `.env` en la carpeta `backend`:
    ```env
    ID_INSTANCE=tu_id_de_green_api
    API_TOKEN=tu_token_de_green_api
    ```
+
+   No pongas tokens de OpenAI, ElevenLabs o Green API en variables `VITE_*`.
+   Todo secreto debe ejecutarse desde backend, scripts locales o GitHub/Netlify Secrets.
 
 ## 🖥️ Uso
 

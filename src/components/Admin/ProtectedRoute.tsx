@@ -7,9 +7,15 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const location = useLocation();
+  const demoAdminEnabled =
+    import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_ADMIN === 'true';
   
   // Verificar autenticación
   const isAuthenticated = () => {
+    if (!demoAdminEnabled) {
+      return false;
+    }
+
     try {
       const token = localStorage.getItem('admin_token');
       return token !== null;

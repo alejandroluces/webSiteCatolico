@@ -3,6 +3,8 @@ import { Shield, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 
 const AdminLogin: React.FC = () => {
+  const demoAdminEnabled =
+    import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_ADMIN === 'true';
   const [credentials, setCredentials] = useState({
     email: '',
     password: ''
@@ -32,17 +34,19 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     try {
-      // Simulación de autenticación
+      if (!demoAdminEnabled) {
+        setError('El panel de administración demo está deshabilitado.');
+        return;
+      }
+
+      // Simulación de autenticación solo para desarrollo local explícito.
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // NOTA: En un entorno real, esto debería ser una llamada a un backend seguro.
-      // Para la demo, usamos variables de entorno como se define en el README.
-      const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'admin@luzdefe.com';
-      const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'REMOVED_DEMO_PASSWORD';
+      const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+      const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
 
       if (credentials.email === adminEmail && credentials.password === adminPassword) {
         // Guardar token de autenticación
-        localStorage.setItem('admin_token', 'demo_token_' + Date.now());
+        localStorage.setItem('admin_token', crypto.randomUUID());
         localStorage.setItem('admin_user', JSON.stringify({
           email: credentials.email,
           role: 'admin',
@@ -162,24 +166,16 @@ const AdminLogin: React.FC = () => {
             </button>
           </form>
 
-          <div className="mt-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-              🔐 Credenciales de Demo:
-            </h3>
-            <div className="space-y-1">
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                <strong>Email:</strong> admin@luzdefe.com
-              </p>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                <strong>Contraseña:</strong> REMOVED_DEMO_PASSWORD
-              </p>
-            </div>
-            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+          {demoAdminEnabled && (
+            <div className="mt-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Demo local
+              </h3>
               <p className="text-xs text-gray-500 dark:text-gray-500">
-                ℹ️ Este es un panel de demostración con datos simulados
+                El acceso demo solo está disponible en desarrollo local cuando se habilita explícitamente.
               </p>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
