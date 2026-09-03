@@ -10,15 +10,10 @@ interface PrayerDisplayProps {
 export const PrayerDisplay: React.FC<PrayerDisplayProps> = ({ prayer, mystery, currentPrayerIndex = 0 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  console.log(`PrayerDisplay rendering with index: ${currentPrayerIndex}`);
-
   useEffect(() => {
-    console.log(`useEffect triggered for index: ${currentPrayerIndex}. Re-applying animation.`);
-    // This effect re-triggers the animation on every prayer change
     const node = contentRef.current;
     if (node) {
       node.classList.remove('animate-fade-in');
-      // This is a trick to force a browser reflow
       void node.offsetWidth;
       node.classList.add('animate-fade-in');
     }
@@ -29,15 +24,15 @@ export const PrayerDisplay: React.FC<PrayerDisplayProps> = ({ prayer, mystery, c
   const mysteryTitle = mystery ? `Meditación: ${mystery.name}` : null;
 
   return (
-    <div className="flex-grow bg-marian-blue-50 dark:bg-gray-900 rounded-xl p-6 overflow-y-auto my-4 border border-marian-blue-200 dark:border-gray-700 min-h-[300px] flex flex-col">
+    <div className="my-4 flex min-h-[260px] flex-1 flex-col overflow-y-auto rounded-lg border border-white/15 bg-slate-950/60 p-4 shadow-inner shadow-black/20 sm:p-5 lg:min-h-0">
       <div ref={contentRef} className="animate-fade-in">
         {mysteryTitle && (
-          <p className="text-sm font-semibold text-sacred-gold-700 dark:text-sacred-gold-300 mb-2 font-serif">{mysteryTitle}</p>
+          <p className="mb-2 text-sm font-semibold text-sacred-gold-200">{mysteryTitle}</p>
         )}
-        <h2 className="text-2xl font-bold text-red-700 dark:text-red-400 font-serif mb-3">{title}</h2>
-        <div className="prose text-marian-blue-800 dark:text-gray-300 leading-relaxed">
+        <h2 className="mb-3 text-2xl font-bold leading-tight text-red-200">{title}</h2>
+        <div className="text-[0.95rem] leading-7 text-slate-100">
           {text.split('\n').map((line, index) => (
-            <p key={index}>{line}</p>
+            <p key={index} className="mb-3 last:mb-0">{line}</p>
           ))}
         </div>
       </div>

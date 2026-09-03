@@ -25,8 +25,8 @@ export const Rosary: React.FC<RosaryProps> = ({ currentPrayerIndex, onBeadClick 
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      <svg viewBox="0 0 400 380" className="max-w-full" aria-label="Interactive Rosary" style={{ opacity: 2 }}>
+    <div className="flex h-full w-full items-center justify-center">
+      <svg viewBox="0 0 400 380" className="h-full w-full max-h-[680px] drop-shadow-[0_24px_42px_rgba(0,0,0,0.45)]" aria-label="Rosario interactivo">
         <defs>
           {/* Gradients for beads for a more 3D/shiny look */}
           <radialGradient id="goldBeadGradient" cx="0.25" cy="0.25" r="0.75">
@@ -54,7 +54,7 @@ export const Rosary: React.FC<RosaryProps> = ({ currentPrayerIndex, onBeadClick 
         </defs>
         
         {/* Lines connecting beads */}
-        <path d={CHAIN_PATH} stroke="var(--sacred-gold-700)" strokeWidth="0.75" fill="none" opacity="0.5"/>
+        <path d={CHAIN_PATH} stroke="var(--sacred-gold-400)" strokeWidth="1.1" fill="none" opacity="0.75"/>
 
         {/* Centerpiece */}
         <Centerpiece cx={CENTERPIECE_POSITION.cx} cy={CENTERPIECE_POSITION.cy} />
@@ -76,7 +76,7 @@ export const Rosary: React.FC<RosaryProps> = ({ currentPrayerIndex, onBeadClick 
           }
 
           return (
-            <g key={visualIndex} onClick={() => handleVisualBeadClick(visualIndex)} className="cursor-pointer group" role="button" aria-label={`Prayer bead ${visualIndex + 1}`}>
+            <g key={visualIndex} onClick={() => handleVisualBeadClick(visualIndex)} className="cursor-pointer group focus:outline-none" role="button" aria-label={`Cuenta ${visualIndex + 1}`} tabIndex={0}>
                 {/* Halo effect for active bead */}
                  {isActive && (
                     <circle
@@ -94,7 +94,7 @@ export const Rosary: React.FC<RosaryProps> = ({ currentPrayerIndex, onBeadClick 
                     r={bead.r}
                     fill={isActive ? "url(#activeBeadGradient)" : `url(#${bead.type === 'major' ? 'blueBeadGradient' : 'goldBeadGradient'})`}
                     stroke={isActive ? "var(--marian-blue-700)" : "var(--sacred-gold-700)"}
-                    strokeWidth="0.75"
+                    strokeWidth="1"
                     className="transition-all duration-300 group-hover:stroke-marian-blue-500"
                     style={{ transformOrigin: `${bead.cx}px ${bead.cy}px` }}
                     transform={isActive ? 'scale(1.2)' : 'scale(1)'}
