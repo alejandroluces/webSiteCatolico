@@ -15,7 +15,7 @@ export const MysterySelector: React.FC<MysterySelectorProps> = ({
   const mysteries = Object.values(MysteryType);
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 shrink-0">
       <h3 className="mb-3 text-lg font-semibold text-sacred-gold-200">Misterios del Rosario</h3>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2">
         {mysteries.map((mystery) => (

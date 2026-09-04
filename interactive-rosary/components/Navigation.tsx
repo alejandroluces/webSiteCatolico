@@ -22,7 +22,7 @@ const NavButton: React.FC<{ onClick: () => void; children: React.ReactNode; disa
 
 export const Navigation: React.FC<NavigationProps> = ({ onNext, onPrev, onReset, currentIndex, total }) => {
   return (
-    <div className="mt-auto border-t border-white/15 pt-4">
+    <div className="mt-auto shrink-0 border-t border-white/15 pt-4">
         <div className="mb-3 flex items-center justify-between gap-3">
             <span className="text-sm font-medium text-marian-blue-50">
                 Progreso: {currentIndex + 1} / {total}

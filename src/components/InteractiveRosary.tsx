@@ -60,7 +60,7 @@ const InteractiveRosary: React.FC = () => {
         </div>
 
         <div className="grid flex-1 grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(340px,420px)_minmax(0,1fr)] lg:gap-6">
-          <section className="order-2 flex min-h-0 flex-col rounded-lg border border-white/15 bg-slate-950/75 p-4 text-white shadow-2xl shadow-slate-950/35 backdrop-blur-xl sm:p-5 lg:order-1 lg:max-h-[calc(100vh-8.5rem)]">
+          <section className="order-2 flex min-h-0 flex-col rounded-lg border border-white/15 bg-slate-950/75 p-4 text-white shadow-2xl shadow-slate-950/35 backdrop-blur-xl sm:p-5 lg:order-1 lg:h-[calc(100vh-8.5rem)]">
             <header className="mb-4 border-b border-white/15 pb-4">
               <h2 className="text-2xl font-bold text-white">
                 Guía de Oración
