@@ -3,6 +3,7 @@ import { Rosary } from '../../interactive-rosary/components/Rosary';
 import { PrayerDisplay } from '../../interactive-rosary/components/PrayerDisplay';
 import { MysterySelector } from '../../interactive-rosary/components/MysterySelector';
 import { Navigation } from '../../interactive-rosary/components/Navigation';
+import { RosaryAudioPlayer } from '../../interactive-rosary/components/RosaryAudioPlayer';
 import { useRosary } from '../../interactive-rosary/hooks/useRosary';
 import type { MysteryType } from '../../interactive-rosary/types';
 
@@ -81,6 +82,13 @@ const InteractiveRosary: React.FC = () => {
                   currentPrayerIndex={currentPrayerIndex}
                 />
 
+                <RosaryAudioPlayer
+                  currentPrayerIndex={currentPrayerIndex}
+                  selectedMysteryType={selectedMysteryType}
+                  totalPrayers={totalPrayers}
+                  onGoToPrayer={handleBeadClick}
+                />
+
                 <Navigation
                   onNext={goToNextPrayer}
                   onPrev={goToPreviousPrayer}
@@ -93,9 +101,9 @@ const InteractiveRosary: React.FC = () => {
           </section>
 
           <section
-            className={`order-1 flex items-center justify-center rounded-lg border border-white/10 bg-slate-950/35 p-3 shadow-2xl shadow-slate-950/25 backdrop-blur-sm transition-[transform,box-shadow,background-color] duration-300 lg:static lg:order-2 lg:min-h-[calc(100vh-8.5rem)] lg:p-6 ${
+            className={`order-1 flex items-center justify-center rounded-xl border border-sacred-gold-200/15 bg-slate-950/45 p-3 shadow-2xl shadow-slate-950/35 backdrop-blur-md transition-[transform,box-shadow,background-color] duration-300 lg:static lg:order-2 lg:min-h-[calc(100vh-8.5rem)] lg:p-6 ${
               dockRosary
-                ? 'fixed left-4 right-4 top-20 z-40 min-h-0 h-[min(46vh,420px)] bg-slate-950/75 shadow-slate-950/60 sm:left-6 sm:right-6'
+                ? 'fixed left-4 right-4 top-20 z-40 h-[min(46vh,420px)] min-h-0 bg-slate-950/85 shadow-slate-950/70 sm:left-6 sm:right-6'
                 : 'relative z-20 min-h-[min(52vh,460px)]'
             }`}
           >

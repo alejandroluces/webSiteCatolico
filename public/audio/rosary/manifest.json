@@ -1,0 +1,401 @@
+{
+  "generatedAt": "2026-09-04T19:50:43.089Z",
+  "model": "gpt-4o-mini-tts",
+  "voice": "alloy",
+  "speed": 0.92,
+  "totalSegments": 78,
+  "mysteries": {
+    "gloriosos": [
+      {
+        "index": 1,
+        "title": "Señal de la Cruz y Credo",
+        "file": "gloriosos/01.mp3"
+      },
+      {
+        "index": 2,
+        "title": "Padrenuestro",
+        "file": "gloriosos/02.mp3"
+      },
+      {
+        "index": 3,
+        "title": "Avemaría",
+        "file": "gloriosos/03.mp3"
+      },
+      {
+        "index": 4,
+        "title": "Avemaría",
+        "file": "gloriosos/04.mp3"
+      },
+      {
+        "index": 5,
+        "title": "Avemaría",
+        "file": "gloriosos/05.mp3"
+      },
+      {
+        "index": 6,
+        "title": "Gloria",
+        "file": "gloriosos/06.mp3"
+      },
+      {
+        "index": 7,
+        "title": "Primer Misterio Glorioso",
+        "file": "gloriosos/07.mp3"
+      },
+      {
+        "index": 8,
+        "title": "Padrenuestro",
+        "file": "gloriosos/08.mp3"
+      },
+      {
+        "index": 9,
+        "title": "Avemaría",
+        "file": "gloriosos/09.mp3"
+      },
+      {
+        "index": 10,
+        "title": "Avemaría",
+        "file": "gloriosos/10.mp3"
+      },
+      {
+        "index": 11,
+        "title": "Avemaría",
+        "file": "gloriosos/11.mp3"
+      },
+      {
+        "index": 12,
+        "title": "Avemaría",
+        "file": "gloriosos/12.mp3"
+      },
+      {
+        "index": 13,
+        "title": "Avemaría",
+        "file": "gloriosos/13.mp3"
+      },
+      {
+        "index": 14,
+        "title": "Avemaría",
+        "file": "gloriosos/14.mp3"
+      },
+      {
+        "index": 15,
+        "title": "Avemaría",
+        "file": "gloriosos/15.mp3"
+      },
+      {
+        "index": 16,
+        "title": "Avemaría",
+        "file": "gloriosos/16.mp3"
+      },
+      {
+        "index": 17,
+        "title": "Avemaría",
+        "file": "gloriosos/17.mp3"
+      },
+      {
+        "index": 18,
+        "title": "Avemaría",
+        "file": "gloriosos/18.mp3"
+      },
+      {
+        "index": 19,
+        "title": "Gloria",
+        "file": "gloriosos/19.mp3"
+      },
+      {
+        "index": 20,
+        "title": "Jaculatoria de Fátima",
+        "file": "gloriosos/20.mp3"
+      },
+      {
+        "index": 21,
+        "title": "Segundo Misterio Glorioso",
+        "file": "gloriosos/21.mp3"
+      },
+      {
+        "index": 22,
+        "title": "Padrenuestro",
+        "file": "gloriosos/22.mp3"
+      },
+      {
+        "index": 23,
+        "title": "Avemaría",
+        "file": "gloriosos/23.mp3"
+      },
+      {
+        "index": 24,
+        "title": "Avemaría",
+        "file": "gloriosos/24.mp3"
+      },
+      {
+        "index": 25,
+        "title": "Avemaría",
+        "file": "gloriosos/25.mp3"
+      },
+      {
+        "index": 26,
+        "title": "Avemaría",
+        "file": "gloriosos/26.mp3"
+      },
+      {
+        "index": 27,
+        "title": "Avemaría",
+        "file": "gloriosos/27.mp3"
+      },
+      {
+        "index": 28,
+        "title": "Avemaría",
+        "file": "gloriosos/28.mp3"
+      },
+      {
+        "index": 29,
+        "title": "Avemaría",
+        "file": "gloriosos/29.mp3"
+      },
+      {
+        "index": 30,
+        "title": "Avemaría",
+        "file": "gloriosos/30.mp3"
+      },
+      {
+        "index": 31,
+        "title": "Avemaría",
+        "file": "gloriosos/31.mp3"
+      },
+      {
+        "index": 32,
+        "title": "Avemaría",
+        "file": "gloriosos/32.mp3"
+      },
+      {
+        "index": 33,
+        "title": "Gloria",
+        "file": "gloriosos/33.mp3"
+      },
+      {
+        "index": 34,
+        "title": "Jaculatoria de Fátima",
+        "file": "gloriosos/34.mp3"
+      },
+      {
+        "index": 35,
+        "title": "Tercer Misterio Glorioso",
+        "file": "gloriosos/35.mp3"
+      },
+      {
+        "index": 36,
+        "title": "Padrenuestro",
+        "file": "gloriosos/36.mp3"
+      },
+      {
+        "index": 37,
+        "title": "Avemaría",
+        "file": "gloriosos/37.mp3"
+      },
+      {
+        "index": 38,
+        "title": "Avemaría",
+        "file": "gloriosos/38.mp3"
+      },
+      {
+        "index": 39,
+        "title": "Avemaría",
+        "file": "gloriosos/39.mp3"
+      },
+      {
+        "index": 40,
+        "title": "Avemaría",
+        "file": "gloriosos/40.mp3"
+      },
+      {
+        "index": 41,
+        "title": "Avemaría",
+        "file": "gloriosos/41.mp3"
+      },
+      {
+        "index": 42,
+        "title": "Avemaría",
+        "file": "gloriosos/42.mp3"
+      },
+      {
+        "index": 43,
+        "title": "Avemaría",
+        "file": "gloriosos/43.mp3"
+      },
+      {
+        "index": 44,
+        "title": "Avemaría",
+        "file": "gloriosos/44.mp3"
+      },
+      {
+        "index": 45,
+        "title": "Avemaría",
+        "file": "gloriosos/45.mp3"
+      },
+      {
+        "index": 46,
+        "title": "Avemaría",
+        "file": "gloriosos/46.mp3"
+      },
+      {
+        "index": 47,
+        "title": "Gloria",
+        "file": "gloriosos/47.mp3"
+      },
+      {
+        "index": 48,
+        "title": "Jaculatoria de Fátima",
+        "file": "gloriosos/48.mp3"
+      },
+      {
+        "index": 49,
+        "title": "Cuarto Misterio Glorioso",
+        "file": "gloriosos/49.mp3"
+      },
+      {
+        "index": 50,
+        "title": "Padrenuestro",
+        "file": "gloriosos/50.mp3"
+      },
+      {
+        "index": 51,
+        "title": "Avemaría",
+        "file": "gloriosos/51.mp3"
+      },
+      {
+        "index": 52,
+        "title": "Avemaría",
+        "file": "gloriosos/52.mp3"
+      },
+      {
+        "index": 53,
+        "title": "Avemaría",
+        "file": "gloriosos/53.mp3"
+      },
+      {
+        "index": 54,
+        "title": "Avemaría",
+        "file": "gloriosos/54.mp3"
+      },
+      {
+        "index": 55,
+        "title": "Avemaría",
+        "file": "gloriosos/55.mp3"
+      },
+      {
+        "index": 56,
+        "title": "Avemaría",
+        "file": "gloriosos/56.mp3"
+      },
+      {
+        "index": 57,
+        "title": "Avemaría",
+        "file": "gloriosos/57.mp3"
+      },
+      {
+        "index": 58,
+        "title": "Avemaría",
+        "file": "gloriosos/58.mp3"
+      },
+      {
+        "index": 59,
+        "title": "Avemaría",
+        "file": "gloriosos/59.mp3"
+      },
+      {
+        "index": 60,
+        "title": "Avemaría",
+        "file": "gloriosos/60.mp3"
+      },
+      {
+        "index": 61,
+        "title": "Gloria",
+        "file": "gloriosos/61.mp3"
+      },
+      {
+        "index": 62,
+        "title": "Jaculatoria de Fátima",
+        "file": "gloriosos/62.mp3"
+      },
+      {
+        "index": 63,
+        "title": "Quinto Misterio Glorioso",
+        "file": "gloriosos/63.mp3"
+      },
+      {
+        "index": 64,
+        "title": "Padrenuestro",
+        "file": "gloriosos/64.mp3"
+      },
+      {
+        "index": 65,
+        "title": "Avemaría",
+        "file": "gloriosos/65.mp3"
+      },
+      {
+        "index": 66,
+        "title": "Avemaría",
+        "file": "gloriosos/66.mp3"
+      },
+      {
+        "index": 67,
+        "title": "Avemaría",
+        "file": "gloriosos/67.mp3"
+      },
+      {
+        "index": 68,
+        "title": "Avemaría",
+        "file": "gloriosos/68.mp3"
+      },
+      {
+        "index": 69,
+        "title": "Avemaría",
+        "file": "gloriosos/69.mp3"
+      },
+      {
+        "index": 70,
+        "title": "Avemaría",
+        "file": "gloriosos/70.mp3"
+      },
+      {
+        "index": 71,
+        "title": "Avemaría",
+        "file": "gloriosos/71.mp3"
+      },
+      {
+        "index": 72,
+        "title": "Avemaría",
+        "file": "gloriosos/72.mp3"
+      },
+      {
+        "index": 73,
+        "title": "Avemaría",
+        "file": "gloriosos/73.mp3"
+      },
+      {
+        "index": 74,
+        "title": "Avemaría",
+        "file": "gloriosos/74.mp3"
+      },
+      {
+        "index": 75,
+        "title": "Gloria",
+        "file": "gloriosos/75.mp3"
+      },
+      {
+        "index": 76,
+        "title": "Jaculatoria de Fátima",
+        "file": "gloriosos/76.mp3"
+      },
+      {
+        "index": 77,
+        "title": "La Salve",
+        "file": "gloriosos/77.mp3"
+      },
+      {
+        "index": 78,
+        "title": "Oración Final",
+        "file": "gloriosos/78.mp3"
+      }
+    ]
+  }
+}

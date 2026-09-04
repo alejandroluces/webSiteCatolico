@@ -8,10 +8,10 @@ interface CrucifixProps {
 }
 
 export const Crucifix: React.FC<CrucifixProps> = ({ isActive, onClick, cx, cy }) => {
-  const baseFill = "#D29922";
-  const activeFill = "#38bdf8";
-  const baseStroke = "#a16207";
-  const activeStroke = "#0369a1";
+  const baseFill = "url(#crucifixGold)";
+  const activeFill = "url(#crucifixBlue)";
+  const baseStroke = "#f2c25e";
+  const activeStroke = "#bae6fd";
 
   // The cross path's top-center is at (x=30, y=5) within its own coordinate system.
   // The scale is 0.8.
@@ -29,17 +29,28 @@ export const Crucifix: React.FC<CrucifixProps> = ({ isActive, onClick, cx, cy })
     <g 
       transform={`translate(${translateX}, ${translateY}) scale(${scale})`} 
       onClick={onClick} 
-      className="cursor-pointer group"
+      className="group cursor-pointer"
       role="button"
       aria-label="Cross, start of the Rosary"
       style={{ transformOrigin }}
     >
-      {/* Halo effect for active state, matching the bead glow */}
+      <defs>
+        <linearGradient id="crucifixGold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#fff4b8" />
+          <stop offset="45%" stopColor="#d99a19" />
+          <stop offset="100%" stopColor="#8a4f08" />
+        </linearGradient>
+        <linearGradient id="crucifixBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#e0f2fe" />
+          <stop offset="48%" stopColor="#38bdf8" />
+          <stop offset="100%" stopColor="#0369a1" />
+        </linearGradient>
+      </defs>
       {isActive && (
          <path 
           d="M25,5 L25,20 H10 V30 H25 V55 H35 V30 H50 V20 H35 V5 Z" 
           fill="#38bdf8"
-          opacity="0.7"
+          opacity="0.62"
           filter="url(#glow)"
          />
       )}
@@ -48,7 +59,12 @@ export const Crucifix: React.FC<CrucifixProps> = ({ isActive, onClick, cx, cy })
         transform={isActive ? `scale(1.1)` : 'scale(1)'}
         style={{ transformOrigin }}
       >
-        {/* Simplified Cross Shape */}
+        <path 
+          d="M25,5 L25,20 H10 V30 H25 V55 H35 V30 H50 V20 H35 V5 Z" 
+          fill="rgba(0,0,0,0.28)" 
+          transform="translate(2.2 2.8)"
+          opacity="0.7"
+        />
         <path 
           d="M25,5 L25,20 H10 V30 H25 V55 H35 V30 H50 V20 H35 V5 Z" 
           fill={isActive ? activeFill : baseFill} 
@@ -56,6 +72,14 @@ export const Crucifix: React.FC<CrucifixProps> = ({ isActive, onClick, cx, cy })
           strokeWidth="2" 
           strokeLinejoin="round"
           className="transition-colors duration-300"
+          filter="url(#beadShadow)"
+        />
+        <path
+          d="M30,8 V52 M13,25 H47"
+          stroke="rgba(255,255,255,0.42)"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          opacity="0.72"
         />
       </g>
     </g>

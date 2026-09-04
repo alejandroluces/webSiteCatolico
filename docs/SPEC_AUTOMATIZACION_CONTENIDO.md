@@ -480,6 +480,11 @@ node scripts/contentPipeline.js --date=2026-09-03 --execute --skip-scrape --what
 6. Rutas absolutas dentro de `imagePath`.
    - Decision: no persistir rutas locales en Supabase; convertirlas a `/images/gospels/...` o `/images/santo-del-dia/...`.
 
+7. Audios del Rosario interactivo.
+   - Decision: generar MP3 estaticos por misterio y por cuenta con OpenAI TTS desde scripts locales/CI, nunca desde el frontend.
+   - Los archivos se serviran desde `public/audio/rosary/<misterio>/<NN>.mp3`.
+   - El frontend solo reproduce archivos publicos y avanza automaticamente cuando termina cada segmento.
+
 ## 10. Checklist de Implementacion
 
 - [x] Crear `scripts/lib/contentPipeline/dates.js`
@@ -497,6 +502,8 @@ node scripts/contentPipeline.js --date=2026-09-03 --execute --skip-scrape --what
 - [ ] Probar `--execute --skip-scrape` con una fecha ya existente
 - [ ] Probar idempotencia ejecutando dos veces el mismo rango
 - [ ] Validar que no hay doble envio de WhatsApp
+- [x] Generar audios del Rosario interactivo con `npm run rosary:audio`
+- [ ] Verificar reproduccion automatica del Rosario en escritorio y movil
 
 ## 11. Scripts npm Propuestos
 
@@ -522,6 +529,63 @@ La automatizacion se considera completa cuando:
 - Ejecutar el mismo rango dos veces no duplica contenido ni reenvia mensajes.
 
 ## 13. Registro de Ejecuciones
+
+### 2026-09-04: reproductor del Rosario interactivo
+
+Solicitud:
+
+```bash
+npm run rosary:audio
+```
+
+Decision de implementacion:
+
+- Se agrego un reproductor al Rosario interactivo con controles de reproducir, pausar, repetir segmento y avance automatico.
+- Cada audio corresponde a una cuenta/paso del Rosario y al terminar puede mover la visual al siguiente paso.
+- Los audios se organizan por misterio: `gozosos`, `luminosos`, `dolorosos` y `gloriosos`.
+- La generacion usa OpenAI TTS desde `scripts/generateRosaryAudio.js` y requiere `OPENAI_API_KEY` en entorno local o CI.
+- La API key no se usa ni se expone en el frontend.
+- Se actualizo Tailwind para escanear `interactive-rosary/`, ya que los componentes visuales del Rosario viven fuera de `src/`.
+
+Comandos:
+
+```bash
+npm run rosary:audio
+npm run rosary:audio -- --mystery=gozosos
+npm run rosary:audio -- --mystery=luminosos --force
+```
+
+Validacion posterior:
+
+- `public/audio/rosary/gozosos`: 78 MP3, faltantes 0, vacios 0.
+- `public/audio/rosary/luminosos`: 78 MP3, faltantes 0, vacios 0.
+- `public/audio/rosary/dolorosos`: 78 MP3, faltantes 0, vacios 0.
+- `public/audio/rosary/gloriosos`: 78 MP3, faltantes 0, vacios 0.
+- Total validado: 312 MP3.
+- Manifest generado: `public/audio/rosary/manifest.json`.
+
+### 2026-09-04: rediseño visual del Rosario interactivo
+
+Solicitud:
+
+```text
+Mejorar el diseño del Rosario interactivo sin dañar la funcionalidad actual.
+```
+
+Resultado:
+
+- Se rediseño la visual SVG del Rosario manteniendo intacto el mapeo entre cuentas y pasos de oracion.
+- Las cuentas ahora tienen gradientes, sombras, brillo y un estado activo mas visible.
+- La cadena se renderiza con una capa de sombra y una capa metalica dorada.
+- El medallon central fue mejorado con borde ornamental, profundidad y mejor contraste.
+- El crucifijo fue mejorado con degradados, sombra y resalte activo.
+- El contenedor visual del Rosario recibio mejor contraste, presencia y acabado para escritorio y movil.
+- Se agrego soporte de teclado para activar cuentas con `Enter` o `Espacio`.
+
+Validacion:
+
+- `npm run build` exitoso.
+- ESLint localizado exitoso sobre los componentes del Rosario modificados.
 
 ### 2026-09-03: prueba real agosto 2026
 

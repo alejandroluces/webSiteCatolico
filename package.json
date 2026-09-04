@@ -24,6 +24,7 @@
     "audio:local-to-r2:dry": "node scripts/uploadLocalAudioToR2.js --dry-run",
     "audio:supabase:cleanup": "node scripts/deleteSupabaseAudio.js --execute",
     "audio:supabase:cleanup:dry": "node scripts/deleteSupabaseAudio.js --dry-run",
+    "rosary:audio": "node scripts/generateRosaryAudio.js",
     "start:server": "node server.js",
     "test:whatsapp:send": "node scripts/testWhatsAppSend.js",
     "test:greenapi": "node scripts/testGreenApiConnection.js"

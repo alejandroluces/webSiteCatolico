@@ -68,16 +68,6 @@ export const MYSTERIES: Record<MysteryType, Mystery[]> = {
   ],
 };
 
-const intro: RosaryBead[] = [
-    { prayerKey: 'sign_of_cross' }, // This now includes the creed text
-    // apostles_creed is removed from sequence as it's merged with sign_of_cross
-    { prayerKey: 'our_father' },
-    { prayerKey: 'hail_mary' },
-    { prayerKey: 'hail_mary' },
-    { prayerKey: 'hail_mary' },
-    { prayerKey: 'glory_be' },
-];
-
 const createDecade = (mysteryIndex: number): RosaryBead[] => [
     { prayerKey: 'mystery_announcement', mysteryIndex },
     { prayerKey: 'our_father', mysteryIndex },
