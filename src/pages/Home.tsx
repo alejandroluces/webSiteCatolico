@@ -56,30 +56,42 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-marian-blue-50/30 to-sacred-gold-50/20 dark:bg-gray-900">
       {/* Hero Section */}
-      <section 
-        className="relative bg-gradient-to-br from-marian-blue-900 via-marian-blue-800 to-marian-blue-700 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 text-white overflow-hidden"
-        style={{ 
+      <section
+        className="relative overflow-hidden bg-marian-blue-950 text-white"
+        style={{
           backgroundImage: "url('/images/camino_de_fe.png')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        <div className="absolute inset-0 bg-black opacity-20"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-marian-blue-900/50 to-transparent"></div>
+        <video
+          className="absolute inset-0 h-full w-full object-cover object-center"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/images/camino_de_fe.png"
+          aria-hidden="true"
+        >
+          <source src="/images/emaus_camino.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-marian-blue-950/55 to-slate-950/78"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-marian-blue-950/80 via-marian-blue-950/38 to-slate-950/50"></div>
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-gray-50 dark:from-gray-900 to-transparent"></div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-          <div className="text-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-36">
+          <div className="max-w-4xl">
             <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6 animate-fade-in">
               Bienvenido a{' '}
               <span className="text-sacred-gold-400 dark:text-sacred-gold-300">
                 Camino de Fe
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-marian-blue-100 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed animate-slide-up">
+            <p className="text-xl md:text-2xl text-marian-blue-50 dark:text-gray-200 mb-8 max-w-3xl leading-relaxed animate-slide-up drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
               Tu portal católico para encontrar paz, fortaleza espiritual y crecimiento en la fe. 
               Acompáñanos en este camino de evangelización y encuentro con Cristo.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            <div className="flex flex-col sm:flex-row gap-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
               <Link
                 to="/evangelio-del-dia"
                 className="inline-flex items-center px-8 py-4 bg-sacred-gold-500 hover:bg-sacred-gold-600 text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105"

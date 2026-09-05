@@ -36,6 +36,32 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Merriweather', serif;
 }
 
+@layer components {
+  .content-prose {
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+
+  .content-prose p {
+    margin-bottom: 1rem;
+  }
+
+  .content-prose p:last-child {
+    margin-bottom: 0;
+  }
+
+  .content-prose--devotional {
+    line-height: 1.85;
+  }
+
+  .scripture-frame {
+    border-left: 4px solid var(--sacred-gold-400);
+    box-shadow: inset 18px 0 28px -28px rgba(255, 213, 88, 0.75);
+  }
+}
+
 .prayer-card-container {
   perspective: 1000px;
 }

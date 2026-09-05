@@ -12,6 +12,12 @@ interface Prayer {
   audioUrl?: string;
 }
 
+const splitParagraphs = (text?: string) =>
+  (text || '')
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
 const Prayers: React.FC = () => {
   const { category } = useParams();
   const [searchTerm, setSearchTerm] = useState('');
@@ -1419,9 +1425,11 @@ Corazón de María. Amén.`
                         </button>
                       </div>
                       <div className="mt-4 prose dark:prose-invert max-w-none">
-                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line font-sans text-lg leading-relaxed">
-                          {selectedPrayer.content}
-                        </p>
+                        <div className="content-prose content-prose--devotional text-gray-700 dark:text-gray-300 font-sans text-lg">
+                          {splitParagraphs(selectedPrayer.content).map((paragraph, index) => (
+                            <p key={index}>{paragraph}</p>
+                          ))}
+                        </div>
                       </div>
                     </>
                   )}

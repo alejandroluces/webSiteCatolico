@@ -14,6 +14,12 @@ interface SaintData {
   saint: Saint;
 }
 
+const splitParagraphs = (text?: string) =>
+  (text || '')
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
 const SaintOfTheDay: React.FC = () => {
   const [saintData, setSaintData] = useState<SaintData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -85,7 +91,7 @@ const SaintOfTheDay: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="p-8">
             <div className="flex flex-col md:flex-row gap-8">
               <div className="md:w-1/3">
@@ -98,22 +104,19 @@ const SaintOfTheDay: React.FC = () => {
                   <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
                     {saint.title}
                   </h2>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {/* Assuming the subtitle can be extracted or is static */}
-                  </p>
                 </div>
               </div>
 
               <div className="md:w-2/3">
                 <div className="prose prose-lg dark:prose-invert max-w-none">
-                  <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  <p className="content-prose text-gray-700 dark:text-gray-300 mb-4 font-semibold">
                     {saint.text}
                   </p>
-                  {saint.biography.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="text-gray-700 dark:text-gray-300">
-                      {paragraph}
-                    </p>
-                  ))}
+                  <div className="content-prose content-prose--devotional text-gray-700 dark:text-gray-300">
+                    {splitParagraphs(saint.biography).map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

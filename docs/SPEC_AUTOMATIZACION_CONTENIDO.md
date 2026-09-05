@@ -587,6 +587,63 @@ Validacion:
 - `npm run build` exitoso.
 - ESLint localizado exitoso sobre los componentes del Rosario modificados.
 
+### 2026-09-05: ajuste visual de Evangelio y textos largos
+
+Solicitud:
+
+```text
+Ajustar el tamaño de la imagen del Evangelio del Día y justificar/alinear textos y párrafos del proyecto.
+```
+
+Decision de implementacion:
+
+- La imagen principal del Evangelio del Día se limita a un ancho maximo mas sobrio y a una altura maxima para evitar que domine toda la primera vista.
+- La imagen queda dentro de un marco con borde tenue dorado y sombra controlada.
+- Se agrega la utilidad CSS `content-prose` para textos largos con justificado, guiones automaticos y cortes seguros de palabra.
+- Se agrega la variante `content-prose--devotional` para contenido devocional con interlineado mas amplio.
+- Se agrega `scripture-frame` para textos biblicos con borde lateral dorado y fondo suave.
+- La utilidad se aplica inicialmente a Evangelio del Día, Lecturas del Día, Santo del Día y al modal de Oraciones, que son las paginas con bloques largos principales.
+- No se aplica justificado global a navegacion, botones, cards pequenas ni footer para no perjudicar la lectura de elementos cortos.
+
+### 2026-09-05: video hero Camino de Fe
+
+Solicitud:
+
+```text
+Usar el video `emaus_camino` como reemplazo de la imagen principal para transmitir el efecto de camino.
+```
+
+Decision de implementacion:
+
+- El hero principal del Home usa `public/images/emaus_camino.mp4` como video de fondo.
+- El video se reproduce en silencio, en loop, con `playsInline` para compatibilidad movil.
+- Se conserva `public/images/camino_de_fe.png` como `poster` y fallback visual.
+- Se agregan capas de gradiente oscuras para mantener legibles el titulo, descripcion y botones.
+- El texto del hero se alinea a la izquierda para reforzar la sensacion de recorrido y dejar respirar el movimiento del video.
+
+### 2026-09-05: video hero Aprende a Rezar
+
+Solicitud:
+
+```text
+Usar el video `V_Mary` como fondo en `/aprende-a-rezar` y rediseñar para que quede bien.
+```
+
+Decision de implementacion:
+
+- La pagina Aprende a Rezar se probo con `public/images/V_Mary.mp4` dentro de una seccion `hero video`.
+- El resultado no fue aprobado visualmente por problemas de encuadre y zoom en escritorio.
+- Se descarta el video para esta pagina.
+- Se reemplaza por `public/images/virgin-M.webp` como imagen estatica principal.
+- La imagen se presenta en un contenedor 16:9, centrado, con max-width de 900px, borde redondeado, borde dorado sutil y sombra ambar.
+- Se conserva overlay cinematografico inferior para profundidad visual.
+- Se aplica `content-prose` a textos explicativos y al modal de oraciones de esta pagina.
+
+Revision de encuadre:
+
+- Se descarto el video como fondo full-bleed y tambien como bloque 16:9 por no lograr un encuadre satisfactorio.
+- La decision vigente es usar imagen estatica `virgin-M.webp` en la seccion superior de `/aprende-a-rezar`.
+
 ### 2026-09-03: prueba real agosto 2026
 
 Solicitud:

@@ -6,6 +6,12 @@ import { useAvailableDailyContentDates } from '../hooks/useAvailableDailyContent
 
 const FALLBACK_GOSPEL_IMAGE = '/images/Santisimo.png';
 
+const splitParagraphs = (text?: string) =>
+  (text || '')
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
 const DailyGospel: React.FC = () => {
   const getInitialDateFromUrl = () => {
     try {
@@ -236,11 +242,11 @@ const DailyGospel: React.FC = () => {
 
         {!isLoading && !error && content && (
           <>
-            <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
+            <figure className="mb-8 mx-auto max-w-3xl overflow-hidden rounded-2xl border border-sacred-gold-300/25 bg-gray-950 shadow-2xl shadow-gray-950/20 dark:shadow-black/40">
               <img
                 src={imageSrc}
                 alt={content.title}
-                className="w-full h-auto object-cover"
+                className="h-auto max-h-[520px] w-full object-cover object-center sm:aspect-[16/10]"
                 onError={() => {
                   // Evitar bucle infinito si el fallback también faltara
                   if (imageSrc !== FALLBACK_GOSPEL_IMAGE) {
@@ -248,7 +254,7 @@ const DailyGospel: React.FC = () => {
                   }
                 }}
               />
-            </div>
+            </figure>
             
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
               <div className="bg-gradient-to-r from-marian-blue-600 to-marian-blue-700 dark:from-gray-700 dark:to-gray-600 text-white p-6 flex justify-between items-center">
@@ -261,8 +267,10 @@ const DailyGospel: React.FC = () => {
 
               <div className="p-6 sm:p-8">
                 <div className="prose prose-lg dark:prose-invert max-w-none">
-                  <div className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line border-l-4 border-sacred-gold-400 dark:border-sacred-gold-300 pl-6 italic">
-                    {content.content}
+                  <div className="content-prose content-prose--devotional scripture-frame rounded-r-lg bg-sacred-gold-50/45 py-4 pl-6 pr-4 text-gray-800 dark:bg-slate-900/35 dark:text-gray-200 italic">
+                    {splitParagraphs(content.content).map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -278,9 +286,9 @@ const DailyGospel: React.FC = () => {
                   <AudioButton url={content.reflection_audio_url} type="reflexión" />
                 </div>
                 <div className="prose prose-lg dark:prose-invert max-w-none">
-                  <div className="text-gray-700 dark:text-gray-300 leading-relaxed space-y-4">
-                    {content.reflection.split('\n\n').map((paragraph, index) => (
-                      <p key={index} className="text-justify">{paragraph}</p>
+                  <div className="content-prose content-prose--devotional text-gray-700 dark:text-gray-300">
+                    {splitParagraphs(content.reflection).map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
                     ))}
                   </div>
                 </div>
@@ -295,8 +303,10 @@ const DailyGospel: React.FC = () => {
                   </h3>
                   <AudioButton url={content.prayer_audio_url} type="oración" />
                 </div>
-                <div className="text-gray-800 dark:text-gray-200 leading-relaxed italic whitespace-pre-line">
-                  {content.prayer}
+                <div className="content-prose content-prose--devotional text-gray-800 dark:text-gray-200 italic">
+                  {splitParagraphs(content.prayer).map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
                 </div>
               </div>
             )}

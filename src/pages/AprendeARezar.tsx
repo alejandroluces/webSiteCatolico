@@ -3,6 +3,12 @@ import { ShieldCheck, BookOpen, Users, Heart, X } from 'lucide-react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Link } from 'react-router-dom';
 
+const splitParagraphs = (text?: string) =>
+  (text || '')
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
 const AprendeARezar: React.FC = () => {
   const [selectedPrayer, setSelectedPrayer] = useState<{ title: string; content: string } | null>(null);
 
@@ -15,18 +21,40 @@ const AprendeARezar: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-      <div className="container mx-auto px-4 py-12">
-        <header className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-marian-blue-900 dark:text-white font-serif">
-            📿 Aprende a Rezar el Rosario
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 mt-4">
-            Una guía paso a paso para principiantes
-          </p>
-        </header>
+    <div className="min-h-screen bg-[#0d1117] text-gray-200">
+      <section
+        className="relative overflow-hidden bg-[#0d1117] px-4 py-14 text-white sm:px-6 lg:px-8 lg:py-20"
+      >
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-9 text-center">
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-[#D4A017]">
+              ✦ CONTEMPLA ✦
+            </p>
+            <h1 className="font-serif text-4xl font-bold leading-tight text-white sm:text-5xl">
+              Déjate guiar por María
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-gray-300 sm:text-lg">
+              Un momento de paz antes de comenzar tu rosario
+            </p>
+          </div>
 
-        <section className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mb-12 text-center">
+          <figure className="relative mx-auto aspect-video w-full max-w-[900px] overflow-hidden rounded-2xl border border-[rgba(212,160,23,0.2)] bg-black shadow-[0_0_40px_rgba(212,160,23,0.3)]">
+            <img
+              src="/images/virgin-M.webp"
+              alt="Imagen contemplativa de la Virgen María"
+              className="h-full w-full object-cover object-center"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/38 via-black/8 to-transparent" />
+          </figure>
+
+          <p className="mt-6 text-center text-sm text-gray-400">
+            🕊️ Puedes rezar el rosario mientras contemplas esta imagen
+          </p>
+        </div>
+      </section>
+
+      <div id="guia-rosario" className="container mx-auto px-4 py-12">
+        <section className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mb-12 text-center border border-gray-100 dark:border-gray-700">
           <Link
             to="/rosario-interactivo"
             className="inline-block bg-marian-blue-500 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-marian-blue-600 transition-colors duration-300"
@@ -37,7 +65,7 @@ const AprendeARezar: React.FC = () => {
 
         <section className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mb-12">
           <h2 className="text-3xl font-semibold text-marian-blue-800 dark:text-white mb-6 font-serif">¿Qué es el Rosario?</h2>
-          <p className="text-lg leading-relaxed">
+          <p className="content-prose content-prose--devotional text-lg">
             El Santo Rosario es una de las oraciones marianas más queridas de la Iglesia Católica. Es una meditación sobre los misterios de la vida de Jesús y María, que nos ayuda a crecer en fe y amor hacia Dios.
           </p>
         </section>
@@ -77,7 +105,7 @@ const AprendeARezar: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-xl mb-2">Los Cinco Decenarios</h4>
-                  <p className="text-lg">Cada decenario incluye: anunciar el misterio, un Padrenuestro, diez Avemarías, un Gloria y una jaculatoria.</p>
+                  <p className="content-prose text-lg">Cada decenario incluye: anunciar el misterio, un Padrenuestro, diez Avemarías, un Gloria y una jaculatoria.</p>
                 </div>
               </div>
             </div>
@@ -211,9 +239,11 @@ const AprendeARezar: React.FC = () => {
                         {selectedPrayer.title}
                       </Dialog.Title>
                       <div className="mt-4 prose dark:prose-invert max-w-none">
-                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line font-sans text-lg leading-relaxed">
-                          {selectedPrayer.content}
-                        </p>
+                        <div className="content-prose content-prose--devotional font-sans text-lg text-gray-700 dark:text-gray-300">
+                          {splitParagraphs(selectedPrayer.content).map((paragraph, index) => (
+                            <p key={index}>{paragraph}</p>
+                          ))}
+                        </div>
                       </div>
                     </>
                   )}

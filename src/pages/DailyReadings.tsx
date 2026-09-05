@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { BookOpen, Calendar, Share2, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getDailyReadings, DailyReadingsData } from '../services/dailyReadingsService';
 
+const splitParagraphs = (text?: string) =>
+  (text || '')
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
 const DailyReadings: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined);
   const [selectedReading, setSelectedReading] = useState<'reading' | 'gospel'>('reading');
@@ -236,8 +242,10 @@ const DailyReadings: React.FC = () => {
               {/* Reading Content */}
               <div className="p-6 sm:p-8">
                 <div className="prose prose-lg dark:prose-invert max-w-none">
-                  <div className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line border-l-4 border-sacred-gold-400 dark:border-sacred-gold-300 pl-6 italic">
-                    {currentReading.content}
+                  <div className="content-prose content-prose--devotional scripture-frame rounded-r-lg bg-sacred-gold-50/45 py-4 pl-6 pr-4 text-gray-800 dark:bg-slate-900/35 dark:text-gray-200 italic">
+                    {splitParagraphs(currentReading.content).map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))}
                   </div>
                 </div>
               </div>
