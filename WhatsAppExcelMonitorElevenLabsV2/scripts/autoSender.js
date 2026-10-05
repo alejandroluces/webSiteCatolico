@@ -6,6 +6,10 @@ try {
 } catch (error) {
   console.log('dotenv no disponible; usando variables de entorno del runtime.');
 }
+if (process.env.WHATSAPP_ENABLED !== 'true') {
+  console.log('WhatsApp desactivado. Para Telegram usa: node scripts/telegramSender.js --execute');
+  process.exit(0);
+}
 const axios = require('axios');
 
 const fs = require('fs');

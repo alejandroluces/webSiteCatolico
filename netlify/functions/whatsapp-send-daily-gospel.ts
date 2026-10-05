@@ -55,6 +55,9 @@ const getSantiagoNowParts = () => {
 };
 
 export const handler: Handler = async (event) => {
+  if (process.env.WHATSAPP_ENABLED !== 'true') {
+    return { statusCode: 410, body: JSON.stringify({ message: 'El envío por WhatsApp está desactivado.' }) };
+  }
   // Esta función está pensada para ejecutarse en schedule/cron.
   if (event.httpMethod !== 'POST' && event.httpMethod !== 'GET') {
     return { statusCode: 405, body: JSON.stringify({ message: 'Método no permitido' }) };
@@ -64,8 +67,8 @@ export const handler: Handler = async (event) => {
     (v || '')
       .trim()
       // netlify dev / shells sometimes wrap values with quotes
-      .replace(/^[`'\"]+/, '')
-      .replace(/[`'\"]+$/, '')
+      .replace(/^[`'"]+/, '')
+      .replace(/[`'"]+$/, '')
       // common copy/paste trailing semicolon
       .replace(/;$/, '')
       .trim();

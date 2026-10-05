@@ -1,5 +1,12 @@
 # Camino de Fe - Portal Católico
 
+## Envío diario por Telegram (migración desde WhatsApp)
+
+El nuevo emisor reutiliza el Cron Job existente de Render y el contenido de
+Supabase. La configuración exacta, validación sin publicar y pasos de activación
+están en [Telegram en Render](docs/TELEGRAM_RENDER.md). Los apartados de WhatsApp
+más abajo son documentación histórica; sus envíos están desactivados por defecto.
+
 ![Banner del Proyecto](public/image.png)
 
 Camino de Fe es un portal web católico diseñado para proporcionar recursos espirituales diarios a la comunidad de habla hispana. La plataforma ofrece acceso al Evangelio del día, reflexiones, información sobre los santos, un rosario interactivo y un blog con artículos de profundización en la fe.

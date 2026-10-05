@@ -1,11 +1,11 @@
 name: WhatsApp Auto Sender
 on:
-  schedule:
-    - cron: '*/5 * * * *' # Runs daily at 00:00 UTC
+  # Legacy sender: automatic WhatsApp runs retired in favor of Telegram on Render.
   workflow_dispatch:      # Allow manual trigger
 
 jobs:
   run-script:
+    if: ${{ vars.WHATSAPP_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -29,6 +29,7 @@ jobs:
 
       - name: Run WhatsApp Auto Sender
         env:
+          WHATSAPP_ENABLED: 'true'
           # Optional: If script is modified to use env vars, set them here
           ID_INSTANCE: ${{ secrets.ID_INSTANCE }}
           API_TOKEN: ${{ secrets.API_TOKEN }}

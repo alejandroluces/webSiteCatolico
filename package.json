@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "telegram:preview": "node WhatsAppExcelMonitorElevenLabsV2/scripts/telegramSender.js --dry-run",
+    "telegram:check": "node WhatsAppExcelMonitorElevenLabsV2/scripts/telegramSender.js --check",
+    "telegram:send": "node WhatsAppExcelMonitorElevenLabsV2/scripts/telegramSender.js --execute",
+    "test:telegram": "node --test WhatsAppExcelMonitorElevenLabsV2/scripts/telegramSender.test.cjs",
     "dev": "vite",
     "dev:netlify": "netlify dev --port 8888 --target-port 5173",
     "build": "vite build",

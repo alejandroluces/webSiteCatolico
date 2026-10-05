@@ -117,6 +117,9 @@ const sendEmailJsNotification = async (params: {
 };
 
 export const handler: Handler = async (event) => {
+  if (process.env.WHATSAPP_ENABLED !== 'true') {
+    return { statusCode: 410, body: JSON.stringify({ message: 'Las suscripciones por WhatsApp están desactivadas. Consulta el canal de Telegram en la web.' }) };
+  }
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ message: 'Método no permitido' }) };
   }
