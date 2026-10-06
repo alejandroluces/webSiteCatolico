@@ -1,16 +1,11 @@
 # Dependencias y archivos de build
 /node_modules
 /dist
-
-# Sub-proyectos
-WhatsAppExcelMonitorElevenLabsV2/**/node_modules/
-
-# No versionar repos/clones internos o carpetas con metadata git
-WhatsAppExcelMonitorElevenLabsV2/.git_disabled/
+/.local-archive/
+/data/content-excel/
+/telegram/node_modules/
 
 # Reportes y excels/imágenes de trabajo (son datos, no código)
-WhatsAppExcelMonitorElevenLabsV2/scripts/reportes/
-WhatsAppExcelMonitorElevenLabsV2/scripts/excel/
 data/content-pipeline-report-*.json
 supabase/.temp/
 

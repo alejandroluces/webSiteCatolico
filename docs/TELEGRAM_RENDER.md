@@ -2,6 +2,11 @@
 
 ## Estado de configuración
 
+El servicio se ha separado del monitor antiguo en `telegram/`. La carpeta histórica
+se conserva solo como copia local en `.local-archive/WhatsAppExcelMonitorElevenLabsV2/`,
+ignorada por Git. Las exportaciones opcionales del pipeline usan `data/content-excel/`.
+El modo `send-excel` y su workflow de GitHub se retiran; no hay envío desde Excel.
+
 - Canal confirmado: `@caminodefecl`.
 - Bot creado: `@caminodefecl_bot`.
 - Migración aplicada al proyecto `ecvrpjjytwhdovoibouo` desde el SQL Editor.
@@ -20,7 +25,7 @@
 
 - Servicio: `webSiteCatolico`, tipo Cron Job, plan Starter.
 - Repositorio: `alejandroluces/webSiteCatolico`, rama `master`.
-- Root Directory: `WhatsAppExcelMonitorElevenLabsV2`.
+- Root Directory: `telegram`.
 - Build Command: `node --check scripts/telegramSender.js`.
 - Command: `node scripts/telegramSender.js --execute`.
 - Schedule: `30 09 * * *` (09:30 UTC, todos los días).
@@ -42,11 +47,11 @@ contenido, no cambia el horario del cron.
    La tabla tiene RLS y permisos únicamente para `service_role`.
 3. Publicar los cambios del repositorio en la rama conectada de Render.
    La migración a Telegram está desplegada desde el commit `773b797`.
-4. En **el mismo servicio** de Render, mantener Root Directory y Schedule.
+4. En **el mismo servicio** de Render, usar Root Directory `telegram` y conservar Schedule.
    Usar Node 22 (por ejemplo `NODE_VERSION=22`). No crear otro Cron Job.
-   El nuevo script no tiene dependencias npm; puede sustituirse Build Command
-   por `node --check scripts/telegramSender.js` para evitar compilar el monitor
-   antiguo. Command inicial: `node scripts/telegramSender.js --check`.
+   El script no tiene dependencias npm. Usar Build Command
+   `node --check scripts/telegramSender.js`.
+   Command inicial: `node scripts/telegramSender.js --check`.
 5. Configurar las variables indicadas abajo. Ejecutar Trigger Run con `--check`:
    comprueba contenido del día, permisos del bot y acceso al registro; no publica.
 6. Tras comprobar el resultado `ready`, establecer `TELEGRAM_ENABLED=true` y
@@ -118,8 +123,8 @@ npm run telegram:preview -- --date=2026-10-05 --file=public/images/gospels/05102
 Para validar contra servicios reales con variables en `.env` (Node >=20):
 
 ```powershell
-node --env-file=.env WhatsAppExcelMonitorElevenLabsV2/scripts/telegramSender.js --check
-node --env-file=.env WhatsAppExcelMonitorElevenLabsV2/scripts/telegramSender.js --dry-run
+node --env-file=.env telegram/scripts/telegramSender.js --check
+node --env-file=.env telegram/scripts/telegramSender.js --dry-run
 ```
 
 `--dry-run` nunca escribe en Supabase ni llama a Telegram. `--file` solo está
@@ -128,9 +133,9 @@ el envío. El token no se imprime en errores de conexión.
 
 ## Retirada del envío anterior y costos
 
-El formulario público se sustituye por el enlace al canal. El cron de GitHub y
-la programación antigua de Netlify se retiran del código. El emisor de Excel y
-las funciones WhatsApp quedan desactivados salvo `WHATSAPP_ENABLED=true` explícito.
+El formulario público se sustituye por el enlace al canal. El workflow de GitHub,
+el monitor y el emisor de Excel se retiran del código. Las funciones WhatsApp
+restantes quedan desactivadas salvo `WHATSAPP_ENABLED=true` explícito, sin programación en Netlify.
 Esto solo entra en vigor al desplegar; revisar también tareas externas configuradas
 fuera del repositorio. Los suscriptores deben unirse al canal por voluntad propia;
 los teléfonos existentes no se convierten automáticamente en miembros.

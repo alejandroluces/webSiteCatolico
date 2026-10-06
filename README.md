@@ -1,6 +1,16 @@
 # Camino de Fe - Portal Católico
 
+## Especificación del proyecto (SDD)
+
+La [SDD general](docs/SDD_PROYECTO.md) documenta requisitos, arquitectura, contratos,
+criterios de aceptación, estado real y mejoras pendientes. Para nuevos cambios,
+usar la [plantilla de especificación](docs/specs/PLANTILLA.md).
+
 ## Envío diario por Telegram (migración desde WhatsApp)
+
+El servicio independiente vive en `telegram/`. El antiguo monitor se retira del
+repositorio; las exportaciones Excel opcionales usan `data/content-excel/`.
+El modo `--whatsapp=send-excel` ya no está disponible.
 
 El nuevo emisor reutiliza el Cron Job existente de Render y el contenido de
 Supabase. La configuración exacta, validación sin publicar y pasos de activación
@@ -128,7 +138,7 @@ Notas importantes:
 - El importador no pisa archivos diferentes sin `--force`.
 - El modo WhatsApp debe ser único por ejecución para evitar doble envío.
 - `send-netlify` usa `whatsapp_subscriptions.last_sent_date` para evitar reenvíos.
-- `send-excel` usa `SMS=1` dentro del Excel para evitar reenvíos.
+- `send-excel` fue retirado; Telegram controla los reenvíos mediante su registro en Supabase.
 - La especificación completa está en `docs/SPEC_AUTOMATIZACION_CONTENIDO.md`.
 
 ## 📲 WhatsApp (Suscripción + Envío) en local
@@ -312,7 +322,7 @@ python scripts/syncWhatsappSubscribersToExcelRange.py --from-date 01082025 --to-
 
 - Pasar una carpeta distinta de excels:
 ```bash
-python scripts/syncWhatsappSubscribersToExcelRange.py --from-date 01082025 --to-date 07082025 --excel-folder "WhatsAppExcelMonitorElevenLabsV2/scripts/excel"
+python scripts/syncWhatsappSubscribersToExcelRange.py --from-date 01082025 --to-date 07082025 --excel-folder "data/content-excel"
 ```
 
 ## ☁️ Migrar audios a Cloudflare R2

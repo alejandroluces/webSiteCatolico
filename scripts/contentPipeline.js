@@ -10,7 +10,7 @@ import { importEvangelioOutputForDate } from './lib/contentPipeline/copyAssets.j
 import { validateDateFiles } from './lib/contentPipeline/validators.js';
 import { createSupabaseAdmin, syncDailyContentForDate } from './lib/contentPipeline/supabaseSync.js';
 
-const VALID_WHATSAPP_MODES = new Set(['none', 'prepare-excel', 'send-excel', 'send-netlify']);
+const VALID_WHATSAPP_MODES = new Set(['none', 'prepare-excel', 'send-netlify']);
 const VALID_GOSPEL_SYNC_MODES = new Set(['full', 'basic']);
 
 function runCommand(command, commandArgs, options = {}) {
@@ -112,17 +112,6 @@ async function prepareExcelForDate(date, dryRun) {
   };
 }
 
-async function sendExcel(dryRun) {
-  if (dryRun) {
-    return { mode: 'send-excel', status: 'dry_run' };
-  }
-
-  const result = await runCommand('node', ['autoSender.js'], {
-    cwd: path.join(process.cwd(), 'WhatsAppExcelMonitorElevenLabsV2', 'scripts'),
-  });
-  return { mode: 'send-excel', code: result.code };
-}
-
 async function sendNetlifyForDate(date, args, dryRun) {
   if (dryRun) {
     return { date, mode: 'send-netlify', status: 'dry_run' };
@@ -163,17 +152,6 @@ async function runWhatsappMode(mode, dates, args, dryRun) {
       status: results.every((item) => item.status === 'dry_run' || item.code === 0) ? 'completed' : 'failed',
       results,
     };
-  }
-
-  if (mode === 'send-excel') {
-    if (dates.length !== 1) {
-      return {
-        mode,
-        status: 'failed',
-        error: 'send-excel usa la fecha actual del sistema; ejecutalo con --date para evitar ambiguedad.',
-      };
-    }
-    return sendExcel(dryRun);
   }
 
   if (mode === 'send-netlify') {

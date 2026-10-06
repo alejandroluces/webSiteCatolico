@@ -1,5 +1,5 @@
-"""Sync WhatsApp subscribers from Supabase to the daily Excel file used by
-WhatsAppExcelMonitorElevenLabsV2/scripts/autoSender.js.
+"""Export historical WhatsApp subscribers from Supabase to daily Excel files.
+The old sender is retired; these files are retained as local exports only.
 
 Goal
 ----
@@ -218,7 +218,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--excel-folder",
-        default=str(Path("WhatsAppExcelMonitorElevenLabsV2/scripts/excel")),
+        default=str(Path("data/content-excel")),
         help="Carpeta donde están los Excel diarios",
     )
     parser.add_argument(
@@ -350,7 +350,7 @@ def main() -> int:
         "active_subscribers": len(subs),
         "existing_in_excel": len(existing_phones),
         "added": len(to_add),
-        "note": "La imagen se envía si existe DDMMYYYY.(png/jpg/jpeg) en la misma carpeta (autoSender.js).",
+        "note": "Exportación local; no envía mensajes ni imágenes. El monitor antiguo fue retirado.",
     }
 
     if args.dry_run:
