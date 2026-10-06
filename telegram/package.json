@@ -1,0 +1,12 @@
+{
+  "name": "camino-de-fe-telegram",
+  "private": true,
+  "version": "1.0.0",
+  "type": "commonjs",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test scripts/telegramSender.test.cjs",
+    "check": "node scripts/telegramSender.js --check",
+    "send": "node scripts/telegramSender.js --execute"
+  }
+}
