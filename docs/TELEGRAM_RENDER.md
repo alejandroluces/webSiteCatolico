@@ -9,16 +9,20 @@
   la API REST con la clave de servidor. La ejecución desde SQL Editor no registra
   automáticamente la versión en `supabase_migrations`; reconciliar ese historial
   antes de un futuro `db push` para no intentar crear otra vez la tabla.
-- Render: secretos configurados en el servicio existente; validación previa
-  mediante `--check` antes de activar `--execute`.
+- Render: secretos configurados en el servicio existente. El 6 de octubre de
+  2026, `--check` terminó correctamente con `status=ready` y cuatro mensajes.
+  Comando activado: `node scripts/telegramSender.js --execute`.
+- Primera publicación real completada el 6 de octubre de 2026: evangelio,
+  oración y sus dos audios. Una segunda ejecución devolvió `already_sent`,
+  confirmando que no vuelve a publicar el contenido de ese día.
 
-## Configuración contrastada con las capturas de Render
+## Configuración final de Render
 
 - Servicio: `webSiteCatolico`, tipo Cron Job, plan Starter.
 - Repositorio: `alejandroluces/webSiteCatolico`, rama `master`.
 - Root Directory: `WhatsAppExcelMonitorElevenLabsV2`.
-- Build Command actual: `npm install; npm run build`.
-- Command actual: `node scripts/autoSender.js`.
+- Build Command: `node --check scripts/telegramSender.js`.
+- Command: `node scripts/telegramSender.js --execute`.
 - Schedule: `30 09 * * *` (09:30 UTC, todos los días).
 - Auto-Deploy: On Commit.
 
@@ -36,8 +40,8 @@ contenido, no cambia el horario del cron.
    Revisar y aplicar solo esta migración si el historial remoto y el local no
    están sincronizados; no ejecutar todas las migraciones antiguas a ciegas.
    La tabla tiene RLS y permisos únicamente para `service_role`.
-3. Publicar los cambios del repositorio en la rama conectada de Render. Este
-   trabajo prepara los archivos locales; no activa por sí solo el despliegue.
+3. Publicar los cambios del repositorio en la rama conectada de Render.
+   La migración a Telegram está desplegada desde el commit `773b797`.
 4. En **el mismo servicio** de Render, mantener Root Directory y Schedule.
    Usar Node 22 (por ejemplo `NODE_VERSION=22`). No crear otro Cron Job.
    El nuevo script no tiene dependencias npm; puede sustituirse Build Command
