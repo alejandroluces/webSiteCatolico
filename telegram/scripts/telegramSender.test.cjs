@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { dateInZone, validateDate, splitText, buildMessages, createTelegram, createStore, publish, main } = require('./telegramSender.js');
 
 const content = { date: '2026-10-05', content: 'Evangelio', prayer: 'Oración', reference: 'Lucas' };
-const messages = buildMessages(content, content.date);
+const messages = buildMessages(content, content.date, { image: false });
 const noWait = async () => {};
 function memoryStore() {
   let row;
@@ -40,8 +40,43 @@ test('requires both texts and matching date; reuses existing media', () => {
   assert.throws(() => buildMessages(content, '2026-10-06'));
   const plan = buildMessages({ ...content, image_url: '/image.png', gospel_audio_url: 'https://example.com/a.mp3' }, content.date, { siteUrl: 'https://example.com' });
   assert.deepEqual(plan.map((p) => p.method), ['sendPhoto', 'sendMessage', 'sendMessage', 'sendAudio']);
-  assert.equal(plan[0].payload.photo, 'https://example.com/image.png');
-  assert.throws(() => buildMessages({ ...content, image_url: 'file:///secret' }, content.date));
+  assert.equal(plan[0].payload.photo, 'attach://santisimo');
+  assert.throws(() => buildMessages({ ...content, gospel_audio_url: 'file:///secret' }, content.date));
+});
+
+test('daily photo is always Santisimo even when content has no image or a different image', () => {
+  for (const image_url of [null, 'https://example.com/other.png']) {
+    const plan = buildMessages({ ...content, image_url }, content.date);
+    assert.equal(plan[0].method, 'sendPhoto');
+    assert.equal(plan[0].payload.photo, 'attach://santisimo');
+    assert.match(plan[1].payload.text, /Evangelio/);
+    assert.equal(plan.filter((m) => m.method === 'sendPhoto').length, 1);
+  }
+  assert.equal(buildMessages(content, content.date, { image: false })[0].method, 'sendMessage');
+});
+
+test('uploads the exact bundled PNG with multipart and retries 429 without losing the image', async () => {
+  const fs = require('node:fs/promises');
+  const path = require('node:path');
+  const bundled = await fs.readFile(path.join(__dirname, '../assets/Santisimo.png'));
+  assert.equal(bundled.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+  let calls = 0;
+  const telegram = createTelegram('123:fake', async (url, options) => {
+    assert.equal(options.headers['Content-Type'], undefined);
+    assert.ok(options.body instanceof FormData);
+    assert.equal(options.body.get('photo'), 'attach://santisimo');
+    assert.equal(options.body.get('chat_id'), '-1001');
+    assert.equal(options.body.get('allow_paid_broadcast'), 'false');
+    const photo = options.body.get('santisimo');
+    assert.equal(photo.name, 'Santisimo.png');
+    assert.deepEqual(Buffer.from(await photo.arrayBuffer()), bundled);
+    return ++calls === 1
+      ? { ok: false, status: 429, json: async () => ({ ok: false, error_code: 429, parameters: { retry_after: 1 } }) }
+      : { ok: true, json: async () => ({ ok: true, result: { message_id: 99 } }) };
+  }, noWait);
+  const photo = buildMessages(content, content.date)[0];
+  assert.equal((await telegram(photo.method, { ...photo.payload, chat_id: '-1001' })).message_id, 99);
+  assert.equal(calls, 2);
 });
 
 test('rerunning a completed publication sends nothing', async () => {

@@ -147,7 +147,7 @@ Las migraciones incluyen `content_schedule`, `prayer_requests`, `liturgical_cale
 3. Verificar canal y permiso de publicación del bot.
 4. En `--check`, comprobar lectura del registro y finalizar con `ready` sin escribir.
 5. En `--execute`, exigir `TELEGRAM_ENABLED=true` y reservar canal/fecha mediante inserción única.
-6. Enviar imagen opcional, evangelio, oración y audios disponibles de evangelio y oración. La reflexión y su audio no forman parte del envío actual.
+6. Enviar la foto fija `telegram/assets/Santisimo.png` (salvo desactivación explícita), evangelio, oración y audios disponibles de evangelio y oración. La reflexión y su audio no forman parte del envío actual.
 7. Guardar el ID y avance tras cada parte; finalizar con `sent`.
 
 ```mermaid

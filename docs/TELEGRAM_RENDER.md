@@ -72,7 +72,7 @@ contenido, no cambia el horario del cron.
 | `TELEGRAM_ENABLED` | `false` para preparar; `true` para publicar |
 | `TELEGRAM_TIMEZONE` | `America/Santiago` |
 | `TELEGRAM_INCLUDE_AUDIO` | `true` (reutiliza audios disponibles; no genera voces) |
-| `TELEGRAM_INCLUDE_IMAGE` | `true` (omite imagen si el registro no tiene una) |
+| `TELEGRAM_INCLUDE_IMAGE` | `true` (adjunta siempre Santisimo.png) |
 | `TELEGRAM_SITE_URL` | Dominio HTTPS de la web; necesario si imagen/audio usa ruta relativa |
 | `WHATSAPP_ENABLED` | `false` |
 
@@ -82,9 +82,9 @@ No se necesitan las credenciales de Green API ni ElevenLabs para Telegram.
 ## Contenido y recuperación
 
 El emisor lee `daily_content`: `type=gospel`, `is_active=true`, `status=published`
-y fecha de Santiago. Exige evangelio y oración no vacíos. Publica imagen opcional,
+y fecha de Santiago. Exige evangelio y oración no vacíos. Publica `telegram/assets/Santisimo.png`,
 evangelio, oración y los dos audios existentes si están disponibles. Los textos
-largos se dividen y los mensajes se espacian. Los archivos deben ser accesibles
+largos se dividen y los mensajes se espacian. Los audios deben ser accesibles
 por HTTPS para Telegram y cumplir sus límites de tamaño/formato. Un error de
 archivo queda visible como fallo del cron; no se omite silenciosamente.
 
@@ -147,3 +147,12 @@ pero no convierte Render en gratuito. Supabase conserva sus cuotas/costos vigent
 
 Fuentes: https://render.com/docs/cronjobs, https://core.telegram.org/bots/faq,
 https://core.telegram.org/bots/api.
+
+## Imagen fija del evangelio (2026-10-09)
+
+Se adjunta `Santisimo.png` antes del evangelio mediante subida multipart a Telegram.
+`telegram/assets/Santisimo.png` es una copia exacta de `public/images/Santisimo.png`,
+incluida en el servicio porque Render despliega la raíz `telegram/`. Si se reemplaza
+el original, actualizar también esta copia y desplegar. No usa `daily_content.image_url`.
+`TELEGRAM_INCLUDE_IMAGE=false` permite desactivar la foto expresamente.
+Las publicaciones ya completadas no se repiten; los envíos parciales conservan su plan original.

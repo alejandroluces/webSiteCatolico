@@ -1,5 +1,8 @@
 // Node >= 20. No npm dependencies; suitable for the existing Render Cron Job.
 const fs = require('node:fs/promises');
+const path = require('node:path');
+const DAILY_PHOTO = 'attach://santisimo';
+const DAILY_PHOTO_PATH = path.join(__dirname, '..', 'assets', 'Santisimo.png');
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -50,8 +53,8 @@ function buildMessages(content, date, { audio = true, image = true, siteUrl } = 
   }
   const reference = content.gospel?.reference || content.reference || '';
   const messages = [];
-  if (image && content.image_url) messages.push({
-    method: 'sendPhoto', payload: { photo: publicUrl(content.image_url, siteUrl), caption: `Evangelio del día · ${date}` },
+  if (image) messages.push({
+    method: 'sendPhoto', payload: { photo: DAILY_PHOTO, caption: `Evangelio del día · ${date}` },
   });
   for (const text of [`Evangelio del día · ${date}\n${reference}\n\n${gospel}`, `Oración de la mañana · ${date}\n\n${prayer}`]) {
     for (const chunk of splitText(text)) messages.push({ method: 'sendMessage', payload: { text: chunk } });
@@ -120,12 +123,25 @@ function createStore(env, fetchImpl = fetch) {
 function createTelegram(token, fetchImpl = fetch, wait = sleep) {
   if (!token || !/^\d+:[\w-]+$/.test(token)) throw new Error('Configura TELEGRAM_BOT_TOKEN en Render.');
   return async (method, payload) => {
+    let body = JSON.stringify({ ...payload, allow_paid_broadcast: false });
+    let headers = { 'Content-Type': 'application/json' };
+    if (method === 'sendPhoto' && payload.photo === DAILY_PHOTO) {
+      let photo;
+      try { photo = await fs.readFile(DAILY_PHOTO_PATH); }
+      catch { throw Object.assign(new Error('Falta telegram/assets/Santisimo.png; no se envió la foto.'), { definiteRejection: true }); }
+      body = new FormData();
+      for (const [key, value] of Object.entries({ ...payload, allow_paid_broadcast: false })) {
+        body.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+      }
+      body.append('santisimo', new Blob([photo], { type: 'image/png' }), 'Santisimo.png');
+      headers = {}; // fetch supplies the multipart boundary.
+    }
     for (let attempt = 0; attempt < 3; attempt++) {
       let response, data;
       try {
         response = await fetchImpl(`https://api.telegram.org/bot${token}/${method}`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...payload, allow_paid_broadcast: false }), signal: AbortSignal.timeout(60000),
+          method: 'POST', headers,
+          body, signal: AbortSignal.timeout(60000),
         });
         data = await response.json();
       } catch { throw new Error('Telegram: respuesta incierta; revisa el canal antes de reintentar.'); }
@@ -178,6 +194,9 @@ async function main(args = process.argv.slice(2), env = process.env) {
   const store = file ? null : createStore(env);
   const content = file ? JSON.parse((await fs.readFile(file, 'utf8')).replace(/^\uFEFF/, '')) : await store.content(date);
   const messages = buildMessages(content, date, { audio: env.TELEGRAM_INCLUDE_AUDIO !== 'false', image: env.TELEGRAM_INCLUDE_IMAGE !== 'false', siteUrl: env.TELEGRAM_SITE_URL });
+  if (messages.some((message) => message.payload.photo === DAILY_PHOTO)) {
+    await fs.access(DAILY_PHOTO_PATH);
+  }
   if (modes[0] === '--dry-run') { console.log(JSON.stringify({ date, messages }, null, 2)); return; }
   const telegram = createTelegram(env.TELEGRAM_BOT_TOKEN?.trim());
   if (!env.TELEGRAM_CHANNEL_ID?.trim()) throw new Error('Configura TELEGRAM_CHANNEL_ID (@canal o ID -100...).');
