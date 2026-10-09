@@ -163,7 +163,7 @@ stateDiagram-v2
 
 Un fallo al guardar después de enviar puede dejar `sending`; requiere la misma revisión que `uncertain`. No se garantiza una transacción única entre Telegram y Supabase. Se prioriza bloquear reenvíos dudosos.
 
-Los textos se dividen en partes de hasta 4000 unidades UTF-16 sin cortar pares Unicode. Hay separación entre mensajes y reintentos acotados para HTTP 429. Los broadcasts de pago se deshabilitan. Archivos y enlaces deben ser HTTPS; una ruta relativa requiere `TELEGRAM_SITE_URL`. La ausencia de imagen es válida; un archivo presente que Telegram rechaza provoca fallo visible.
+Los textos se dividen en partes de hasta 4000 unidades UTF-16 sin cortar pares Unicode. Hay separación entre mensajes y reintentos acotados para HTTP 429. Los broadcasts de pago se deshabilitan. Los medios remotos y enlaces deben ser HTTPS; una ruta de audio relativa requiere `TELEGRAM_SITE_URL`. Desde el 2026-10-09, la foto fija `Santisimo.png` se sube desde el paquete local de Render y se valida su presencia antes de reservar el envío. `TELEGRAM_INCLUDE_IMAGE=false` la desactiva expresamente. Un archivo que Telegram rechaza provoca fallo visible.
 
 ## 8. Requisitos no funcionales
 
@@ -200,7 +200,7 @@ Ante un fallo: consultar logs y ledger, revisar canal y contenido, corregir la c
 
 | Validación | Requisitos | Evidencia disponible |
 | --- | --- | --- |
-| `npm run test:telegram` | RF-07 a RF-09, RNF-01/04 | 11 pruebas aprobadas durante la migración; incluyen concurrencia, Unicode, fallos y reintento |
+| `npm run test:telegram` | RF-07 a RF-09, RNF-01/04 | 13 pruebas aprobadas al incorporar Santisimo.png; incluyen multipart, concurrencia, Unicode, fallos y reintento |
 | `npm run build` | Integración frontend | Build aprobado durante la migración; no prueba despliegue remoto |
 | `--check` en Render | RF-07 | `ready`, 2026-10-06, cuatro partes |
 | `--execute` en Render | RF-07 | `sent`, cuatro mensajes; ejecución exitosa |

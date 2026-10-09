@@ -73,7 +73,7 @@ contenido, no cambia el horario del cron.
 | `TELEGRAM_TIMEZONE` | `America/Santiago` |
 | `TELEGRAM_INCLUDE_AUDIO` | `true` (reutiliza audios disponibles; no genera voces) |
 | `TELEGRAM_INCLUDE_IMAGE` | `true` (adjunta siempre Santisimo.png) |
-| `TELEGRAM_SITE_URL` | Dominio HTTPS de la web; necesario si imagen/audio usa ruta relativa |
+| `TELEGRAM_SITE_URL` | Dominio HTTPS de la web; necesario si un audio usa ruta relativa |
 | `WHATSAPP_ENABLED` | `false` |
 
 Los secretos se introducen en Environment del servicio, no se suben al repositorio.
