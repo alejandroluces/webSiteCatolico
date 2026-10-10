@@ -759,6 +759,62 @@ Reporte generado:
 data/content-pipeline-report-20260903-161539.json
 ```
 
+### 2026-10-02: corrida real 2026-10-01 a 2026-10-31
+
+Solicitud:
+
+```bash
+node scripts/contentPipeline.js --from=2026-10-01 --to=2026-10-31 --execute --scrape --whatsapp=none
+```
+
+Resultado:
+
+- El scraper externo genero Evangelio, oracion y Excel para las 31 fechas de octubre 2026.
+- El scraper externo genero Santo del Dia y biografia IA para 30 de 31 fechas.
+- Vatican News no entrego contenido parseable para Santo del Dia del `2026-10-02` durante el scraping automatico.
+- Se completo manualmente el archivo `public/images/santo-del-dia/02102026.json` usando como fuente `https://www.vaticannews.va/es/santos/10/02.html`, donde consta `ss. Angeles Custodios`.
+- La biografia del `2026-10-02` se genero con el mismo generador OpenAI del proyecto scraper.
+- El pipeline importo JSON/Excel al proyecto raiz y valido los contratos locales.
+- El pipeline actualizo Supabase con `--gospel-sync=full`.
+- Para cada fecha se genero/refresco la reflexion del Evangelio con OpenAI.
+- Para cada fecha se generaron y subieron 3 audios a Supabase Storage: evangelio, reflexion y oracion.
+- WhatsApp quedo en modo `none`, por lo que no se enviaron mensajes.
+
+Verificacion local:
+
+```bash
+node scripts/validateDailyContentFiles.js --from=2026-10-01 --to=2026-10-31 --dry-run --require-saint
+```
+
+Resultado:
+
+- Fechas validadas: 31.
+- JSON de Evangelio validos: 31.
+- JSON de Santo del Dia validos: 31.
+- Excel diarios validos: 31.
+- Faltantes locales detectados: 0.
+
+Verificacion directa en Supabase:
+
+- Fechas verificadas: 31.
+- Filas verificadas en `daily_content`: 93.
+- `gospel` completos con reflexion y 3 audios: 31.
+- `reading` publicadas y activas: 31.
+- `saint` publicados, activos y con biografia en `content`: 31.
+- Faltantes detectados: 0.
+
+Observacion tecnica:
+
+- Gemini continuo fallando para reflexiones de Evangelio por el modelo configurado `gemini-2.0-flash-001`.
+- El fallback a OpenAI funciono en todas las fechas.
+- El scraper de Santo del Dia puede devolver codigo exitoso aunque una fecha puntual no genere JSON; por eso la validacion con `--require-saint` queda como paso obligatorio despues de corridas mensuales.
+
+Reporte generado por el pipeline:
+
+```text
+data/content-pipeline-report-20261002-112247.json
+```
+
 ### Estado MCP Supabase
 
 Comandos intentados:

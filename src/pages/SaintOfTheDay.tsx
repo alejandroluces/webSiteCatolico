@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from 'react';
-
-interface Saint {
-  title: string;
-  text: string;
-  imagePath: string;
-  url: string;
-  biography: string;
-}
+import { supabase } from '../services/supabase';
 
 interface SaintData {
   date: string;
-  formattedDate: string;
-  saint: Saint;
+  title: string;
+  content: string;
+  image_url: string | null;
 }
 
 const splitParagraphs = (text?: string) =>
@@ -24,31 +18,43 @@ const SaintOfTheDay: React.FC = () => {
   const [saintData, setSaintData] = useState<SaintData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchSaintData = async () => {
       try {
+        if (!supabase) {
+          throw new Error('No se pudo cargar el santo del día. Por favor, intenta nuevamente más tarde.');
+        }
         const today = new Date();
         const day = String(today.getDate()).padStart(2, '0');
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const year = today.getFullYear();
-        const formattedDate = `${day}${month}${year}`;
-        
-        const response = await fetch(`/images/santo-del-dia/${formattedDate}.json`);
-        const contentType = response.headers.get("content-type");
-        if (!response.ok || !contentType || !contentType.includes("application/json")) {
-          throw new Error('No se encontró el santo del día de hoy.');
+        const date = `${year}-${month}-${day}`;
+
+        const { data, error: fetchError } = await supabase
+          .from('daily_content')
+          .select('date,title,content,image_url')
+          .eq('type', 'saint')
+          .eq('date', date)
+          .eq('status', 'published')
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (fetchError) {
+          throw new Error('No se pudo cargar el santo del día. Por favor, intenta nuevamente más tarde.');
         }
-        const data: SaintData = await response.json();
-        setSaintData(data);
+        if (!cancelled) setSaintData(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Ocurrió un error desconocido.');
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Ocurrió un error desconocido.');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchSaintData();
+    return () => { cancelled = true; };
   }, []);
 
   if (loading) {
@@ -68,16 +74,17 @@ const SaintOfTheDay: React.FC = () => {
   }
 
   if (!saintData) {
-    return null;
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+        <p className="text-lg text-gray-600 dark:text-gray-300">Aún no está disponible el santo del día de hoy.</p>
+      </div>
+    );
   }
 
-  const { formattedDate, saint } = saintData;
-  
-  const today = new Date();
-  const day = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const year = today.getFullYear();
-  const imageName = `${day}${month}${year}.png`;
+  const [year, month, day] = saintData.date.split('-').map(Number);
+  const formattedDate = new Date(year, month - 1, day).toLocaleDateString('es-ES', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 py-8">
@@ -96,24 +103,24 @@ const SaintOfTheDay: React.FC = () => {
             <div className="flex flex-col md:flex-row gap-8">
               <div className="md:w-1/3">
                 <div className="bg-gradient-to-br from-amber-100 to-orange-100 dark:from-gray-700 dark:to-gray-600 rounded-lg p-6 text-center">
-                  <img 
-                    src={`/images/santo-del-dia/${imageName}`} 
-                    alt={saint.title}
-                    className="w-32 h-32 mx-auto rounded-full object-cover mb-4"
-                  />
+                  {saintData.image_url && !imageFailed && (
+                    <img
+                      src={saintData.image_url}
+                      alt={saintData.title}
+                      onError={() => setImageFailed(true)}
+                      className="w-32 h-32 mx-auto rounded-full object-cover mb-4"
+                    />
+                  )}
                   <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
-                    {saint.title}
+                    {saintData.title}
                   </h2>
                 </div>
               </div>
 
               <div className="md:w-2/3">
                 <div className="prose prose-lg dark:prose-invert max-w-none">
-                  <p className="content-prose text-gray-700 dark:text-gray-300 mb-4 font-semibold">
-                    {saint.text}
-                  </p>
                   <div className="content-prose content-prose--devotional text-gray-700 dark:text-gray-300">
-                    {splitParagraphs(saint.biography).map((paragraph, index) => (
+                    {splitParagraphs(saintData.content).map((paragraph, index) => (
                       <p key={index}>{paragraph}</p>
                     ))}
                   </div>
