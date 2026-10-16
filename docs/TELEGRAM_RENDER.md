@@ -26,7 +26,7 @@ El modo `send-excel` y su workflow de GitHub se retiran; no hay envío desde Exc
 - Servicio: `webSiteCatolico`, tipo Cron Job, plan Starter.
 - Repositorio: `alejandroluces/webSiteCatolico`, rama `master`.
 - Root Directory: `telegram`.
-- Build Command: `node --check scripts/telegramSender.js`.
+- Build Command requerido para el PDF personalizado: `npm ci && node --check scripts/telegramSender.js`.
 - Command: `node scripts/telegramSender.js --execute`.
 - Schedule: `30 09 * * *` (09:30 UTC, todos los días).
 - Auto-Deploy: On Commit.
@@ -49,8 +49,8 @@ contenido, no cambia el horario del cron.
    La migración a Telegram está desplegada desde el commit `773b797`.
 4. En **el mismo servicio** de Render, usar Root Directory `telegram` y conservar Schedule.
    Usar Node 22 (por ejemplo `NODE_VERSION=22`). No crear otro Cron Job.
-   El script no tiene dependencias npm. Usar Build Command
-   `node --check scripts/telegramSender.js`.
+   Instalar las dependencias del PDF usando Build Command
+   `npm ci && node --check scripts/telegramSender.js`.
    Command inicial: `node scripts/telegramSender.js --check`.
 5. Configurar las variables indicadas abajo. Ejecutar Trigger Run con `--check`:
    comprueba contenido del día, permisos del bot y acceso al registro; no publica.
@@ -73,6 +73,7 @@ contenido, no cambia el horario del cron.
 | `TELEGRAM_TIMEZONE` | `America/Santiago` |
 | `TELEGRAM_INCLUDE_AUDIO` | `true` (reutiliza audios disponibles; no genera voces) |
 | `TELEGRAM_INCLUDE_IMAGE` | `true` (adjunta siempre Santisimo.png) |
+| `TELEGRAM_INCLUDE_PDF` | `true` por defecto (PDF de Camino de Fe con Evangelio y lecturas de Dominicos) |
 | `TELEGRAM_SITE_URL` | Dominio HTTPS de la web; necesario si un audio usa ruta relativa |
 | `WHATSAPP_ENABLED` | `false` |
 
@@ -89,7 +90,16 @@ por HTTPS para Telegram y cumplir sus límites de tamaño/formato. Un error de
 archivo queda visible como fallo del cron; no se omite silenciosamente.
 
 La preparación de contenido debe seguir ejecutándose antes del envío diario.
-Este cron no hace scraping, genera contenido ni consume APIs de IA. No depende
+Este cron extrae las lecturas de la página de Dominicos de la fecha solicitada
+y genera un PDF con el logo, azul mariano y dorado de Camino de Fe, después de los
+audios. Incluye primera lectura, salmo, segunda lectura cuando exista y Evangelio,
+sin reflexión, anuncios ni vídeos. Valida la generación antes de iniciar el envío.
+Guarda las lecturas en el plan original para poder regenerar el PDF en un reintento
+sin consultar de nuevo Dominicos. Los planes antiguos con una URL de PDF oficial
+siguen siendo compatibles. No requiere cambios en el esquema de la base de datos.
+Un fallo de Dominicos detiene la preparación y requiere reintentar el cron; no se
+marca el día como enviado. `TELEGRAM_INCLUDE_PDF=false` desactiva el adjunto.
+No genera contenido ni consume APIs de IA. No depende
 de archivos Excel locales ni de archivos JSON fuera del directorio de Render.
 
 El registro guarda el plan original y cada ID confirmado. Su clave única es

@@ -1,6 +1,8 @@
-// Node >= 20. No npm dependencies; suitable for the existing Render Cron Job.
+// Node >= 20. Install telegram dependencies with npm ci before running.
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const { preparePdfMessage, downloadPdf } = require('./dominicosPdf');
+const { renderReadingsPdf } = require('./readingsPdf');
 const DAILY_PHOTO = 'attach://santisimo';
 const DAILY_PHOTO_PATH = path.join(__dirname, '..', 'assets', 'Santisimo.png');
 
@@ -125,6 +127,19 @@ function createTelegram(token, fetchImpl = fetch, wait = sleep) {
   return async (method, payload) => {
     let body = JSON.stringify({ ...payload, allow_paid_broadcast: false });
     let headers = { 'Content-Type': 'application/json' };
+    if (method === 'sendDocument') {
+      let document;
+      try { document = payload.readings ? await renderReadingsPdf(payload.readings) : await downloadPdf(payload.document, fetchImpl); }
+      catch (error) { error.definiteRejection = true; throw error; }
+      body = new FormData();
+      for (const [key, value] of Object.entries({ ...payload, document: 'attach://lecturas', allow_paid_broadcast: false })) {
+        if (key === 'readings') continue; // Stored snapshot is internal, never a Telegram API field.
+        body.append(key, String(value));
+      }
+      const day = payload.readings ? payload.readings.date.split('-').reverse().join('-') : payload.document.match(/\d{2}-\d{2}-\d{4}/)[0];
+      body.append('lecturas', new Blob([document], { type: 'application/pdf' }), `evangelio-y-lecturas-${day}.pdf`);
+      headers = {};
+    }
     if (method === 'sendPhoto' && payload.photo === DAILY_PHOTO) {
       let photo;
       try { photo = await fs.readFile(DAILY_PHOTO_PATH); }
@@ -194,6 +209,7 @@ async function main(args = process.argv.slice(2), env = process.env) {
   const store = file ? null : createStore(env);
   const content = file ? JSON.parse((await fs.readFile(file, 'utf8')).replace(/^\uFEFF/, '')) : await store.content(date);
   const messages = buildMessages(content, date, { audio: env.TELEGRAM_INCLUDE_AUDIO !== 'false', image: env.TELEGRAM_INCLUDE_IMAGE !== 'false', siteUrl: env.TELEGRAM_SITE_URL });
+  if (env.TELEGRAM_INCLUDE_PDF !== 'false') messages.push(await preparePdfMessage(date));
   if (messages.some((message) => message.payload.photo === DAILY_PHOTO)) {
     await fs.access(DAILY_PHOTO_PATH);
   }

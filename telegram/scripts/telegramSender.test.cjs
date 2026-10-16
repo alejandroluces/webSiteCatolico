@@ -5,6 +5,97 @@ const { dateInZone, validateDate, splitText, buildMessages, createTelegram, crea
 const content = { date: '2026-10-05', content: 'Evangelio', prayer: 'Oración', reference: 'Lucas' };
 const messages = buildMessages(content, content.date, { image: false });
 const noWait = async () => {};
+const { extractPdfUrl, downloadPdf, preparePdfMessage, extractReadings } = require('./dominicosPdf');
+const pdfUrl = 'https://www.dominicos.org/predicacion/pdf-evangelio-del-dia/16-10-2026.pdf';
+const fakePdf = Buffer.from('%PDF-1.4\nfixture\n%%EOF');
+function readingFixture(url, sunday = false) {
+  return `<a href="${url}">PDF</a><div class="${sunday ? 'contenido-homilia' : 'contenido-dia'}">` +
+    ['Primera lectura', 'Salmo', ...(sunday ? ['Segunda lectura'] : []), 'Evangelio del día'].map(title =>
+      `<h2>${title}</h2><h3>Referencia de ${title}</h3><p>Texto con acentos: oración &amp; fe.<br>Segunda línea.</p>`).join('') +
+    '<div><p>Publicidad excluida</p></div><h2>Reflexión del Evangelio de hoy</h2><h3>Comentario</h3><p>Reflexión excluida</p></div>';
+}
+
+test('extracts only readings, preserves line breaks, and refuses incomplete or wrong-day content', () => {
+  const html = readingFixture(pdfUrl);
+  const readings = extractReadings(html, '2026-10-16', 'https://www.dominicos.org/');
+  assert.equal(readings.sections.length, 3);
+  assert.equal(readings.sections[0].paragraphs[0], 'Texto con acentos: oración & fe.\nSegunda línea.');
+  assert.doesNotMatch(JSON.stringify(readings), /excluida/);
+  assert.throws(() => extractReadings(html.replace('<h2>Salmo</h2>', '<h2>Otra cosa</h2>'), '2026-10-16'));
+  assert.throws(() => extractReadings(html, '2026-10-17'));
+});
+
+test('discovers only official PDFs for the requested day, including Sunday readings', () => {
+  assert.equal(extractPdfUrl(`<a href="${pdfUrl}">PDF</a>`, '2026-10-16'), pdfUrl);
+  const sunday = '/predicacion/pdf-homilia/18-10-2026/lecturas.pdf';
+  assert.equal(extractPdfUrl(`<a href='/predicacion/pdf-homilia/18-10-2026/completa.pdf'>Todo</a><a href='${sunday}'>PDF</a>`, '2026-10-18'), `https://www.dominicos.org${sunday}`);
+  for (const url of [pdfUrl.replace('16-10', '15-10'), pdfUrl.replace('www.dominicos.org', 'evil.example'), '/missing.pdf']) {
+    assert.throws(() => extractPdfUrl(`<a href="${url}">PDF</a>`, '2026-10-16'));
+  }
+});
+
+test('rejects HTML, truncated PDFs, failed downloads and oversized documents', async () => {
+  for (const data of ['<html>Error</html>', '%PDF-1.4 truncated', Buffer.alloc(10 * 1024 * 1024 + 1)]) {
+    await assert.rejects(downloadPdf(pdfUrl, async () => new Response(data)));
+  }
+  await assert.rejects(downloadPdf(pdfUrl, async () => new Response('', { status: 503 })));
+  await assert.rejects(downloadPdf('https://evil.example/a.pdf'));
+});
+
+test('prepares branded Sunday PDF with all four readings via redirected homily', async () => {
+  const calls = [];
+  const url = 'https://www.dominicos.org/predicacion/pdf-homilia/18-10-2026/lecturas.pdf';
+  const result = await preparePdfMessage('2026-10-18', async (requested) => {
+    calls.push(requested);
+    if (calls.length === 1) return { ok: true, url: 'https://www.dominicos.org/predicacion/homilia/18-10-2026/', text: async () => '' };
+    return new Response(readingFixture(url, true));
+  });
+  assert.equal(calls.length, 2);
+  assert.equal(result.payload.document, 'attach://lecturas');
+  assert.equal(result.payload.readings.sections.length, 4);
+  assert.equal(result.method, 'sendDocument');
+});
+
+test('uploads customized PDF from saved readings without network access to Dominicos', async () => {
+  const readings = extractReadings(readingFixture(pdfUrl), '2026-10-16', 'https://www.dominicos.org/');
+  const telegram = createTelegram('123:fake', async (url, options) => {
+    assert.ok(url.startsWith('https://api.telegram.org/'));
+    assert.equal(options.body.get('readings'), null);
+    const bytes = Buffer.from(await options.body.get('lecturas').arrayBuffer());
+    assert.equal(bytes.subarray(0, 5).toString(), '%PDF-');
+    assert.ok(bytes.length > 1000);
+    return new Response(JSON.stringify({ ok: true, result: { message_id: 60 } }));
+  });
+  assert.equal((await telegram('sendDocument', { document: 'attach://lecturas', readings, chat_id: '-1001' })).message_id, 60);
+});
+
+test('uploads PDF as a named attachment and retains it on rate-limit retry', async () => {
+  let sends = 0, downloads = 0;
+  const telegram = createTelegram('123:fake', async (url, options) => {
+    if (url === pdfUrl) { downloads++; return new Response(fakePdf); }
+    assert.ok(url.endsWith('/sendDocument'));
+    assert.equal(options.body.get('document'), 'attach://lecturas');
+    assert.equal(options.body.get('chat_id'), '-1001');
+    assert.equal(options.body.get('allow_paid_broadcast'), 'false');
+    const attachment = options.body.get('lecturas');
+    assert.equal(attachment.name, 'evangelio-y-lecturas-16-10-2026.pdf');
+    assert.deepEqual(Buffer.from(await attachment.arrayBuffer()), fakePdf);
+    return ++sends === 1
+      ? new Response(JSON.stringify({ ok: false, error_code: 429, parameters: { retry_after: 1 } }), { status: 429 })
+      : new Response(JSON.stringify({ ok: true, result: { message_id: 55 } }));
+  }, noWait);
+  assert.equal((await telegram('sendDocument', { document: pdfUrl, chat_id: '-1001' })).message_id, 55);
+  assert.equal(downloads, 1);
+  assert.equal(sends, 2);
+});
+
+test('a PDF download failure is safe to retry because Telegram was not called', async () => {
+  const telegram = createTelegram('123:fake', async (url) => {
+    assert.equal(url, pdfUrl);
+    throw new Error('offline');
+  });
+  await assert.rejects(telegram('sendDocument', { document: pdfUrl }), (e) => e.definiteRejection === true);
+});
 function memoryStore() {
   let row;
   return {
