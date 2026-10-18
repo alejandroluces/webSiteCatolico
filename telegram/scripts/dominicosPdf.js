@@ -18,7 +18,7 @@ function extractPdfUrl(html, date) {
     try { url = new URL(href.replace(/&amp;/g, '&'), ORIGIN); } catch { continue; }
     if (url.origin === ORIGIN && !url.username && !url.password && allowed.includes(url.pathname) && !url.search) return url.href;
   }
-  throw new Error(`Dominicos no ofrece un PDF de lecturas para ${date}.`);
+  throw new Error(`No se encontró un enlace al PDF de lecturas para ${date} en la página consultada de Dominicos.`);
 }
 
 async function request(url, fetchImpl) {
@@ -58,7 +58,16 @@ async function preparePdfMessage(date, fetchImpl = fetch) {
   let html = await response.text();
   let sourceUrl = `${ORIGIN}/predicacion/evangelio-del-dia/${day}/`;
   // Homily landing pages may only expose the complete homily: visit readings.
-  if (response.url?.includes(`/predicacion/homilia/${day}/`)) {
+  const page = cheerio.load(html);
+  const hasDatedHomily = page('a[href]').toArray().some(element => {
+    try {
+      const url = new URL(page(element).attr('href'), ORIGIN);
+      return url.origin === ORIGIN && !url.username && !url.password && !url.search &&
+        [`/predicacion/pdf-homilia/${day}/completa.pdf`, `/predicacion/pdf-homilia/${day}/introduccion.pdf`,
+          `/predicacion/pdf-homilia/${day}/lecturas.pdf`].includes(url.pathname);
+    } catch { return false; }
+  });
+  if (response.url?.includes(`/predicacion/homilia/${day}/`) || hasDatedHomily) {
     sourceUrl = `${ORIGIN}/predicacion/homilia/${day}/lecturas/`;
     html = await (await request(sourceUrl, fetchImpl)).text();
   }

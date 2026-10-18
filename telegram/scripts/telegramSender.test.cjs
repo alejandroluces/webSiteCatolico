@@ -56,6 +56,34 @@ test('prepares branded Sunday PDF with all four readings via redirected homily',
   assert.equal(result.method, 'sendDocument');
 });
 
+test('follows dated homily links when Sunday redirects to hoy instead of homilia', async () => {
+  const calls = [];
+  const result = await preparePdfMessage('2026-10-18', async requested => {
+    calls.push(requested);
+    if (calls.length === 1) return {
+      ok: true, url: 'https://www.dominicos.org/predicacion/evangelio-del-dia/hoy/',
+      text: async () => '<a href="/predicacion/pdf-homilia/18-10-2026/introduccion.pdf">PDF</a>',
+    };
+    assert.equal(requested, 'https://www.dominicos.org/predicacion/homilia/18-10-2026/lecturas/');
+    return new Response(readingFixture('/predicacion/pdf-homilia/18-10-2026/lecturas.pdf', true));
+  });
+  assert.equal(calls.length, 2);
+  assert.equal(result.payload.readings.sections.length, 4);
+  assert.equal(result.payload.readings.sourceUrl, calls[1]);
+});
+
+test('rejects wrong-day and external homily links on hoy fallback pages', async () => {
+  for (const href of ['/predicacion/pdf-homilia/11-10-2026/introduccion.pdf',
+    'https://evil.example/predicacion/pdf-homilia/18-10-2026/introduccion.pdf']) {
+    let calls = 0;
+    await assert.rejects(preparePdfMessage('2026-10-18', async () => {
+      calls++;
+      return new Response(`<a href="${href}">PDF</a>`);
+    }), /No se encontró un enlace/);
+    assert.equal(calls, 1);
+  }
+});
+
 test('uploads customized PDF from saved readings without network access to Dominicos', async () => {
   const readings = extractReadings(readingFixture(pdfUrl), '2026-10-16', 'https://www.dominicos.org/');
   const telegram = createTelegram('123:fake', async (url, options) => {
