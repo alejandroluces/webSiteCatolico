@@ -42,6 +42,24 @@ test('rejects HTML, truncated PDFs, failed downloads and oversized documents', a
   await assert.rejects(downloadPdf('https://evil.example/a.pdf'));
 });
 
+test('accepts unpadded dates from Dominicos without accepting another calendar day', async () => {
+  const url = 'https://www.dominicos.org/predicacion/pdf-evangelio-del-dia/2-11-2026.pdf';
+  assert.equal(extractPdfUrl(readingFixture(url), '2026-11-02'), url);
+  assert.throws(() => extractPdfUrl(readingFixture(url), '2026-11-03'));
+  assert.deepEqual(await downloadPdf(url, async () => new Response(fakePdf)), fakePdf);
+  let calls = 0;
+  const result = await preparePdfMessage('2026-11-08', async requested => {
+    if (++calls === 1) return {
+      ok: true, url: 'https://www.dominicos.org/predicacion/homilia/8-11-2026/',
+      text: async () => '<a href="/predicacion/pdf-homilia/8-11-2026/completa.pdf">PDF</a>',
+    };
+    assert.equal(requested, 'https://www.dominicos.org/predicacion/homilia/08-11-2026/lecturas/');
+    return new Response(readingFixture('/predicacion/pdf-homilia/8-11-2026/lecturas.pdf', true));
+  });
+  assert.equal(calls, 2);
+  assert.equal(result.payload.readings.sections.length, 4);
+});
+
 test('prepares branded Sunday PDF with all four readings via redirected homily', async () => {
   const calls = [];
   const url = 'https://www.dominicos.org/predicacion/pdf-homilia/18-10-2026/lecturas.pdf';

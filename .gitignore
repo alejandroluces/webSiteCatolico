@@ -1,12 +1,14 @@
 # Dependencias y archivos de build
 /node_modules
 /dist
+/deploy-*.zip
 /.local-archive/
 /data/content-excel/
 /telegram/node_modules/
 
 # Reportes y excels/imágenes de trabajo (son datos, no código)
 data/content-pipeline-report-*.json
+data/november-2026-*.log
 supabase/.temp/
 
 

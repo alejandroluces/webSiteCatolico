@@ -1,0 +1,28 @@
+{
+  "month": "2026-11",
+  "sources": ["https://gcatholic.org/calendar/2026/CL-es", "https://www.iglesia.cl/tiempos_liturgicos.php"],
+  "celebrations": [
+    [1, "Todos los Santos", "solemnity", "Blanco", 10],
+    [2, "Conmemoración de los fieles difuntos", "special", "Morado", 9],
+    [3, "San Martín de Porres", "optional_memorial", "Blanco", 3],
+    [4, "San Carlos Borromeo", "memorial", "Blanco", 5],
+    [8, "Domingo XXXII del Tiempo Ordinario", "special", "Verde", 8],
+    [9, "Dedicación de la basílica de Letrán", "feast", "Blanco", 7],
+    [10, "San León Magno", "memorial", "Blanco", 5],
+    [11, "San Martín de Tours", "memorial", "Blanco", 5],
+    [12, "San Josafat", "memorial", "Rojo", 5],
+    [15, "Domingo XXXIII del Tiempo Ordinario", "special", "Verde", 8],
+    [16, "Santa Gertrudis", "optional_memorial", "Blanco", 3],
+    [16, "Santa Margarita de Escocia", "optional_memorial", "Blanco", 3],
+    [17, "Santa Isabel de Hungría", "memorial", "Blanco", 5],
+    [18, "Dedicación de las basílicas de San Pedro y San Pablo", "optional_memorial", "Blanco", 3],
+    [21, "Presentación de la Virgen María", "memorial", "Blanco", 5],
+    [22, "Jesucristo, Rey del Universo", "solemnity", "Blanco", 10],
+    [23, "San Clemente I", "optional_memorial", "Rojo", 3],
+    [23, "San Columbano", "optional_memorial", "Blanco", 3],
+    [24, "San Andrés Dung-Lac y compañeros mártires", "memorial", "Rojo", 5],
+    [25, "Santa Catalina de Alejandría", "optional_memorial", "Rojo", 3],
+    [29, "Primer domingo de Adviento", "special", "Morado", 9],
+    [30, "San Andrés, apóstol", "feast", "Rojo", 7]
+  ]
+}

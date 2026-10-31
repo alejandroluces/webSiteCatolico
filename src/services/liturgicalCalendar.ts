@@ -107,6 +107,18 @@ class LiturgicalCalendarService {
       const dateObj = new Date(targetDate + 'T00:00:00');
       const month = dateObj.getMonth() + 1;
       const day = dateObj.getDate();
+      // Adviento comienza el domingo entre el 27 de noviembre y el 3 de diciembre.
+      const adventStart = new Date(dateObj.getFullYear(), 10, 27);
+      adventStart.setDate(27 + (7 - adventStart.getDay()) % 7);
+      const christmas = new Date(dateObj.getFullYear(), 11, 25);
+      if (dateObj >= adventStart && dateObj < christmas) {
+        const week = Math.floor((Date.UTC(dateObj.getFullYear(), month - 1, day) -
+          Date.UTC(adventStart.getFullYear(), adventStart.getMonth(), adventStart.getDate())) / 604800000) + 1;
+        return {
+          season: 'Adviento', color: 'Morado', week_number: week,
+          season_description: 'Tiempo de preparación para la Navidad'
+        };
+      }
       
       // Lógica simplificada para determinar el tiempo litúrgico
       if ((month === 12 && day >= 25) || month === 1 && day <= 13) {

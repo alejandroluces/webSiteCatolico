@@ -9,9 +9,16 @@ function datedPath(date) {
   return date.split('-').reverse().join('-');
 }
 
+function datedPaths(date) {
+  const [day, month, year] = datedPath(date).split('-');
+  // Dominicos uses both padded and unpadded dates in links and redirects.
+  return [...new Set([day, String(Number(day))].flatMap(d =>
+    [month, String(Number(month))].map(m => `${d}-${m}-${year}`)))];
+}
+
 function extractPdfUrl(html, date) {
-  const day = datedPath(date);
-  const allowed = [`/predicacion/pdf-evangelio-del-dia/${day}.pdf`, `/predicacion/pdf-homilia/${day}/lecturas.pdf`];
+  const allowed = datedPaths(date).flatMap(day =>
+    [`/predicacion/pdf-evangelio-del-dia/${day}.pdf`, `/predicacion/pdf-homilia/${day}/lecturas.pdf`]);
   const links = [...html.matchAll(/\bhref\s*=\s*["']([^"']+)["']/gi)];
   for (const [, href] of links) {
     let url;
@@ -33,7 +40,7 @@ async function request(url, fetchImpl) {
 async function downloadPdf(url, fetchImpl = fetch) {
   const parsed = new URL(url);
   if (parsed.origin !== ORIGIN || parsed.username || parsed.password ||
-      !/^\/predicacion\/pdf-(?:evangelio-del-dia\/\d{2}-\d{2}-\d{4}\.pdf|homilia\/\d{2}-\d{2}-\d{4}\/lecturas\.pdf)$/.test(parsed.pathname)) {
+      !/^\/predicacion\/pdf-(?:evangelio-del-dia\/\d{1,2}-\d{1,2}-\d{4}\.pdf|homilia\/\d{1,2}-\d{1,2}-\d{4}\/lecturas\.pdf)$/.test(parsed.pathname)) {
     throw new Error('URL de PDF de Dominicos inválida.');
   }
   const response = await request(url, fetchImpl);
@@ -53,6 +60,7 @@ async function downloadPdf(url, fetchImpl = fetch) {
 
 async function preparePdfMessage(date, fetchImpl = fetch) {
   const day = datedPath(date);
+  const days = datedPaths(date);
   // The dated weekday endpoint redirects to the homily on Sundays and feasts.
   const response = await request(`${ORIGIN}/predicacion/evangelio-del-dia/${day}/`, fetchImpl);
   let html = await response.text();
@@ -63,11 +71,11 @@ async function preparePdfMessage(date, fetchImpl = fetch) {
     try {
       const url = new URL(page(element).attr('href'), ORIGIN);
       return url.origin === ORIGIN && !url.username && !url.password && !url.search &&
-        [`/predicacion/pdf-homilia/${day}/completa.pdf`, `/predicacion/pdf-homilia/${day}/introduccion.pdf`,
-          `/predicacion/pdf-homilia/${day}/lecturas.pdf`].includes(url.pathname);
+        days.some(value => [`/predicacion/pdf-homilia/${value}/completa.pdf`, `/predicacion/pdf-homilia/${value}/introduccion.pdf`,
+          `/predicacion/pdf-homilia/${value}/lecturas.pdf`].includes(url.pathname));
     } catch { return false; }
   });
-  if (response.url?.includes(`/predicacion/homilia/${day}/`) || hasDatedHomily) {
+  if (days.some(value => response.url?.includes(`/predicacion/homilia/${value}/`)) || hasDatedHomily) {
     sourceUrl = `${ORIGIN}/predicacion/homilia/${day}/lecturas/`;
     html = await (await request(sourceUrl, fetchImpl)).text();
   }

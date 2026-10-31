@@ -81,7 +81,7 @@ export async function getDailyReadings(date?: string): Promise<DailyReadingsData
       formattedDate,
       liturgicalSeason: gospel?.liturgical_season || 'Tiempo Ordinario',
       liturgicalColor: gospel?.liturgical_color || 'Verde',
-      weekday: `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} de la 2ª semana del Tiempo Ordinario`,
+      weekday: `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} · ${gospel?.liturgical_season || 'Tiempo Ordinario'}`,
       gospel: gospel as DailyReading,
       reading: reading as DailyReading,
     };

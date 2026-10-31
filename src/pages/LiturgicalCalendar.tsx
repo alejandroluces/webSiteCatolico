@@ -196,7 +196,7 @@ const LiturgicalCalendar: React.FC = () => {
             </h1>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Sigue el año litúrgico católico 2025 con las celebraciones, santos y tiempos sagrados de Chile
+            Sigue el año litúrgico católico {currentDate.getFullYear()} con las celebraciones, santos y tiempos sagrados de Chile
           </p>
         </div>
 
@@ -361,7 +361,7 @@ const LiturgicalCalendar: React.FC = () => {
         {/* Information Section */}
         <div className="mt-16 bg-marian-blue-50 dark:bg-gray-800 rounded-xl shadow-lg border border-marian-blue-100 dark:border-gray-700 p-8">
           <h2 className="text-3xl font-serif font-bold text-marian-blue-900 dark:text-white mb-6 text-center">
-            Calendario Litúrgico Católico de Chile 2025
+            Calendario Litúrgico Católico de Chile {currentDate.getFullYear()}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

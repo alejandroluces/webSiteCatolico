@@ -215,7 +215,7 @@ async function main() {
 
   for (const date of dates) {
     const paths = resolvePipelinePaths(date, args);
-    const imported = await importEvangelioOutputForDate(paths, {
+    const imported = getBooleanArg(args, 'skip-import') ? { status: 'skipped', hasErrors: false } : await importEvangelioOutputForDate(paths, {
       dryRun,
       force,
       copyExcel,
