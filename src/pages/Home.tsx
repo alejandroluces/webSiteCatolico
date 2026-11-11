@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, User, Heart, Calendar, Sparkles, ArrowRight, Church } from 'lucide-react';
 import GospelWidget from '../components/GospelWidget';
@@ -6,6 +6,17 @@ import { useDailyQuote } from '../hooks/useDailyQuote';
 import TelegramGospelSignup from '../components/TelegramGospelSignup';
 
 const Home: React.FC = () => {
+  const [allowVideo, setAllowVideo] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
+
+  useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: no-preference)');
+    const update = () => setAllowVideo(preference.matches);
+    update();
+    preference.addEventListener('change', update);
+    return () => preference.removeEventListener('change', update);
+  }, []);
+
   const features = [
     {
       icon: Church,
@@ -64,37 +75,39 @@ const Home: React.FC = () => {
           backgroundPosition: 'center',
         }}
       >
-        <video
-          className="absolute inset-0 h-full w-full object-cover object-center"
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/images/camino_de_fe.png"
-          aria-hidden="true"
-        >
-          <source src="/images/emaus_camino.mp4" type="video/mp4" />
-        </video>
+        {allowVideo && !videoFailed && (
+          <video
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            src="/images/emaus_camino_loop.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster="/images/camino_de_fe.png"
+            aria-hidden="true"
+            onError={() => setVideoFailed(true)}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-marian-blue-950/55 to-slate-950/78"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-marian-blue-950/80 via-marian-blue-950/38 to-slate-950/50"></div>
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-gray-50 dark:from-gray-900 to-transparent"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-36">
           <div className="max-w-4xl">
-            <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6 animate-fade-in">
+            <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6 motion-safe:animate-fade-in">
               Bienvenido a{' '}
               <span className="text-sacred-gold-400 dark:text-sacred-gold-300">
                 Camino de Fe
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-marian-blue-50 dark:text-gray-200 mb-8 max-w-3xl leading-relaxed animate-slide-up drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
+            <p className="text-xl md:text-2xl text-marian-blue-50 dark:text-gray-200 mb-8 max-w-3xl leading-relaxed motion-safe:animate-slide-up drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
               Tu portal católico para encontrar paz, fortaleza espiritual y crecimiento en la fe. 
               Acompáñanos en este camino de evangelización y encuentro con Cristo.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            <div className="flex flex-col sm:flex-row gap-4 motion-safe:animate-slide-up" style={{ animationDelay: '0.3s' }}>
               <Link
                 to="/evangelio-del-dia"
-                className="inline-flex items-center px-8 py-4 bg-sacred-gold-500 hover:bg-sacred-gold-600 text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+                className="inline-flex items-center px-8 py-4 bg-sacred-gold-500 hover:bg-sacred-gold-600 text-marian-blue-950 font-semibold rounded-lg transition-colors duration-300 hover:shadow-xl"
               >
                 <BookOpen className="mr-2 h-5 w-5" />
                 Evangelio de Hoy
@@ -201,7 +214,7 @@ const Home: React.FC = () => {
           </p>
           <Link
             to="/peticiones-oracion"
-            className="inline-flex items-center px-8 py-4 bg-sacred-gold-500 hover:bg-sacred-gold-600 text-white font-semibold rounded-lg transition-all duration-300"
+            className="inline-flex items-center px-8 py-4 bg-sacred-gold-500 hover:bg-sacred-gold-600 text-marian-blue-950 font-semibold rounded-lg transition-colors duration-300"
           >
             <Heart className="mr-2 h-5 w-5" />
             Pedir Oración

@@ -14,7 +14,7 @@ const Header: React.FC = () => {
     { name: 'Santísimo 24h', href: '/santisimo-24h' },
     { name: 'Santo del Día', href: '/santo-del-dia' },
     { name: 'Oraciones', href: '/oraciones' },
-    { name: 'Aprende a Rezar el rosario', href: '/aprende-a-rezar' },
+    { name: 'Rezar el rosario', href: '/aprende-a-rezar' },
   ];
 
   const isActiveRoute = (href: string) => {
@@ -45,11 +45,12 @@ const Header: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-2">
+          <nav aria-label="Principal" className="hidden lg:flex items-center space-x-2">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
+                aria-current={isActiveRoute(item.href) ? 'page' : undefined}
                 className={`relative px-3 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
                   isActiveRoute(item.href)
                     ? 'text-marian-blue-950 dark:text-sacred-gold-300 bg-marian-blue-50/80 dark:bg-gray-800'
@@ -74,8 +75,10 @@ const Header: React.FC = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-marian-blue-900 hover:text-marian-blue-950 hover:bg-marian-blue-50/60 dark:text-gray-200 dark:hover:text-sacred-gold-200 dark:hover:bg-gray-800/70 transition-colors duration-200"
+              className="lg:hidden p-2.5 rounded-lg text-marian-blue-900 hover:text-marian-blue-950 hover:bg-marian-blue-50/60 dark:text-gray-200 dark:hover:text-sacred-gold-200 dark:hover:bg-gray-800/70 transition-colors duration-200"
               aria-label="Menú"
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-navigation"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -84,13 +87,13 @@ const Header: React.FC = () => {
       </div>
 
       {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white/98 dark:bg-gray-900/95 border-t border-gray-200/60 dark:border-gray-800/80 backdrop-blur-md">
+        <nav hidden={!isMenuOpen} id="mobile-navigation" aria-label="Principal" className="lg:hidden bg-white dark:bg-gray-900/95 border-t border-gray-200/60 dark:border-gray-800/80 backdrop-blur-md">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
+                aria-current={isActiveRoute(item.href) ? 'page' : undefined}
                 className={`block px-3 py-2 text-base font-medium transition-colors duration-200 ${
                   isActiveRoute(item.href)
                     ? 'text-marian-blue-950 bg-marian-blue-50/80 dark:text-sacred-gold-300 dark:bg-gray-800'
@@ -102,8 +105,7 @@ const Header: React.FC = () => {
               </Link>
             ))}
           </div>
-        </div>
-      )}
+        </nav>
     </header>
   );
 };
